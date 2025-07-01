@@ -6,9 +6,9 @@
   import SearchIcon from "@lucide/svelte/icons/search";
   import ChevronDown from "@lucide/svelte/icons/chevron-down";
   import ChevronUp from "@lucide/svelte/icons/chevron-up";
-  import SettingsIcon from "@lucide/svelte/icons/settings";
   import type { Side } from "./ui/sidebar/types";
   import * as DropdownMenu from "./ui/dropdown-menu";
+  import * as Tabs from "./ui/tabs"
 
   type SidebarProps = {
     ctxKey: Side;
@@ -19,7 +19,7 @@
   const sidebar = Sidebar.useSidebar(ctxKey);
   const open = $derived.by(() => sidebar.open);
 
-  const items = [
+  const routes = [
     {
       title: "Home",
       url: "/",
@@ -31,26 +31,26 @@
       icon: InboxIcon,
     },
     {
-      title: "Calendar",
-      url: "#",
+      title: "Blog",
+      url: "/blog",
       icon: CalendarIcon,
     },
     {
       title: "Search",
-      url: "#",
+      url: "/search",
       icon: SearchIcon,
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: SettingsIcon,
     },
   ];
 </script>
 
+<Tabs.Root class="h-screen">
 <Sidebar.Root {ctxKey} {variant} {collapsible}>
   {#if open}
     <Sidebar.Header>
+      <Tabs.List>
+        <Tabs.Trigger value="routes">Routes</Tabs.Trigger>
+        <Tabs.Trigger value="filetree">FileTree</Tabs.Trigger>
+      </Tabs.List>
       <Sidebar.Menu>
         <Sidebar.MenuItem>
           <DropdownMenu.Root>
@@ -75,12 +75,13 @@
       </Sidebar.Menu>
     </Sidebar.Header>
   {/if}
+  <Tabs.Content value="routes">
   <Sidebar.Content>
     <Sidebar.Group>
       <Sidebar.GroupLabel>Application</Sidebar.GroupLabel>
       <Sidebar.GroupContent>
         <Sidebar.Menu>
-          {#each items as item (item.title)}
+          {#each routes as item (item.title)}
             <Sidebar.MenuItem>
               <Sidebar.MenuButton>
                 {#snippet child({ props }: { props: Record<string, unknown> })}
@@ -96,6 +97,11 @@
       </Sidebar.GroupContent>
     </Sidebar.Group>
   </Sidebar.Content>
+  </Tabs.Content>
+  <Tabs.Content value="filetree">
+    <div>filetree</div>
+  </Tabs.Content>
+  <div></div>
   {#if open}
     <Sidebar.Footer>
       <Sidebar.Menu>
@@ -132,3 +138,4 @@
     </Sidebar.Footer>
   {/if}
 </Sidebar.Root>
+</Tabs.Root>
