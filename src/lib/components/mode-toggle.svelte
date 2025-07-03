@@ -1,12 +1,11 @@
 <script lang="ts">
   import SunIcon from "@lucide/svelte/icons/sun";
   import MoonIcon from "@lucide/svelte/icons/moon";
-
   import { toggleMode } from "mode-watcher";
   import { Button } from "$lib/components/ui/button/index.js";
 </script>
 
-<Button onclick={toggleMode} variant="ghost" size="icon">
+<Button class="w-7 h-7" onclick={toggleMode} variant="ghost" size="icon">
   <SunIcon
     class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 !transition-all dark:-rotate-90 dark:scale-0"
   />

@@ -1,5 +1,5 @@
 {
-  "name": "loading-test",
+  "name": "conceptmap",
   "version": "0.1.0",
   "description": "",
   "type": "module",
@@ -13,10 +13,12 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@shopify/draggable": "^1.1.4",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-opener": "^2",
     "clsx": "^2.1.1",
     "mode-watcher": "^1.1.0",
+    "swapy": "^1.0.5",
     "tailwind-merge": "^3.3.1",
     "tailwind-variants": "^1.0.0",
     "tw-animate-css": "latest"
@@ -30,6 +32,7 @@
     "@tailwindcss/vite": "^4.0.0",
     "@tauri-apps/cli": "^2",
     "bits-ui": "^2.8.6",
+    "paneforge": "^1.0.0",
     "svelte": "^5.0.0",
     "svelte-check": "^4.0.0",
     "tailwindcss": "^4.0.0",

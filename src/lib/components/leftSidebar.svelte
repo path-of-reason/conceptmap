@@ -43,31 +43,26 @@
   ];
 </script>
 
-<Tabs.Root class="h-screen">
 <Sidebar.Root {ctxKey} {variant} {collapsible}>
   {#if open}
     <Sidebar.Header>
-      <Tabs.List>
-        <Tabs.Trigger value="routes">Routes</Tabs.Trigger>
-        <Tabs.Trigger value="filetree">FileTree</Tabs.Trigger>
-      </Tabs.List>
       <Sidebar.Menu>
         <Sidebar.MenuItem>
           <DropdownMenu.Root>
             <DropdownMenu.Trigger>
               {#snippet child({ props })}
                 <Sidebar.MenuButton {...props}>
-                  Select Workspace
+                  Select Vault
                   <ChevronDown class="ml-auto" />
                 </Sidebar.MenuButton>
               {/snippet}
             </DropdownMenu.Trigger>
             <DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width)">
               <DropdownMenu.Item>
-                <span>Acme Inc</span>
+                <span>first vault</span>
               </DropdownMenu.Item>
               <DropdownMenu.Item>
-                <span>Acme Corp.</span>
+                <span>second vault</span>
               </DropdownMenu.Item>
             </DropdownMenu.Content>
           </DropdownMenu.Root>
@@ -75,7 +70,6 @@
       </Sidebar.Menu>
     </Sidebar.Header>
   {/if}
-  <Tabs.Content value="routes">
   <Sidebar.Content>
     <Sidebar.Group>
       <Sidebar.GroupLabel>Application</Sidebar.GroupLabel>
@@ -97,11 +91,6 @@
       </Sidebar.GroupContent>
     </Sidebar.Group>
   </Sidebar.Content>
-  </Tabs.Content>
-  <Tabs.Content value="filetree">
-    <div>filetree</div>
-  </Tabs.Content>
-  <div></div>
   {#if open}
     <Sidebar.Footer>
       <Sidebar.Menu>
@@ -138,4 +127,3 @@
     </Sidebar.Footer>
   {/if}
 </Sidebar.Root>
-</Tabs.Root>
