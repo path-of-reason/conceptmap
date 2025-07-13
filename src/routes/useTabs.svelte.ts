@@ -5,68 +5,94 @@ export type TabItem = {
   slotId: string;
   title: string;
   active: boolean;
+  path: string;
 };
-const initialTabs: TabItem[] = [
-  { slotId: "1", title: "filename1", active: false },
-];
-export let tabItems = $state(initialTabs);
-let nextSlotId = 2;
-let slotItemMap = $state(utils.initSlotItemMap(initialTabs, "slotId"));
-export const slottedItems = $derived(
-  utils.toSlottedItems(tabItems, "slotId", slotItemMap),
-);
+const initialTabs: TabItem[] = [];
 
-const setSlotItemMap = (value: SlotItemMapArray) => (slotItemMap = value);
-export const useSwapy = (container: HTMLElement) => {
-  let swapy = createSwapy(container, {
-    // dragAxis: 'x',
-    manualSwap: true,
-    // animation: 'dynamic'
-    // autoScrollOnDrag: true,
-    // swapMode: 'drop',
-    // enabled: true,
-    // dragOnHold: true
-  });
+let store = $state({
+  tabItems: initialTabs,
+  currentId: null as string | null,
+  slotItemMap: utils.initSlotItemMap(initialTabs, "slotId"),
+  generateId: initialTabs.length + 1,
+});
 
-  swapy.onSwapStart((event) => {
-    // tabItems = tabItems.map((item) => ({...item, active: item.title === event.draggingItem ? true : false}))
-  });
-
-  swapy.onSwap((event) => {
-    requestAnimationFrame(() => {
-      slotItemMap = event.newSlotItemMap.asArray;
+export const useTabs = () => {
+  const useSwapy = (container: HTMLElement) => {
+    let swapy = createSwapy(container, {
+      manualSwap: true,
     });
-  });
-
-  swapy.onSwapEnd((event) => {
-    // console.log('end', event)
-    // console.log("original data", items)
-  });
-
-  $effect(() => {
-    utils.dynamicSwapy(
-      swapy,
-      tabItems,
-      "slotId",
-      untrack(() => slotItemMap),
-      setSlotItemMap,
+    swapy.onSwapStart((event) => changeActiveTab(event.draggingItem));
+    swapy.onSwap((event) =>
+      requestAnimationFrame(() => setSlotItemMap(event.newSlotItemMap.asArray)),
     );
+    swapy.onSwapEnd((event) => {});
 
-    return () => {
-      swapy.destroy();
-    };
-  });
-};
+    $effect(() => {
+      utils.dynamicSwapy(
+        swapy,
+        store.tabItems,
+        "slotId",
+        untrack(() => store.slotItemMap),
+        setSlotItemMap,
+      );
+    });
 
-export const newTab = () => {
-  const newItem = {
-    slotId: `${nextSlotId}`,
-    title: `filename${nextSlotId}`,
-    active: false,
+    $effect(() => {
+      return () => {
+        swapy?.destroy();
+      };
+    });
   };
-  tabItems.push(newItem);
-  nextSlotId++;
+  const newTab = () => {
+    const newItem = {
+      slotId: `${store.generateId}`,
+      title: `filename ${store.generateId}`,
+      path: "test/path.md",
+      active: true,
+    };
+    store.tabItems = [
+      ...store.tabItems.map((item) => ({ ...item, active: false })),
+      newItem,
+    ];
+    store.currentId = newItem.slotId;
+    store.generateId++;
+  };
+  const removeTab = (item: TabItem) => () => {
+    const filteredItems = store.tabItems.filter(
+      (i) => i.slotId !== item.slotId,
+    );
+    if (!item.active) {
+      store.tabItems = filteredItems;
+    } else if (filteredItems.length === 0) {
+      store.tabItems = filteredItems;
+      store.currentId = null;
+    } else {
+      const lastItem = store.tabItems.findLast((i) => i.slotId !== item.slotId);
+      if (lastItem) {
+        store.tabItems = filteredItems.map((i) => ({
+          ...i,
+          active: i.slotId === lastItem.slotId ? true : false,
+        }));
+        store.currentId = lastItem.slotId;
+      }
+    }
+  };
+
+  return {
+    tabStore: store,
+    useSwapy,
+    newTab,
+    removeTab,
+  };
 };
-export const removeTab = (item: TabItem) => () => {
-  tabItems = tabItems.filter((i) => i.slotId !== item.slotId);
+
+const setSlotItemMap = (value: SlotItemMapArray) => (store.slotItemMap = value);
+const changeActiveTab = (slotId: string) => {
+  store.tabItems = store.tabItems.map((item) => ({
+    ...item,
+    active: item.slotId === slotId ? true : false,
+  }));
+  store.currentId = slotId;
 };
+
+export const useNewTab = (el: HTMLElement) => {};

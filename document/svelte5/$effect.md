@@ -1,116 +1,18 @@
--   ### Introduction
-    
-    -   [Overview](overview.html)
-    -   [Getting started](getting-started.html)
-    -   [.svelte files](svelte-files.html)
-    -   [.svelte.js and .svelte.ts files](svelte-js-files.html)
--   ### Runes
-    
-    -   [What are runes?](what-are-runes.html)
-    -   [$state]($state.html)
-    -   [$derived]($derived.html)
-    -   [$effect]($effect.html)
-    -   [$props]($props.html)
-    -   [$bindable]($bindable.html)
-    -   [$inspect]($inspect.html)
-    -   [$host]($host.html)
--   ### Template syntax
-    
-    -   [Basic markup](basic-markup.html)
-    -   [{#if ...}](if.html)
-    -   [{#each ...}](each.html)
-    -   [{#key ...}](key.html)
-    -   [{#await ...}](await.html)
-    -   [{#snippet ...}](snippet.html)
-    -   [{@render ...}](@render.html)
-    -   [{@html ...}](@html.html)
-    -   [{@const ...}](@const.html)
-    -   [{@debug ...}](@debug.html)
-    -   [bind:](bind.html)
-    -   [use:](use.html)
-    -   [transition:](transition.html)
-    -   [in: and out:](in-and-out.html)
-    -   [animate:](animate.html)
-    -   [style:](style.html)
-    -   [class](class.html)
--   ### Styling
-    
-    -   [Scoped styles](scoped-styles.html)
-    -   [Global styles](global-styles.html)
-    -   [Custom properties](custom-properties.html)
-    -   [Nested <style> elements](nested-style-elements.html)
--   ### Special elements
-    
-    -   [<svelte:boundary>](svelte-boundary.html)
-    -   [<svelte:window>](svelte-window.html)
-    -   [<svelte:document>](svelte-document.html)
-    -   [<svelte:body>](svelte-body.html)
-    -   [<svelte:head>](svelte-head.html)
-    -   [<svelte:element>](svelte-element.html)
-    -   [<svelte:options>](svelte-options.html)
--   ### Runtime
-    
-    -   [Stores](stores.html)
-    -   [Context](context.html)
-    -   [Lifecycle hooks](lifecycle-hooks.html)
-    -   [Imperative component API](imperative-component-api.html)
--   ### Misc
-    
-    -   [Testing](testing.html)
-    -   [TypeScript](typescript.html)
-    -   [Custom elements](custom-elements.html)
-    -   [Svelte 4 migration guide](v4-migration-guide.html)
-    -   [Svelte 5 migration guide](v5-migration-guide.html)
-    -   [Frequently asked questions](faq.html)
--   ### Reference
-    
-    -   [svelte](svelte.html)
-    -   [svelte/action](svelte-action.html)
-    -   [svelte/animate](svelte-animate.html)
-    -   [svelte/compiler](svelte-compiler.html)
-    -   [svelte/easing](svelte-easing.html)
-    -   [svelte/events](svelte-events.html)
-    -   [svelte/legacy](svelte-legacy.html)
-    -   [svelte/motion](svelte-motion.html)
-    -   [svelte/reactivity/window](svelte-reactivity-window.html)
-    -   [svelte/reactivity](svelte-reactivity.html)
-    -   [svelte/server](svelte-server.html)
-    -   [svelte/store](svelte-store.html)
-    -   [svelte/transition](svelte-transition.html)
-    -   [Compiler errors](compiler-errors.html)
-    -   [Compiler warnings](compiler-warnings.html)
-    -   [Runtime errors](runtime-errors.html)
-    -   [Runtime warnings](runtime-warnings.html)
--   ### Legacy APIs
-    
-    -   [Overview](legacy-overview.html)
-    -   [Reactive let/var declarations](legacy-let.html)
-    -   [Reactive $: statements](legacy-reactive-assignments.html)
-    -   [export let](legacy-export-let.html)
-    -   [$$props and $$restProps](legacy-$$props-and-$$restProps.html)
-    -   [on:](legacy-on.html)
-    -   [<slot>](legacy-slots.html)
-    -   [$$slots](legacy-$$slots.html)
-    -   [<svelte:fragment>](legacy-svelte-fragment.html)
-    -   [<svelte:component>](legacy-svelte-component.html)
-    -   [<svelte:self>](legacy-svelte-self.html)
-    -   [Imperative component API](legacy-component-api.html)
-
 SvelteRunes
 
 # $effect
 
 ### On this page
 
--   [$effect]($effect.html)
--   [$effect.pre]($effect.html#$effect.pre)
--   [$effect.tracking]($effect.html#$effect.tracking)
--   [$effect.root]($effect.html#$effect.root)
--   [When not to use $effect]($effect.html#When-not-to-use-$effect)
+- [$effect]($effect.html)
+- [$effect.pre]($effect.html#$effect.pre)
+- [$effect.tracking]($effect.html#$effect.tracking)
+- [$effect.root]($effect.html#$effect.root)
+- [When not to use $effect]($effect.html#When-not-to-use-$effect)
 
 Effects are functions that run when state updates, and can be used for things like calling third-party libraries, drawing on `<canvas>` elements, or making network requests. They only run in the browser, not during server-side rendering.
 
-Generally speaking, you should *not* update state inside effects, as it will make code more convoluted and will often lead to never-ending update cycles. If you find yourself doing so, see [when not to use `$effect`]($effect.html#When-not-to-use-$effect) to learn about alternative approaches.
+Generally speaking, you should _not_ update state inside effects, as it will make code more convoluted and will often lead to never-ending update cycles. If you find yourself doing so, see [when not to use `$effect`]($effect.html#When-not-to-use-$effect) to learn about alternative approaches.
 
 You can create an effect with the `$effect` rune ([demo](https://svelte.dev/playground/untitled#H4sIAAAAAAAAE31S246bMBD9lZF3pSRSAqTVvrCAVPUP2sdSKY4ZwJJjkD0hSVH-vbINuWxXfQH5zMyZc2ZmZLVUaFn6a2R06ZGlHmBrpvnBvb71fWQHVOSwPbf4GS46TajJspRlVhjZU1HqkhQSWPkHIYdXS5xw-Zas3ueI6FRn7qHFS11_xSRZhIxbFtcDtw7SJb1iXaOg5XIFeQGjzyPRaevYNOGZIJ8qogbpe8CWiy_VzEpTXiQUcvPDkSVrSNZz1UlW1N5eLcqmpdXUvaQ4BmqlhZNUCgxuzFHDqUWNAxrYeUM76AzsnOsdiJbrBp_71lKpn3RRbii-4P3f-IMsRxS-wcDV_bL4PmSdBa2wl7pKnbp8DMgVvJm8ZNskKRkEM_OzyOKQFkgqOYBQ3Nq89Ns0nbIl81vMFN-jKoLMTOr-SOBOJS-Z8f5Y6D1wdcR8dFqvEBdetK-PHwj-z-cH8oHPY54wRJ8Ys7iSQ3Bg3VA9azQbmC9k35kKzYa6PoVtfwbbKVnBixBiGn7Pq0rqJoUtHiCZwAM3jdTPWCVtr_glhVrhecIa3vuksJ_b7TqFs4DPyriSjd5IwoNNQaAmNI-ESfR2p8zimzvN1swdCkvJHPH6-_oX8o1SgcIDAAA=)):
 
@@ -140,7 +42,7 @@ You can use `$effect` anywhere, not just at the top level of a component, as lon
 
 > Svelte uses effects internally to represent logic and expressions in your template — this is how `<h1>hello {name}!</h1>` updates when `name` changes.
 
-An effect can return a *teardown function* which will run immediately before the effect re-runs ([demo](https://svelte.dev/playground/untitled#H4sIAAAAAAAAE42SQVODMBCF_8pOxkPRKq3HCsx49K4n64xpskjGkDDJ0tph-O8uINo6HjxB3u7HvrehE07WKDbiyZEhi1osRWksRrF57gQdm6E2CKx_dd43zU3co6VB28mIf-nKO0JH_BmRRRVMQ8XWbXkAgfKtI8jhIpIkXKySu7lSG2tNRGZ1_GlYr1ZTD3ddYFmiosUigbyAbpC2lKbwWJkIB8ZhhxBQBWRSw6FCh3sM8GrYTthL-wqqku4N44TyqEgwF3lmRHr4Op0PGXoH31c5rO8mqV-eOZ49bikgtcHBL55tmhIkEMqg_cFB2TpFxjtg703we6NRL8HQFCS07oSUCZi6Rm04lz1yytIHBKoQpo1w6Gsm4gmyS8b8Y5PydeMdX8gwS2Ok4I-ov5NZtvQde95GMsccn_1wzNKfu3RZtS66cSl9lvL7qO1aIk7knbJGvefdtIOzi73M4bYvovUHDFk6AcX_0HRESxnpBOW_jfCDxIZCi_1L_wm4xGQ60wIAAA==)).
+An effect can return a _teardown function_ which will run immediately before the effect re-runs ([demo](https://svelte.dev/playground/untitled#H4sIAAAAAAAAE42SQVODMBCF_8pOxkPRKq3HCsx49K4n64xpskjGkDDJ0tph-O8uINo6HjxB3u7HvrehE07WKDbiyZEhi1osRWksRrF57gQdm6E2CKx_dd43zU3co6VB28mIf-nKO0JH_BmRRRVMQ8XWbXkAgfKtI8jhIpIkXKySu7lSG2tNRGZ1_GlYr1ZTD3ddYFmiosUigbyAbpC2lKbwWJkIB8ZhhxBQBWRSw6FCh3sM8GrYTthL-wqqku4N44TyqEgwF3lmRHr4Op0PGXoH31c5rO8mqV-eOZ49bikgtcHBL55tmhIkEMqg_cFB2TpFxjtg703we6NRL8HQFCS07oSUCZi6Rm04lz1yytIHBKoQpo1w6Gsm4gmyS8b8Y5PydeMdX8gwS2Ok4I-ov5NZtvQde95GMsccn_1wzNKfu3RZtS66cSl9lvL7qO1aIk7knbJGvefdtIOzi73M4bYvovUHDFk6AcX_0HRESxnpBOW_jfCDxIZCi_1L_wm4xGQ60wIAAA==)).
 
 <script>
 	let count = $state(0);
@@ -166,11 +68,11 @@ Teardown functions also run when the effect is destroyed, which happens when its
 
 ### Understanding dependencies[]($effect.html#Understanding-dependencies)
 
-`$effect` automatically picks up any reactive values (`$state`, `$derived`, `$props`) that are *synchronously* read inside its function body (including indirectly, via function calls) and registers them as dependencies. When those dependencies change, the `$effect` schedules a re-run.
+`$effect` automatically picks up any reactive values (`$state`, `$derived`, `$props`) that are _synchronously_ read inside its function body (including indirectly, via function calls) and registers them as dependencies. When those dependencies change, the `$effect` schedules a re-run.
 
-If `$state` and `$derived` are used directly inside the `$effect` (for example, during creation of a [reactive class]($state.html#Classes)), those values will *not* be treated as dependencies.
+If `$state` and `$derived` are used directly inside the `$effect` (for example, during creation of a [reactive class]($state.html#Classes)), those values will _not_ be treated as dependencies.
 
-Values that are read *asynchronously* — after an `await` or inside a `setTimeout`, for example — will not be tracked. Here, the canvas will be repainted when `color` changes, but not when `size` changes ([demo](https://svelte.dev/playground/untitled#H4sIAAAAAAAAE31T246bMBD9lZF3pWSlBEirfaEQqdo_2PatVIpjBrDkGGQPJGnEv1e2IZfVal-wfHzmzJyZ4cIqqdCy9M-F0blDlnqArZjmB3f72XWRHVCRw_bc4me4aDWhJstSlllhZEfbQhekkMDKfwg5PFvihMvX5OXH_CJa1Zrb0-Kpqr5jkiwC48rieuDWQbqgZ6wqFLRcvkC-hYvnkWi1dWqa8ESQTxFRjfQWsOXiWzmr0sSLhEJu3p1YsoJkNUcdZUnN9dagrBu6FVRQHAM10sJRKgUG16bXcGxQ44AGdt7SDkTDdY02iqLHnJVU6hedlWuIp94JW6Tf8oBt_8GdTxlF0b4n0C35ZLBzXb3mmYn3ae6cOW74zj0YVzDNYXRHFt9mprNgHfZSl6mzml8CMoLvTV6wTZIUDEJv5us2iwMtiJRyAKG4tXnhl8O0yhbML0Wm-B7VNlSSSd31BG7z8oIZZ6dgIffAVY_5xdU9Qrz1Bnx8fCfwtZ7v8Qc9j3nB8PqgmMWlHIID6-bkVaPZwDySfWtKNGtquxQ23Qlsq2QJT0KIqb8dL0up6xQ2eIBkAg_c1FI_YqW0neLnFCqFpwmreedJYT7XX8FVOBfwWRhXstZrSXiwKQjUhOZeMIleb5JZfHWn2Yq5pWEpmR7Hv-N_wEqT8hEEAAA=)):
+Values that are read _asynchronously_ — after an `await` or inside a `setTimeout`, for example — will not be tracked. Here, the canvas will be repainted when `color` changes, but not when `size` changes ([demo](https://svelte.dev/playground/untitled#H4sIAAAAAAAAE31T246bMBD9lZF3pWSlBEirfaEQqdo_2PatVIpjBrDkGGQPJGnEv1e2IZfVal-wfHzmzJyZ4cIqqdCy9M-F0blDlnqArZjmB3f72XWRHVCRw_bc4me4aDWhJstSlllhZEfbQhekkMDKfwg5PFvihMvX5OXH_CJa1Zrb0-Kpqr5jkiwC48rieuDWQbqgZ6wqFLRcvkC-hYvnkWi1dWqa8ESQTxFRjfQWsOXiWzmr0sSLhEJu3p1YsoJkNUcdZUnN9dagrBu6FVRQHAM10sJRKgUG16bXcGxQ44AGdt7SDkTDdY02iqLHnJVU6hedlWuIp94JW6Tf8oBt_8GdTxlF0b4n0C35ZLBzXb3mmYn3ae6cOW74zj0YVzDNYXRHFt9mprNgHfZSl6mzml8CMoLvTV6wTZIUDEJv5us2iwMtiJRyAKG4tXnhl8O0yhbML0Wm-B7VNlSSSd31BG7z8oIZZ6dgIffAVY_5xdU9Qrz1Bnx8fCfwtZ7v8Qc9j3nB8PqgmMWlHIID6-bkVaPZwDySfWtKNGtquxQ23Qlsq2QJT0KIqb8dL0up6xQ2eIBkAg_c1FI_YqW0neLnFCqFpwmreedJYT7XX8FVOBfwWRhXstZrSXiwKQjUhOZeMIleb5JZfHWn2Yq5pWEpmR7Hv-N_wEqT8hEEAAA=)):
 
 `function $effect(fn: () => void | (() => void)): void namespace $effect`
 
@@ -190,19 +92,19 @@ Does not run during server side rendering.
 @paramfn The function to execute
 
 $effect(() => {
-	const `const context: CanvasRenderingContext2D`context = `let canvas: {     width: number;     height: number;     getContext(type: "2d", options?: CanvasRenderingContext2DSettings): CanvasRenderingContext2D; }`canvas.`function getContext(type: "2d", options?: CanvasRenderingContext2DSettings): CanvasRenderingContext2D`getContext('2d');
-	`const context: CanvasRenderingContext2D`context.`CanvasRect.clearRect(x: number, y: number, w: number, h: number): void`
+const `const context: CanvasRenderingContext2D`context = `let canvas: {     width: number;     height: number;     getContext(type: "2d", options?: CanvasRenderingContext2DSettings): CanvasRenderingContext2D; }`canvas.`function getContext(type: "2d", options?: CanvasRenderingContext2DSettings): CanvasRenderingContext2D`getContext('2d');
+`const context: CanvasRenderingContext2D`context.`CanvasRect.clearRect(x: number, y: number, w: number, h: number): void`
 
 [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/clearRect)
 
 clearRect(0, 0, `let canvas: {     width: number;     height: number;     getContext(type: "2d", options?: CanvasRenderingContext2DSettings): CanvasRenderingContext2D; }`canvas.`width: number`width, `let canvas: {     width: number;     height: number;     getContext(type: "2d", options?: CanvasRenderingContext2DSettings): CanvasRenderingContext2D; }`canvas.`height: number`height);
-	// this will re-run whenever `color` changes...
-	`const context: CanvasRenderingContext2D`context.`CanvasFillStrokeStyles.fillStyle: string | CanvasGradient | CanvasPattern`
+// this will re-run whenever `color` changes...
+`const context: CanvasRenderingContext2D`context.`CanvasFillStrokeStyles.fillStyle: string | CanvasGradient | CanvasPattern`
 
 [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/fillStyle)
 
 fillStyle = `let color: string`color;
-	`function setTimeout<[]>(callback: () => void, ms?: number): NodeJS.Timeout (+2 overloads)`
+`function setTimeout<[]>(callback: () => void, ms?: number): NodeJS.Timeout (+2 overloads)`
 
 Schedules execution of a one-time `callback` after `delay` milliseconds.
 
@@ -228,16 +130,16 @@ This method has a custom variant for promises that is available using `timersPro
 @returnfor use with {@link clearTimeout}
 
 setTimeout(() => {
-		// ...but not when `size` changes
-		`const context: CanvasRenderingContext2D`context.`CanvasRect.fillRect(x: number, y: number, w: number, h: number): void`
+// ...but not when `size` changes
+`const context: CanvasRenderingContext2D`context.`CanvasRect.fillRect(x: number, y: number, w: number, h: number): void`
 
 [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/fillRect)
 
 fillRect(0, 0, `let size: number`size, `let size: number`size);
-	}, 0);
+}, 0);
 });
 
-An effect only reruns when the object it reads changes, not when a property inside it changes. (If you want to observe changes *inside* an object at dev time, you can use [`$inspect`]($inspect.html).)
+An effect only reruns when the object it reads changes, not when a property inside it changes. (If you want to observe changes _inside_ an object at dev time, you can use [`$inspect`]($inspect.html).)
 
 <script>
 	let state = $state({ value: 0 });
@@ -255,16 +157,18 @@ An effect only reruns when the object it reads changes, not when a property insi
 		derived;
 	});
 </script>
+
 <button onclick={() => (state.value += 1)}>
-	{state.value}
+{state.value}
 </button>
+
 <p>{state.value} doubled is {derived.value}</p>
 
 An effect only depends on the values that it read the last time it ran. This has interesting implications for effects that have conditional code.
 
 For instance, if `a` is `true` in the code snippet below, the code inside the `if` block will run and `b` will be evaluated. As such, changes to either `a` or `b` [will cause the effect to re-run](https://svelte.dev/playground/untitled#H4sIAAAAAAAAE3VQzWrDMAx-FdUU4kBp71li6EPstOxge0ox8-QQK2PD-N1nLy2F0Z2Evj9_chKkP1B04pnYscc3cRCT8xhF95IEf8-Vq0DBr8rzPB_jJ3qumNERH-E2ECNxiRF9tIubWY00lgcYNAywj6wZJS8rtk83wjwgCrXHaULLUrYwKEgVGrnkx-Dx6MNFNstK5OjSbFGbwE0gdXuT_zGYrjmAuco515Hr1p_uXak3K3MgCGS9s-9D2grU-judlQYXIencnzad-tdR79qZrMyvw9wd5Z8Yv1h09dz8mn8AkM7Pfo0BAAA=).
 
-Conversely, if `a` is `false`, `b` will not be evaluated, and the effect will *only* re-run when `a` changes.
+Conversely, if `a` is `false`, `b` will not be evaluated, and the effect will _only_ re-run when `a` changes.
 
 `function $effect(fn: () => void | (() => void)): void namespace $effect`
 
@@ -284,18 +188,18 @@ Does not run during server side rendering.
 @paramfn The function to execute
 
 $effect(() => {
-	`var console: Console`
+`var console: Console`
 
 The `console` module provides a simple debugging console that is similar to the
 JavaScript console mechanism provided by web browsers.
 
 The module exports two specific components:
 
--   A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
--   A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
-    [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
+- A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
+- A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
+  [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
 
-***Warning***: The global console object’s methods are neither consistently
+**_Warning_**: The global console object’s methods are neither consistently
 synchronous like the browser APIs they resemble, nor are they consistently
 asynchronous like all other Node.js streams. See the [`note on process I/O`](https://nodejs.org/docs/latest-v20.x/api/process.html#a-note-on-process-io) for
 more information.
@@ -308,14 +212,14 @@ console.log('hello %s', 'world');
 // Prints: hello world, to stdout
 console.error(new Error('Whoops, something bad happened'));
 // Prints error message and stack trace to stderr:
-//   Error: Whoops, something bad happened
-//     at [eval]:5:15
-//     at Script.runInThisContext (node:vm:132:18)
-//     at Object.runInThisContext (node:vm:309:38)
-//     at node:internal/process/execution:77:19
-//     at [eval]-wrapper:6:22
-//     at evalScript (node:internal/process/execution:76:60)
-//     at node:internal/main/eval_string:23:3
+// Error: Whoops, something bad happened
+// at [eval]:5:15
+// at Script.runInThisContext (node:vm:132:18)
+// at Object.runInThisContext (node:vm:309:38)
+// at node:internal/process/execution:77:19
+// at [eval]-wrapper:6:22
+// at evalScript (node:internal/process/execution:76:60)
+// at node:internal/main/eval_string:23:3
 const name = 'Will Robinson';
 console.warn(`Danger ${name}! Danger!`);
 // Prints: Danger Will Robinson! Danger!, to stderr
@@ -355,19 +259,19 @@ See [`util.format()`](https://nodejs.org/docs/latest-v20.x/api/util.html#utilfor
 @sincev0.1.100
 
 log('running');
-	if (`let a: false`a) {
-		`var console: Console`
+if (`let a: false`a) {
+`var console: Console`
 
 The `console` module provides a simple debugging console that is similar to the
 JavaScript console mechanism provided by web browsers.
 
 The module exports two specific components:
 
--   A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
--   A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
-    [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
+- A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
+- A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
+  [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
 
-***Warning***: The global console object’s methods are neither consistently
+**_Warning_**: The global console object’s methods are neither consistently
 synchronous like the browser APIs they resemble, nor are they consistently
 asynchronous like all other Node.js streams. See the [`note on process I/O`](https://nodejs.org/docs/latest-v20.x/api/process.html#a-note-on-process-io) for
 more information.
@@ -380,14 +284,14 @@ console.log('hello %s', 'world');
 // Prints: hello world, to stdout
 console.error(new Error('Whoops, something bad happened'));
 // Prints error message and stack trace to stderr:
-//   Error: Whoops, something bad happened
-//     at [eval]:5:15
-//     at Script.runInThisContext (node:vm:132:18)
-//     at Object.runInThisContext (node:vm:309:38)
-//     at node:internal/process/execution:77:19
-//     at [eval]-wrapper:6:22
-//     at evalScript (node:internal/process/execution:76:60)
-//     at node:internal/main/eval_string:23:3
+// Error: Whoops, something bad happened
+// at [eval]:5:15
+// at Script.runInThisContext (node:vm:132:18)
+// at Object.runInThisContext (node:vm:309:38)
+// at node:internal/process/execution:77:19
+// at [eval]-wrapper:6:22
+// at evalScript (node:internal/process/execution:76:60)
+// at node:internal/main/eval_string:23:3
 const name = 'Will Robinson';
 console.warn(`Danger ${name}! Danger!`);
 // Prints: Danger Will Robinson! Danger!, to stderr
@@ -427,12 +331,12 @@ See [`util.format()`](https://nodejs.org/docs/latest-v20.x/api/util.html#utilfor
 @sincev0.1.100
 
 log('b:', `let b: false`b);
-	}
+}
 });
 
 ## $effect.pre[]($effect.html#$effect.pre)
 
-In rare cases, you may need to run code *before* the DOM updates. For this we can use the `$effect.pre` rune:
+In rare cases, you may need to run code _before_ the DOM updates. For this we can use the `$effect.pre` rune:
 
 <script>
 	import { tick } from 'svelte';
@@ -471,7 +375,7 @@ The `$effect.tracking` rune is an advanced feature that tells you whether or not
 </script>
 <p>in template: {$effect.tracking()}</p> <!-- true -->
 
-It is used to implement abstractions like [`createSubscriber`](svelte-reactivity.html#createSubscriber), which will create listeners to update reactive values but *only* if those values are being tracked (rather than, for example, read inside an event handler).
+It is used to implement abstractions like [`createSubscriber`](svelte-reactivity.html#createSubscriber), which will create listeners to update reactive values but _only_ if those values are being tracked (rather than, for example, read inside an event handler).
 
 ## $effect.root[]($effect.html#$effect.root)
 

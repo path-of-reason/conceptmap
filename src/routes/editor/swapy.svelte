@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onDestroy, onMount, untrack } from 'svelte'
+  import {  untrack } from 'svelte'
   import {
     createSwapy,
     type SlotItemMapArray,
@@ -7,9 +7,6 @@
     utils,
   } from 'swapy'
   import { cn } from '$lib/utils';
-
-  let container: HTMLElement
-  let swapy: Swapy | null = null
 
   type Item = {
     id: string
@@ -30,51 +27,51 @@
 
   const setSlotItemMap = (value: SlotItemMapArray) => (slotItemMap = value)
 
-  $effect(() => {
-    utils.dynamicSwapy(
-      swapy,
-      items,
-      'id',
-      untrack(() => slotItemMap),
-      setSlotItemMap )
-  })
 
-  onMount(() => {
-    if (container) {
-      swapy = createSwapy(container, {
-        // dragAxis: 'x',
-        manualSwap: true
-        // animation: 'dynamic'
-        // autoScrollOnDrag: true,
-        // swapMode: 'drop',
-        // enabled: true,
-        // dragOnHold: true
+  const useSwapy = (container:HTMLElement)=>{
+    let swapy = createSwapy(container, {
+      // dragAxis: 'x',
+      manualSwap: true
+      // animation: 'dynamic'
+      // autoScrollOnDrag: true,
+      // swapMode: 'drop',
+      // enabled: true,
+      // dragOnHold: true
+    })
+
+    swapy.onSwapStart((event) => {
+      items = items.map((item) => ({...item, active: item.id === event.draggingItem ? true : false}))
+    })
+
+    swapy.onSwap((event) => {
+      requestAnimationFrame(() => {
+        slotItemMap = event.newSlotItemMap.asArray
       })
+    })
 
-      swapy.onSwapStart((event) => {
-        items = items.map((item) => ({...item, active: item.id === event.draggingItem ? true : false}))
-      })
+    swapy.onSwapEnd((event) => {
+      // console.log('end', event)
+      // console.log("original data", items)
+    })
 
-      swapy.onSwap((event) => {
-        requestAnimationFrame(() => {
-          slotItemMap = event.newSlotItemMap.asArray
-        })
-      })
+    $effect(() => {
+      utils.dynamicSwapy(
+        swapy,
+        items,
+        'id',
+        untrack(() => slotItemMap),
+        setSlotItemMap )
+    })
 
-      swapy.onSwapEnd((event) => {
-        // console.log('end', event)
-        // console.log("original data", items)
-      })
-    }
-  })
-
-
-  onDestroy(() => {
-    swapy?.destroy()
-  })
+    $effect(()=>{
+      return () => {
+        swapy?.destroy()
+      }
+    })
+  }
 </script>
 
-<div class="p-2" bind:this={container}>
+<div class="p-2 bg-amber-300" use:useSwapy>
   <div class="w-full flex gap-1">
     {#each slottedItems as { slotId, itemId, item }}
       {#key slotId}
@@ -87,7 +84,7 @@
                   "relative transition-[width,height,background]")}
                 data-swapy-item={itemId}
               >
-                <span class="">{item.title}</span>
+                <span>{item.title}</span>
                 <button
                   aria-label="delete"
                   class={cn("delete absolute top-1 right-1  rounded-full bg-zinc-800 w-3 h-3 hover:bg-red-500"

@@ -4,14 +4,17 @@
   import { ModeWatcher } from "mode-watcher";
   import "../app.css";
   import Main from "./Main.svelte";
+  import { hiderStore } from "$lib/store/hider.svelte";
   let { children } = $props();
   const sideLeft = "left";
   const sideRight = "right";
+
+  const { leftSidebar } = hiderStore()
 </script>
 
 <ModeWatcher />
 <Sidebar.Provider ctxKey={sideLeft}>
-  <LeftSidebar ctxKey={sideLeft} variant="floating" collapsible="icon" />
+  <LeftSidebar ctxKey={sideLeft} variant="floating" collapsible={leftSidebar ? "icon" : "offcanvas"} />
   <Sidebar.Provider ctxKey={sideRight}>
     <Main>
       {@render children?.()}

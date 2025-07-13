@@ -1,113 +1,15 @@
--   ### Introduction
-    
-    -   [Overview](overview.html)
-    -   [Getting started](getting-started.html)
-    -   [.svelte files](svelte-files.html)
-    -   [.svelte.js and .svelte.ts files](svelte-js-files.html)
--   ### Runes
-    
-    -   [What are runes?](what-are-runes.html)
-    -   [$state]($state.html)
-    -   [$derived]($derived.html)
-    -   [$effect]($effect.html)
-    -   [$props]($props.html)
-    -   [$bindable]($bindable.html)
-    -   [$inspect]($inspect.html)
-    -   [$host]($host.html)
--   ### Template syntax
-    
-    -   [Basic markup](basic-markup.html)
-    -   [{#if ...}](if.html)
-    -   [{#each ...}](each.html)
-    -   [{#key ...}](key.html)
-    -   [{#await ...}](await.html)
-    -   [{#snippet ...}](snippet.html)
-    -   [{@render ...}](@render.html)
-    -   [{@html ...}](@html.html)
-    -   [{@const ...}](@const.html)
-    -   [{@debug ...}](@debug.html)
-    -   [bind:](bind.html)
-    -   [use:](use.html)
-    -   [transition:](transition.html)
-    -   [in: and out:](in-and-out.html)
-    -   [animate:](animate.html)
-    -   [style:](style.html)
-    -   [class](class.html)
--   ### Styling
-    
-    -   [Scoped styles](scoped-styles.html)
-    -   [Global styles](global-styles.html)
-    -   [Custom properties](custom-properties.html)
-    -   [Nested <style> elements](nested-style-elements.html)
--   ### Special elements
-    
-    -   [<svelte:boundary>](svelte-boundary.html)
-    -   [<svelte:window>](svelte-window.html)
-    -   [<svelte:document>](svelte-document.html)
-    -   [<svelte:body>](svelte-body.html)
-    -   [<svelte:head>](svelte-head.html)
-    -   [<svelte:element>](svelte-element.html)
-    -   [<svelte:options>](svelte-options.html)
--   ### Runtime
-    
-    -   [Stores](stores.html)
-    -   [Context](context.html)
-    -   [Lifecycle hooks](lifecycle-hooks.html)
-    -   [Imperative component API](imperative-component-api.html)
--   ### Misc
-    
-    -   [Testing](testing.html)
-    -   [TypeScript](typescript.html)
-    -   [Custom elements](custom-elements.html)
-    -   [Svelte 4 migration guide](v4-migration-guide.html)
-    -   [Svelte 5 migration guide](v5-migration-guide.html)
-    -   [Frequently asked questions](faq.html)
--   ### Reference
-    
-    -   [svelte](svelte.html)
-    -   [svelte/action](svelte-action.html)
-    -   [svelte/animate](svelte-animate.html)
-    -   [svelte/compiler](svelte-compiler.html)
-    -   [svelte/easing](svelte-easing.html)
-    -   [svelte/events](svelte-events.html)
-    -   [svelte/legacy](svelte-legacy.html)
-    -   [svelte/motion](svelte-motion.html)
-    -   [svelte/reactivity/window](svelte-reactivity-window.html)
-    -   [svelte/reactivity](svelte-reactivity.html)
-    -   [svelte/server](svelte-server.html)
-    -   [svelte/store](svelte-store.html)
-    -   [svelte/transition](svelte-transition.html)
-    -   [Compiler errors](compiler-errors.html)
-    -   [Compiler warnings](compiler-warnings.html)
-    -   [Runtime errors](runtime-errors.html)
-    -   [Runtime warnings](runtime-warnings.html)
--   ### Legacy APIs
-    
-    -   [Overview](legacy-overview.html)
-    -   [Reactive let/var declarations](legacy-let.html)
-    -   [Reactive $: statements](legacy-reactive-assignments.html)
-    -   [export let](legacy-export-let.html)
-    -   [$$props and $$restProps](legacy-$$props-and-$$restProps.html)
-    -   [on:](legacy-on.html)
-    -   [<slot>](legacy-slots.html)
-    -   [$$slots](legacy-$$slots.html)
-    -   [<svelte:fragment>](legacy-svelte-fragment.html)
-    -   [<svelte:component>](legacy-svelte-component.html)
-    -   [<svelte:self>](legacy-svelte-self.html)
-    -   [Imperative component API](legacy-component-api.html)
-
 SvelteRuntime
 
 # Stores
 
 ### On this page
 
--   [Stores](stores.html)
--   [When to use stores](stores.html#When-to-use-stores)
--   [svelte/store](stores.html#svelte-store)
--   [Store contract](stores.html#Store-contract)
+- [Stores](stores.html)
+- [When to use stores](stores.html#When-to-use-stores)
+- [svelte/store](stores.html#svelte-store)
+- [Store contract](stores.html#Store-contract)
 
-A *store* is an object that allows reactive access to a value via a simple *store contract*. The [`svelte/store` module](https://svelte.dev/docs/svelte-store) contains minimal store implementations which fulfil this contract.
+A _store_ is an object that allows reactive access to a value via a simple _store contract_. The [`svelte/store` module](https://svelte.dev/docs/svelte-store) contains minimal store implementations which fulfil this contract.
 
 Any time you have a reference to a store, you can access its value inside a component by prefixing it with the `$` character. This causes Svelte to declare the prefixed variable, subscribe to the store at component initialisation and unsubscribe when appropriate.
 
@@ -115,7 +17,7 @@ Assignments to `$`\-prefixed variables require that the variable be a writable s
 
 Note that the store must be declared at the top level of the component — not inside an `if` block or a function, for example.
 
-Local variables (that do not represent store values) must *not* have a `$` prefix.
+Local variables (that do not represent store values) must _not_ have a `$` prefix.
 
 <script>
 	import { writable } from 'svelte/store';
@@ -131,8 +33,8 @@ Local variables (that do not represent store values) must *not* have a `$` prefi
 
 Prior to Svelte 5, stores were the go-to solution for creating cross-component reactive states or extracting logic. With runes, these use cases have greatly diminished.
 
--   when extracting logic, it’s better to take advantage of runes’ universal reactivity: You can use runes outside the top level of components and even place them into JavaScript or TypeScript files (using a `.svelte.js` or `.svelte.ts` file ending)
--   when creating shared state, you can create a `$state` object containing the values you need and then manipulate said state
+- when extracting logic, it’s better to take advantage of runes’ universal reactivity: You can use runes outside the top level of components and even place them into JavaScript or TypeScript files (using a `.svelte.js` or `.svelte.ts` file ending)
+- when creating shared state, you can create a `$state` object containing the values you need and then manipulate said state
 
 state.svelte
 
@@ -149,8 +51,8 @@ let count = $state(0);
 @paraminitial The initial value
 
 $state({
-	`name: string`name: 'name',
-	/* ... */
+`name: string`name: 'name',
+/_ ... _/
 });
 
 App
@@ -212,18 +114,18 @@ Subscribe on value changes.
 @paraminvalidate cleanup callback
 
 subscribe((`value: number`value) => {
-	`var console: Console`
+`var console: Console`
 
 The `console` module provides a simple debugging console that is similar to the
 JavaScript console mechanism provided by web browsers.
 
 The module exports two specific components:
 
--   A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
--   A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
-    [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
+- A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
+- A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
+  [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
 
-***Warning***: The global console object’s methods are neither consistently
+**_Warning_**: The global console object’s methods are neither consistently
 synchronous like the browser APIs they resemble, nor are they consistently
 asynchronous like all other Node.js streams. See the [`note on process I/O`](https://nodejs.org/docs/latest-v20.x/api/process.html#a-note-on-process-io) for
 more information.
@@ -236,14 +138,14 @@ console.log('hello %s', 'world');
 // Prints: hello world, to stdout
 console.error(new Error('Whoops, something bad happened'));
 // Prints error message and stack trace to stderr:
-//   Error: Whoops, something bad happened
-//     at [eval]:5:15
-//     at Script.runInThisContext (node:vm:132:18)
-//     at Object.runInThisContext (node:vm:309:38)
-//     at node:internal/process/execution:77:19
-//     at [eval]-wrapper:6:22
-//     at evalScript (node:internal/process/execution:76:60)
-//     at node:internal/main/eval_string:23:3
+// Error: Whoops, something bad happened
+// at [eval]:5:15
+// at Script.runInThisContext (node:vm:132:18)
+// at Object.runInThisContext (node:vm:309:38)
+// at node:internal/process/execution:77:19
+// at [eval]-wrapper:6:22
+// at evalScript (node:internal/process/execution:76:60)
+// at node:internal/main/eval_string:23:3
 const name = 'Will Robinson';
 console.warn(`Danger ${name}! Danger!`);
 // Prints: Danger Will Robinson! Danger!, to stderr
@@ -317,18 +219,18 @@ Create a `Writable` store that allows both updating and reading by subscription.
 @paramvalue initial value
 
 writable(0, () => {
-	`var console: Console`
+`var console: Console`
 
 The `console` module provides a simple debugging console that is similar to the
 JavaScript console mechanism provided by web browsers.
 
 The module exports two specific components:
 
--   A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
--   A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
-    [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
+- A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
+- A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
+  [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
 
-***Warning***: The global console object’s methods are neither consistently
+**_Warning_**: The global console object’s methods are neither consistently
 synchronous like the browser APIs they resemble, nor are they consistently
 asynchronous like all other Node.js streams. See the [`note on process I/O`](https://nodejs.org/docs/latest-v20.x/api/process.html#a-note-on-process-io) for
 more information.
@@ -341,14 +243,14 @@ console.log('hello %s', 'world');
 // Prints: hello world, to stdout
 console.error(new Error('Whoops, something bad happened'));
 // Prints error message and stack trace to stderr:
-//   Error: Whoops, something bad happened
-//     at [eval]:5:15
-//     at Script.runInThisContext (node:vm:132:18)
-//     at Object.runInThisContext (node:vm:309:38)
-//     at node:internal/process/execution:77:19
-//     at [eval]-wrapper:6:22
-//     at evalScript (node:internal/process/execution:76:60)
-//     at node:internal/main/eval_string:23:3
+// Error: Whoops, something bad happened
+// at [eval]:5:15
+// at Script.runInThisContext (node:vm:132:18)
+// at Object.runInThisContext (node:vm:309:38)
+// at node:internal/process/execution:77:19
+// at [eval]-wrapper:6:22
+// at evalScript (node:internal/process/execution:76:60)
+// at node:internal/main/eval_string:23:3
 const name = 'Will Robinson';
 console.warn(`Danger ${name}! Danger!`);
 // Prints: Danger Will Robinson! Danger!, to stderr
@@ -388,18 +290,18 @@ See [`util.format()`](https://nodejs.org/docs/latest-v20.x/api/util.html#utilfor
 @sincev0.1.100
 
 log('got a subscriber');
-	return () => `var console: Console`
+return () => `var console: Console`
 
 The `console` module provides a simple debugging console that is similar to the
 JavaScript console mechanism provided by web browsers.
 
 The module exports two specific components:
 
--   A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
--   A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
-    [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
+- A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
+- A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
+  [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
 
-***Warning***: The global console object’s methods are neither consistently
+**_Warning_**: The global console object’s methods are neither consistently
 synchronous like the browser APIs they resemble, nor are they consistently
 asynchronous like all other Node.js streams. See the [`note on process I/O`](https://nodejs.org/docs/latest-v20.x/api/process.html#a-note-on-process-io) for
 more information.
@@ -412,14 +314,14 @@ console.log('hello %s', 'world');
 // Prints: hello world, to stdout
 console.error(new Error('Whoops, something bad happened'));
 // Prints error message and stack trace to stderr:
-//   Error: Whoops, something bad happened
-//     at [eval]:5:15
-//     at Script.runInThisContext (node:vm:132:18)
-//     at Object.runInThisContext (node:vm:309:38)
-//     at node:internal/process/execution:77:19
-//     at [eval]-wrapper:6:22
-//     at evalScript (node:internal/process/execution:76:60)
-//     at node:internal/main/eval_string:23:3
+// Error: Whoops, something bad happened
+// at [eval]:5:15
+// at Script.runInThisContext (node:vm:132:18)
+// at Object.runInThisContext (node:vm:309:38)
+// at node:internal/process/execution:77:19
+// at [eval]-wrapper:6:22
+// at evalScript (node:internal/process/execution:76:60)
+// at node:internal/main/eval_string:23:3
 const name = 'Will Robinson';
 console.warn(`Danger ${name}! Danger!`);
 // Prints: Danger Will Robinson! Danger!, to stderr
@@ -476,18 +378,18 @@ Subscribe on value changes.
 @paraminvalidate cleanup callback
 
 subscribe((`value: number`value) => {
-	`var console: Console`
+`var console: Console`
 
 The `console` module provides a simple debugging console that is similar to the
 JavaScript console mechanism provided by web browsers.
 
 The module exports two specific components:
 
--   A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
--   A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
-    [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
+- A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
+- A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
+  [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
 
-***Warning***: The global console object’s methods are neither consistently
+**_Warning_**: The global console object’s methods are neither consistently
 synchronous like the browser APIs they resemble, nor are they consistently
 asynchronous like all other Node.js streams. See the [`note on process I/O`](https://nodejs.org/docs/latest-v20.x/api/process.html#a-note-on-process-io) for
 more information.
@@ -500,14 +402,14 @@ console.log('hello %s', 'world');
 // Prints: hello world, to stdout
 console.error(new Error('Whoops, something bad happened'));
 // Prints error message and stack trace to stderr:
-//   Error: Whoops, something bad happened
-//     at [eval]:5:15
-//     at Script.runInThisContext (node:vm:132:18)
-//     at Object.runInThisContext (node:vm:309:38)
-//     at node:internal/process/execution:77:19
-//     at [eval]-wrapper:6:22
-//     at evalScript (node:internal/process/execution:76:60)
-//     at node:internal/main/eval_string:23:3
+// Error: Whoops, something bad happened
+// at [eval]:5:15
+// at Script.runInThisContext (node:vm:132:18)
+// at Object.runInThisContext (node:vm:309:38)
+// at node:internal/process/execution:77:19
+// at [eval]-wrapper:6:22
+// at evalScript (node:internal/process/execution:76:60)
+// at node:internal/main/eval_string:23:3
 const name = 'Will Robinson';
 console.warn(`Danger ${name}! Danger!`);
 // Prints: Danger Will Robinson! Danger!, to stderr
@@ -570,8 +472,8 @@ Creates a `Readable` store that allows reading by subscription.
 @paramvalue initial value
 
 readable(new `var Date: DateConstructor new () => Date (+4 overloads)`Date(), (`set: (value: Date) => void`set) => {
-	`set: (value: Date) => void`set(new `var Date: DateConstructor new () => Date (+4 overloads)`Date());
-	const `const interval: NodeJS.Timeout`interval = `function setInterval<[]>(callback: () => void, ms?: number): NodeJS.Timeout (+2 overloads)`
+`set: (value: Date) => void`set(new `var Date: DateConstructor new () => Date (+4 overloads)`Date());
+const `const interval: NodeJS.Timeout`interval = `function setInterval<[]>(callback: () => void, ms?: number): NodeJS.Timeout (+2 overloads)`
 
 Schedules repeated execution of `callback` every `delay` milliseconds.
 
@@ -593,9 +495,9 @@ This method has a custom variant for promises that is available using `timersPro
 @returnfor use with {@link clearInterval}
 
 setInterval(() => {
-		`set: (value: Date) => void`set(new `var Date: DateConstructor new () => Date (+4 overloads)`Date());
-	}, 1000);
-	return () => `function clearInterval(intervalId: NodeJS.Timeout | string | number | undefined): void (+1 overload)`
+`set: (value: Date) => void`set(new `var Date: DateConstructor new () => Date (+4 overloads)`Date());
+}, 1000);
+return () => `function clearInterval(intervalId: NodeJS.Timeout | string | number | undefined): void (+1 overload)`
 
 Cancels a `Timeout` object created by `setInterval()`.
 
@@ -612,7 +514,7 @@ Creates a `Readable` store that allows reading by subscription.
 @paramvalue initial value
 
 readable('tick', (`set: (value: string) => void`set, `update: (fn: Updater<string>) => void`update) => {
-	const `const interval: NodeJS.Timeout`interval = `function setInterval<[]>(callback: () => void, ms?: number): NodeJS.Timeout (+2 overloads)`
+const `const interval: NodeJS.Timeout`interval = `function setInterval<[]>(callback: () => void, ms?: number): NodeJS.Timeout (+2 overloads)`
 
 Schedules repeated execution of `callback` every `delay` milliseconds.
 
@@ -634,9 +536,9 @@ This method has a custom variant for promises that is available using `timersPro
 @returnfor use with {@link clearInterval}
 
 setInterval(() => {
-		`update: (fn: Updater<string>) => void`update((`sound: string`sound) => (`sound: string`sound === 'tick' ? 'tock' : 'tick'));
-	}, 1000);
-	return () => `function clearInterval(intervalId: NodeJS.Timeout | string | number | undefined): void (+1 overload)`
+`update: (fn: Updater<string>) => void`update((`sound: string`sound) => (`sound: string`sound === 'tick' ? 'tock' : 'tick'));
+}, 1000);
+return () => `function clearInterval(intervalId: NodeJS.Timeout | string | number | undefined): void (+1 overload)`
 
 Cancels a `Timeout` object created by `setInterval()`.
 
@@ -664,7 +566,7 @@ const `const doubled: Readable<number>`doubled = `derived<Writable<number>, numb
 Derived value store by synchronizing one or more readable stores and
 applying an aggregation function over its input values.
 
-derived(`const a: Writable<number>`a, (`$a: number`$a) => `$a: number`$a * 2);
+derived(`const a: Writable<number>`a, (`$a: number`$a) => `$a: number`$a \* 2);
 
 The callback can set a value asynchronously by accepting a second argument, `set`, and an optional third argument, `update`, calling either or both of them when appropriate.
 
@@ -682,9 +584,9 @@ Derived value store by synchronizing one or more readable stores and
 applying an aggregation function over its input values.
 
 derived(
-	`const a: Writable<number>`a,
-	(`$a: number`$a, `set: (value: number) => void`set) => {
-		`function setTimeout<[]>(callback: () => void, ms?: number): NodeJS.Timeout (+2 overloads)`
+`const a: Writable<number>`a,
+(`$a: number`$a, `set: (value: number) => void`set) => {
+`function setTimeout<[]>(callback: () => void, ms?: number): NodeJS.Timeout (+2 overloads)`
 
 Schedules execution of a one-time `callback` after `delay` milliseconds.
 
@@ -710,8 +612,8 @@ This method has a custom variant for promises that is available using `timersPro
 @returnfor use with {@link clearTimeout}
 
 setTimeout(() => `set: (value: number) => void`set(`$a: number`$a), 1000);
-	},
-	2000
+},
+2000
 );
 const `const delayedIncrement: Readable<unknown>`delayedIncrement = `derived<Writable<number>, unknown>(stores: Writable<number>, fn: (values: number, set: (value: unknown) => void, update: (fn: Updater<unknown>) => void) => Unsubscriber | void, initial_value?: unknown): Readable<...> (+1 overload)`
 
@@ -746,8 +648,8 @@ This method has a custom variant for promises that is available using `timersPro
 @returnfor use with {@link clearTimeout}
 
 setTimeout(() => `update: (fn: Updater<unknown>) => void`update((`x: unknown`x) => x + 1), 1000);
-	// every time $a produces a value, this produces two
-	// values, $a immediately and then $a + 1 a second later
+// every time $a produces a value, this produces two
+// values, $a immediately and then $a + 1 a second later
 });
 
 If you return a function from the callback, it will be called when a) the callback runs again, or b) the last subscriber unsubscribes.
@@ -764,9 +666,9 @@ Derived value store by synchronizing one or more readable stores and
 applying an aggregation function over its input values.
 
 derived(
-	`const frequency: Writable<number>`frequency,
-	(`$frequency: number`$frequency, `set: (value: number) => void`set) => {
-		const `const interval: NodeJS.Timeout`interval = `function setInterval<[]>(callback: () => void, ms?: number): NodeJS.Timeout (+2 overloads)`
+`const frequency: Writable<number>`frequency,
+(`$frequency: number`$frequency, `set: (value: number) => void`set) => {
+const `const interval: NodeJS.Timeout`interval = `function setInterval<[]>(callback: () => void, ms?: number): NodeJS.Timeout (+2 overloads)`
 
 Schedules repeated execution of `callback` every `delay` milliseconds.
 
@@ -788,7 +690,7 @@ This method has a custom variant for promises that is available using `timersPro
 @returnfor use with {@link clearInterval}
 
 setInterval(() => {
-			`set: (value: number) => void`set(`var Date: DateConstructor`
+`set: (value: number) => void`set(`var Date: DateConstructor`
 
 Enables basic storage and retrieval of dates and times.
 
@@ -797,9 +699,9 @@ Date.`DateConstructor.now(): number`
 Returns the number of milliseconds elapsed since midnight, January 1, 1970 Universal Coordinated Time (UTC).
 
 now());
-		}, 1000 / `$frequency: number`$frequency);
-		return () => {
-			`function clearInterval(intervalId: NodeJS.Timeout | string | number | undefined): void (+1 overload)`
+}, 1000 / `$frequency: number`$frequency);
+return () => {
+`function clearInterval(intervalId: NodeJS.Timeout | string | number | undefined): void (+1 overload)`
 
 Cancels a `Timeout` object created by `setInterval()`.
 
@@ -808,9 +710,9 @@ Cancels a `Timeout` object created by `setInterval()`.
 @paramtimeout A `Timeout` object as returned by {@link setInterval} or the `primitive` of the `Timeout` object as a string or a number.
 
 clearInterval(`const interval: NodeJS.Timeout`interval);
-		};
-	},
-	2000
+};
+},
+2000
 );
 
 In both cases, an array of arguments can be passed as the first argument instead of a single store.
@@ -833,7 +735,7 @@ Derived value store by synchronizing one or more readable stores and
 applying an aggregation function over its input values.
 
 derived([`const a: Writable<number>`a, `const b: Writable<number>`b], ([`$a: number`$a, `$b: number`$b], `set: (value: unknown) => void`set) => {
-	`function setTimeout<[]>(callback: () => void, ms?: number): NodeJS.Timeout (+2 overloads)`
+`function setTimeout<[]>(callback: () => void, ms?: number): NodeJS.Timeout (+2 overloads)`
 
 Schedules execution of a one-time `callback` after `delay` milliseconds.
 
@@ -907,11 +809,11 @@ JavaScript console mechanism provided by web browsers.
 
 The module exports two specific components:
 
--   A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
--   A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
-    [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
+- A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
+- A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
+  [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
 
-***Warning***: The global console object’s methods are neither consistently
+**_Warning_**: The global console object’s methods are neither consistently
 synchronous like the browser APIs they resemble, nor are they consistently
 asynchronous like all other Node.js streams. See the [`note on process I/O`](https://nodejs.org/docs/latest-v20.x/api/process.html#a-note-on-process-io) for
 more information.
@@ -924,14 +826,14 @@ console.log('hello %s', 'world');
 // Prints: hello world, to stdout
 console.error(new Error('Whoops, something bad happened'));
 // Prints error message and stack trace to stderr:
-//   Error: Whoops, something bad happened
-//     at [eval]:5:15
-//     at Script.runInThisContext (node:vm:132:18)
-//     at Object.runInThisContext (node:vm:309:38)
-//     at node:internal/process/execution:77:19
-//     at [eval]-wrapper:6:22
-//     at evalScript (node:internal/process/execution:76:60)
-//     at node:internal/main/eval_string:23:3
+// Error: Whoops, something bad happened
+// at [eval]:5:15
+// at Script.runInThisContext (node:vm:132:18)
+// at Object.runInThisContext (node:vm:309:38)
+// at node:internal/process/execution:77:19
+// at [eval]-wrapper:6:22
+// at evalScript (node:internal/process/execution:76:60)
+// at node:internal/main/eval_string:23:3
 const name = 'Will Robinson';
 console.warn(`Danger ${name}! Danger!`);
 // Prints: Danger Will Robinson! Danger!, to stderr
@@ -988,11 +890,11 @@ get(`const store: Writable<string>`store);
 
 store = { `subscribe: (subscription: (value: any) => void) => () => undefined`subscribe: (`subscription: (value: any) => void`subscription: (`value: any`value: any) => void) => (() => void), `set: (value: any) => undefined`set?: (`value: any`value: any) => void }
 
-You can create your own stores without relying on [`svelte/store`](https://svelte.dev/docs/svelte-store), by implementing the *store contract*:
+You can create your own stores without relying on [`svelte/store`](https://svelte.dev/docs/svelte-store), by implementing the _store contract_:
 
 1.  A store must contain a `.subscribe` method, which must accept as its argument a subscription function. This subscription function must be immediately and synchronously called with the store’s current value upon calling `.subscribe`. All of a store’s active subscription functions must later be synchronously called whenever the store’s value changes.
 2.  The `.subscribe` method must return an unsubscribe function. Calling an unsubscribe function must stop its subscription, and its corresponding subscription function must not be called again by the store.
-3.  A store may *optionally* contain a `.set` method, which must accept as its argument a new value for the store, and which synchronously calls all of the store’s active subscription functions. Such a store is called a *writable store*.
+3.  A store may _optionally_ contain a `.set` method, which must accept as its argument a new value for the store, and which synchronously calls all of the store’s active subscription functions. Such a store is called a _writable store_.
 
 For interoperability with RxJS Observables, the `.subscribe` method is also allowed to return an object with an `.unsubscribe` method, rather than return the unsubscription function directly. Note however that unless `.subscribe` synchronously calls the subscription (which is not required by the Observable spec), Svelte will see the value of the store as `undefined` until it does.
 

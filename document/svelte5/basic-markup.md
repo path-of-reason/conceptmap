@@ -1,120 +1,22 @@
--   ### Introduction
-    
-    -   [Overview](overview.html)
-    -   [Getting started](getting-started.html)
-    -   [.svelte files](svelte-files.html)
-    -   [.svelte.js and .svelte.ts files](svelte-js-files.html)
--   ### Runes
-    
-    -   [What are runes?](what-are-runes.html)
-    -   [$state]($state.html)
-    -   [$derived]($derived.html)
-    -   [$effect]($effect.html)
-    -   [$props]($props.html)
-    -   [$bindable]($bindable.html)
-    -   [$inspect]($inspect.html)
-    -   [$host]($host.html)
--   ### Template syntax
-    
-    -   [Basic markup](basic-markup.html)
-    -   [{#if ...}](if.html)
-    -   [{#each ...}](each.html)
-    -   [{#key ...}](key.html)
-    -   [{#await ...}](await.html)
-    -   [{#snippet ...}](snippet.html)
-    -   [{@render ...}](@render.html)
-    -   [{@html ...}](@html.html)
-    -   [{@const ...}](@const.html)
-    -   [{@debug ...}](@debug.html)
-    -   [bind:](bind.html)
-    -   [use:](use.html)
-    -   [transition:](transition.html)
-    -   [in: and out:](in-and-out.html)
-    -   [animate:](animate.html)
-    -   [style:](style.html)
-    -   [class](class.html)
--   ### Styling
-    
-    -   [Scoped styles](scoped-styles.html)
-    -   [Global styles](global-styles.html)
-    -   [Custom properties](custom-properties.html)
-    -   [Nested <style> elements](nested-style-elements.html)
--   ### Special elements
-    
-    -   [<svelte:boundary>](svelte-boundary.html)
-    -   [<svelte:window>](svelte-window.html)
-    -   [<svelte:document>](svelte-document.html)
-    -   [<svelte:body>](svelte-body.html)
-    -   [<svelte:head>](svelte-head.html)
-    -   [<svelte:element>](svelte-element.html)
-    -   [<svelte:options>](svelte-options.html)
--   ### Runtime
-    
-    -   [Stores](stores.html)
-    -   [Context](context.html)
-    -   [Lifecycle hooks](lifecycle-hooks.html)
-    -   [Imperative component API](imperative-component-api.html)
--   ### Misc
-    
-    -   [Testing](testing.html)
-    -   [TypeScript](typescript.html)
-    -   [Custom elements](custom-elements.html)
-    -   [Svelte 4 migration guide](v4-migration-guide.html)
-    -   [Svelte 5 migration guide](v5-migration-guide.html)
-    -   [Frequently asked questions](faq.html)
--   ### Reference
-    
-    -   [svelte](svelte.html)
-    -   [svelte/action](svelte-action.html)
-    -   [svelte/animate](svelte-animate.html)
-    -   [svelte/compiler](svelte-compiler.html)
-    -   [svelte/easing](svelte-easing.html)
-    -   [svelte/events](svelte-events.html)
-    -   [svelte/legacy](svelte-legacy.html)
-    -   [svelte/motion](svelte-motion.html)
-    -   [svelte/reactivity/window](svelte-reactivity-window.html)
-    -   [svelte/reactivity](svelte-reactivity.html)
-    -   [svelte/server](svelte-server.html)
-    -   [svelte/store](svelte-store.html)
-    -   [svelte/transition](svelte-transition.html)
-    -   [Compiler errors](compiler-errors.html)
-    -   [Compiler warnings](compiler-warnings.html)
-    -   [Runtime errors](runtime-errors.html)
-    -   [Runtime warnings](runtime-warnings.html)
--   ### Legacy APIs
-    
-    -   [Overview](legacy-overview.html)
-    -   [Reactive let/var declarations](legacy-let.html)
-    -   [Reactive $: statements](legacy-reactive-assignments.html)
-    -   [export let](legacy-export-let.html)
-    -   [$$props and $$restProps](legacy-$$props-and-$$restProps.html)
-    -   [on:](legacy-on.html)
-    -   [<slot>](legacy-slots.html)
-    -   [$$slots](legacy-$$slots.html)
-    -   [<svelte:fragment>](legacy-svelte-fragment.html)
-    -   [<svelte:component>](legacy-svelte-component.html)
-    -   [<svelte:self>](legacy-svelte-self.html)
-    -   [Imperative component API](legacy-component-api.html)
-
 SvelteTemplate syntax
 
 # Basic markup
 
 ### On this page
 
--   [Basic markup](basic-markup.html)
--   [Tags](basic-markup.html#Tags)
--   [Element attributes](basic-markup.html#Element-attributes)
--   [Component props](basic-markup.html#Component-props)
--   [Events](basic-markup.html#Events)
--   [Text expressions](basic-markup.html#Text-expressions)
--   [Comments](basic-markup.html#Comments)
+- [Basic markup](basic-markup.html)
+- [Tags](basic-markup.html#Tags)
+- [Element attributes](basic-markup.html#Element-attributes)
+- [Component props](basic-markup.html#Component-props)
+- [Events](basic-markup.html#Events)
+- [Text expressions](basic-markup.html#Text-expressions)
+- [Comments](basic-markup.html#Comments)
 
 Markup inside a Svelte component can be thought of as HTML++.
 
 ## Tags[](basic-markup.html#Tags)
 
-A lowercase tag, like `<div>`, denotes a regular HTML element. A capitalised tag or a tag that uses dot notation, such as `<Widget>` or `<my.stuff>`, indicates a *component*.
+A lowercase tag, like `<div>`, denotes a regular HTML element. A capitalised tag or a tag that uses dot notation, such as `<Widget>` or `<my.stuff>`, indicates a _component_.
 
 <script>
 	import Widget from './Widget.svelte';
@@ -139,7 +41,7 @@ Attribute values can contain JavaScript expressions.
 
 <a href="page/{p}">page {p}</a>
 
-Or they can *be* JavaScript expressions.
+Or they can _be_ JavaScript expressions.
 
 <button disabled={!clickable}>...</button>
 
@@ -151,25 +53,26 @@ All other attributes are included unless their value is [nullish](https://develo
 <div title={null}>This div has no title attribute</div>
 
 > Quoting a singular expression does not affect how the value is parsed, but in Svelte 6 it will cause the value to be coerced to a string:
-> 
+>
 > <button disabled="{number !== 42}">...</button>
 
 When the attribute name and value match (`name={name}`), they can be replaced with `{name}`.
 
 <button {disabled}>...</button>
+
 <!-- equivalent to
 <button disabled={disabled}>...</button>
 -->
 
 ## Component props[](basic-markup.html#Component-props)
 
-By convention, values passed to components are referred to as *properties* or *props* rather than *attributes*, which are a feature of the DOM.
+By convention, values passed to components are referred to as _properties_ or _props_ rather than _attributes_, which are a feature of the DOM.
 
 As with elements, `name={name}` can be replaced with the `{name}` shorthand.
 
 <Widget foo={bar} answer={42} text="hello" />
 
-*Spread attributes* allow many attributes or properties to be passed to an element or component at once.
+_Spread attributes_ allow many attributes or properties to be passed to an element or component at once.
 
 An element or component can have multiple spread attributes, interspersed with regular ones.
 
@@ -185,10 +88,10 @@ Event attributes are case sensitive. `onclick` listens to the `click` event, `on
 
 Because events are just attributes, the same rules as for attributes apply:
 
--   you can use the shorthand form: `<button {onclick}>click me</button>`
--   you can spread them: `<button {...thisSpreadContainsEventAttributes}>click me</button>`
+- you can use the shorthand form: `<button {onclick}>click me</button>`
+- you can spread them: `<button {...thisSpreadContainsEventAttributes}>click me</button>`
 
-Timing-wise, event attributes always fire after events from bindings (e.g. `oninput` always fires after an update to `bind:value`). Under the hood, some event handlers are attached directly with `addEventListener`, while others are *delegated*.
+Timing-wise, event attributes always fire after events from bindings (e.g. `oninput` always fires after an update to `bind:value`). Under the hood, some event handlers are attached directly with `addEventListener`, while others are _delegated_.
 
 When using `ontouchstart` and `ontouchmove` event attributes, the handlers are [passive](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#using_passive_listeners) for better performance. This greatly improves responsiveness by allowing the browser to scroll the document immediately, rather than waiting to see if the event handler calls `event.preventDefault()`.
 
@@ -200,34 +103,34 @@ To reduce memory footprint and increase performance, Svelte uses a technique cal
 
 There are a few gotchas to be aware of:
 
--   when you manually dispatch an event with a delegated listener, make sure to set the `{ bubbles: true }` option or it won’t reach the application root
--   when using `addEventListener` directly, avoid calling `stopPropagation` or the event won’t reach the application root and handlers won’t be invoked. Similarly, handlers added manually inside the application root will run *before* handlers added declaratively deeper in the DOM (with e.g. `onclick={...}`), in both capturing and bubbling phases. For these reasons it’s better to use the `on` function imported from `svelte/events` rather than `addEventListener`, as it will ensure that order is preserved and `stopPropagation` is handled correctly.
+- when you manually dispatch an event with a delegated listener, make sure to set the `{ bubbles: true }` option or it won’t reach the application root
+- when using `addEventListener` directly, avoid calling `stopPropagation` or the event won’t reach the application root and handlers won’t be invoked. Similarly, handlers added manually inside the application root will run _before_ handlers added declaratively deeper in the DOM (with e.g. `onclick={...}`), in both capturing and bubbling phases. For these reasons it’s better to use the `on` function imported from `svelte/events` rather than `addEventListener`, as it will ensure that order is preserved and `stopPropagation` is handled correctly.
 
 The following event handlers are delegated:
 
--   `beforeinput`
--   `click`
--   `change`
--   `dblclick`
--   `contextmenu`
--   `focusin`
--   `focusout`
--   `input`
--   `keydown`
--   `keyup`
--   `mousedown`
--   `mousemove`
--   `mouseout`
--   `mouseover`
--   `mouseup`
--   `pointerdown`
--   `pointermove`
--   `pointerout`
--   `pointerover`
--   `pointerup`
--   `touchend`
--   `touchmove`
--   `touchstart`
+- `beforeinput`
+- `click`
+- `change`
+- `dblclick`
+- `contextmenu`
+- `focusin`
+- `focusout`
+- `input`
+- `keydown`
+- `keyup`
+- `mousedown`
+- `mousemove`
+- `mouseout`
+- `mouseover`
+- `mouseup`
+- `pointerdown`
+- `pointermove`
+- `pointerout`
+- `pointerover`
+- `pointerup`
+- `touchend`
+- `touchmove`
+- `touchstart`
 
 ## Text expressions[](basic-markup.html#Text-expressions)
 

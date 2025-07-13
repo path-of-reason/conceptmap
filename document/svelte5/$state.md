@@ -1,126 +1,29 @@
--   ### Introduction
-    
-    -   [Overview](overview.html)
-    -   [Getting started](getting-started.html)
-    -   [.svelte files](svelte-files.html)
-    -   [.svelte.js and .svelte.ts files](svelte-js-files.html)
--   ### Runes
-    
-    -   [What are runes?](what-are-runes.html)
-    -   [$state]($state.html)
-    -   [$derived]($derived.html)
-    -   [$effect]($effect.html)
-    -   [$props]($props.html)
-    -   [$bindable]($bindable.html)
-    -   [$inspect]($inspect.html)
-    -   [$host]($host.html)
--   ### Template syntax
-    
-    -   [Basic markup](basic-markup.html)
-    -   [{#if ...}](if.html)
-    -   [{#each ...}](each.html)
-    -   [{#key ...}](key.html)
-    -   [{#await ...}](await.html)
-    -   [{#snippet ...}](snippet.html)
-    -   [{@render ...}](@render.html)
-    -   [{@html ...}](@html.html)
-    -   [{@const ...}](@const.html)
-    -   [{@debug ...}](@debug.html)
-    -   [bind:](bind.html)
-    -   [use:](use.html)
-    -   [transition:](transition.html)
-    -   [in: and out:](in-and-out.html)
-    -   [animate:](animate.html)
-    -   [style:](style.html)
-    -   [class](class.html)
--   ### Styling
-    
-    -   [Scoped styles](scoped-styles.html)
-    -   [Global styles](global-styles.html)
-    -   [Custom properties](custom-properties.html)
-    -   [Nested <style> elements](nested-style-elements.html)
--   ### Special elements
-    
-    -   [<svelte:boundary>](svelte-boundary.html)
-    -   [<svelte:window>](svelte-window.html)
-    -   [<svelte:document>](svelte-document.html)
-    -   [<svelte:body>](svelte-body.html)
-    -   [<svelte:head>](svelte-head.html)
-    -   [<svelte:element>](svelte-element.html)
-    -   [<svelte:options>](svelte-options.html)
--   ### Runtime
-    
-    -   [Stores](stores.html)
-    -   [Context](context.html)
-    -   [Lifecycle hooks](lifecycle-hooks.html)
-    -   [Imperative component API](imperative-component-api.html)
--   ### Misc
-    
-    -   [Testing](testing.html)
-    -   [TypeScript](typescript.html)
-    -   [Custom elements](custom-elements.html)
-    -   [Svelte 4 migration guide](v4-migration-guide.html)
-    -   [Svelte 5 migration guide](v5-migration-guide.html)
-    -   [Frequently asked questions](faq.html)
--   ### Reference
-    
-    -   [svelte](svelte.html)
-    -   [svelte/action](svelte-action.html)
-    -   [svelte/animate](svelte-animate.html)
-    -   [svelte/compiler](svelte-compiler.html)
-    -   [svelte/easing](svelte-easing.html)
-    -   [svelte/events](svelte-events.html)
-    -   [svelte/legacy](svelte-legacy.html)
-    -   [svelte/motion](svelte-motion.html)
-    -   [svelte/reactivity/window](svelte-reactivity-window.html)
-    -   [svelte/reactivity](svelte-reactivity.html)
-    -   [svelte/server](svelte-server.html)
-    -   [svelte/store](svelte-store.html)
-    -   [svelte/transition](svelte-transition.html)
-    -   [Compiler errors](compiler-errors.html)
-    -   [Compiler warnings](compiler-warnings.html)
-    -   [Runtime errors](runtime-errors.html)
-    -   [Runtime warnings](runtime-warnings.html)
--   ### Legacy APIs
-    
-    -   [Overview](legacy-overview.html)
-    -   [Reactive let/var declarations](legacy-let.html)
-    -   [Reactive $: statements](legacy-reactive-assignments.html)
-    -   [export let](legacy-export-let.html)
-    -   [$$props and $$restProps](legacy-$$props-and-$$restProps.html)
-    -   [on:](legacy-on.html)
-    -   [<slot>](legacy-slots.html)
-    -   [$$slots](legacy-$$slots.html)
-    -   [<svelte:fragment>](legacy-svelte-fragment.html)
-    -   [<svelte:component>](legacy-svelte-component.html)
-    -   [<svelte:self>](legacy-svelte-self.html)
-    -   [Imperative component API](legacy-component-api.html)
-
 SvelteRunes
 
 # $state
 
 ### On this page
 
--   [$state]($state.html)
--   [$state.raw]($state.html#$state.raw)
--   [$state.snapshot]($state.html#$state.snapshot)
--   [Passing state into functions]($state.html#Passing-state-into-functions)
+- [$state]($state.html)
+- [$state.raw]($state.html#$state.raw)
+- [$state.snapshot]($state.html#$state.snapshot)
+- [Passing state into functions]($state.html#Passing-state-into-functions)
 
-The `$state` rune allows you to create *reactive state*, which means that your UI *reacts* when it changes.
+The `$state` rune allows you to create _reactive state_, which means that your UI _reacts_ when it changes.
 
 <script>
 	let count = $state(0);
 </script>
+
 <button onclick={() => count++}>
-	clicks: {count}
+clicks: {count}
 </button>
 
 Unlike other frameworks you may have encountered, there is no API for interacting with state — `count` is just a number, rather than an object or a function, and you can update it like you would update any other variable.
 
 ### Deep state[]($state.html#Deep-state)
 
-If `$state` is used with an array or a simple object, the result is a deeply reactive *state proxy*. [Proxies](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) allow Svelte to run code when you read or write properties, including via methods like `array.push(...)`, triggering granular updates.
+If `$state` is used with an array or a simple object, the result is a deeply reactive _state proxy_. [Proxies](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) allow Svelte to run code when you read or write properties, including via methods like `array.push(...)`, triggering granular updates.
 
 > Classes like `Set` and `Map` will not be proxied, but Svelte provides reactive implementations for various built-ins like these that can be imported from [`svelte/reactivity`](svelte-reactivity.html).
 
@@ -139,10 +42,10 @@ let count = $state(0);
 @paraminitial The initial value
 
 $state([
-	{
-		`done: boolean`done: false,
-		`text: string`text: 'add more todos'
-	}
+{
+`done: boolean`done: false,
+`text: string`text: 'add more todos'
+}
 ]);
 
 ...modifying an individual todo’s property will trigger updates to anything in your UI that depends on that specific property:
@@ -158,11 +61,11 @@ Appends new elements to the end of an array, and returns the new length of the a
 @paramitems New elements to add to the array.
 
 push({
-	`done: boolean`done: false,
-	`text: string`text: 'eat lunch'
+`done: boolean`done: false,
+`text: string`text: 'eat lunch'
 });
 
-> When you update properties of proxies, the original object is *not* mutated.
+> When you update properties of proxies, the original object is _not_ mutated.
 
 Note that if you destructure a reactive value, the references are not reactive — as in normal JavaScript, they are evaluated at the point of destructuring:
 
@@ -175,7 +78,7 @@ let { `let done: boolean`done, `let text: string`text } = `module todos let todo
 You can also use `$state` in class fields (whether public or private):
 
 class `class Todo`Todo {
-	`Todo.done: boolean`done = `function $state<false>(initial: false): false (+1 overload) namespace $state`
+`Todo.done: boolean`done = `function $state<false>(initial: false): false (+1 overload) namespace $state`
 
 Declares reactive state.
 
@@ -188,7 +91,7 @@ let count = $state(0);
 @paraminitial The initial value
 
 $state(false);
-	`Todo.text: any`text = `function $state<any>(): any (+1 overload) namespace $state`
+`Todo.text: any`text = `function $state<any>(): any (+1 overload) namespace $state`
 
 Declares reactive state.
 
@@ -201,13 +104,13 @@ let count = $state(0);
 @paraminitial The initial value
 
 $state();
-	constructor(text) {
-		this.`Todo.text: any`text = `text: any`text;
-	}
-	`Todo.reset(): void`reset() {
-		this.`Todo.text: any`text = '';
-		this.`Todo.done: boolean`done = false;
-	}
+constructor(text) {
+this.`Todo.text: any`text = `text: any`text;
+}
+`Todo.reset(): void`reset() {
+this.`Todo.text: any`text = '';
+this.`Todo.done: boolean`done = false;
+}
 }
 
 > The compiler transforms `done` and `text` into `get` / `set` methods on the class prototype referencing private fields. This means the properties are not enumerable.
@@ -221,13 +124,13 @@ When calling methods in JavaScript, the value of [`this`](https://developer.mozi
 You can either use an inline function...
 
 <button onclick={() => todo.reset()}>
-	reset
+reset
 </button>
 
 ...or use an arrow function in the class definition:
 
 class `class Todo`Todo {
-	`Todo.done: boolean`done = `function $state<false>(initial: false): false (+1 overload) namespace $state`
+`Todo.done: boolean`done = `function $state<false>(initial: false): false (+1 overload) namespace $state`
 
 Declares reactive state.
 
@@ -240,7 +143,7 @@ let count = $state(0);
 @paraminitial The initial value
 
 $state(false);
-	`Todo.text: any`text = `function $state<any>(): any (+1 overload) namespace $state`
+`Todo.text: any`text = `function $state<any>(): any (+1 overload) namespace $state`
 
 Declares reactive state.
 
@@ -253,20 +156,20 @@ let count = $state(0);
 @paraminitial The initial value
 
 $state();
-	constructor(text) {
-		this.`Todo.text: any`text = `text: any`text;
-	}
-	`Todo.reset: () => void`reset = () => {
-		this.`Todo.text: any`text = '';
-		this.`Todo.done: boolean`done = false;
-	}
+constructor(text) {
+this.`Todo.text: any`text = `text: any`text;
+}
+`Todo.reset: () => void`reset = () => {
+this.`Todo.text: any`text = '';
+this.`Todo.done: boolean`done = false;
+}
 }
 
 ## $state.raw[]($state.html#$state.raw)
 
 In cases where you don’t want objects and arrays to be deeply reactive you can use `$state.raw`.
 
-State declared with `$state.raw` cannot be mutated; it can only be *reassigned*. In other words, rather than assigning to a property of an object, or using an array method like `push`, replace the object or array altogether if you’d like to update it:
+State declared with `$state.raw` cannot be mutated; it can only be _reassigned_. In other words, rather than assigning to a property of an object, or using an array method like `push`, replace the object or array altogether if you’d like to update it:
 
 let `let person: {     name: string;     age: number; }`person = `namespace $state function $state<T>(initial: T): T (+1 overload)`
 
@@ -282,19 +185,19 @@ let count = $state(0);
 
 $state.`function $state.raw<{     name: string;     age: number; }>(initial: {     name: string;     age: number; }): {     name: string;     age: number; } (+1 overload)`
 
-Declares state that is *not* made deeply reactive — instead of mutating it,
+Declares state that is _not_ made deeply reactive — instead of mutating it,
 you must reassign it.
 
 Example:
 
 &#x3C;script>
-  let items = $state.raw([0]);
-  const addItem = () => {
-	items = [...items, items.length];
-  };
+let items = $state.raw([0]);
+const addItem = () => {
+items = [...items, items.length];
+};
 &#x3C;/script>
 &#x3C;button on:click={addItem}>
-  {items.join(', ')}
+{items.join(', ')}
 &#x3C;/button>
 
 [https://svelte.dev/docs/svelte/$state#$state.raw]($state.html#$state.raw)
@@ -302,18 +205,18 @@ Example:
 @paraminitial The initial value
 
 raw({
-	`name: string`name: 'Heraclitus',
-	`age: number`age: 49
+`name: string`name: 'Heraclitus',
+`age: number`age: 49
 });
 // this will have no effect
 `let person: {     name: string;     age: number; }`person.`age: number`age += 1;
 // this will work, because we're creating a new person
 `let person: {     name: string;     age: number; }`person = {
-	`name: string`name: 'Heraclitus',
-	`age: number`age: 50
+`name: string`name: 'Heraclitus',
+`age: number`age: 50
 };
 
-This can improve performance with large arrays and objects that you weren’t planning to mutate anyway, since it avoids the cost of making them reactive. Note that raw state can *contain* reactive state (for example, a raw array of reactive objects).
+This can improve performance with large arrays and objects that you weren’t planning to mutate anyway, since it avoids the cost of making them reactive. Note that raw state can _contain_ reactive state (for example, a raw array of reactive objects).
 
 ## $state.snapshot[]($state.html#$state.snapshot)
 
@@ -331,36 +234,37 @@ This is handy when you want to pass some state to an external library or API tha
 
 ## Passing state into functions[]($state.html#Passing-state-into-functions)
 
-JavaScript is a *pass-by-value* language — when you call a function, the arguments are the *values* rather than the *variables*. In other words:
+JavaScript is a _pass-by-value_ language — when you call a function, the arguments are the _values_ rather than the _variables_. In other words:
 
 index
 
-/**
- * @param {number} a
- * @param {number} b
- */
-function `function add(a: number, b: number): number`
+/\*\*
 
-@parama 
+- @param {number} a
+- @param {number} b
+  \*/
+  function `function add(a: number, b: number): number`
 
-@paramb 
+@parama
+
+@paramb
 
 add(`a: number`
 
-@parama 
+@parama
 
 a, `b: number`
 
-@paramb 
+@paramb
 
 b) {
-	return `a: number`
+return `a: number`
 
-@parama 
+@parama
 
 a + `b: number`
 
-@paramb 
+@paramb
 
 b;
 }
@@ -368,9 +272,9 @@ let `let a: number`a = 1;
 let `let b: number`b = 2;
 let `let total: number`total = `function add(a: number, b: number): number`
 
-@parama 
+@parama
 
-@paramb 
+@paramb
 
 add(`let a: number`a, `let b: number`b);
 `var console: Console`
@@ -380,11 +284,11 @@ JavaScript console mechanism provided by web browsers.
 
 The module exports two specific components:
 
--   A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
--   A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
-    [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
+- A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
+- A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
+  [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
 
-***Warning***: The global console object’s methods are neither consistently
+**_Warning_**: The global console object’s methods are neither consistently
 synchronous like the browser APIs they resemble, nor are they consistently
 asynchronous like all other Node.js streams. See the [`note on process I/O`](https://nodejs.org/docs/latest-v20.x/api/process.html#a-note-on-process-io) for
 more information.
@@ -397,14 +301,14 @@ console.log('hello %s', 'world');
 // Prints: hello world, to stdout
 console.error(new Error('Whoops, something bad happened'));
 // Prints error message and stack trace to stderr:
-//   Error: Whoops, something bad happened
-//     at [eval]:5:15
-//     at Script.runInThisContext (node:vm:132:18)
-//     at Object.runInThisContext (node:vm:309:38)
-//     at node:internal/process/execution:77:19
-//     at [eval]-wrapper:6:22
-//     at evalScript (node:internal/process/execution:76:60)
-//     at node:internal/main/eval_string:23:3
+// Error: Whoops, something bad happened
+// at [eval]:5:15
+// at Script.runInThisContext (node:vm:132:18)
+// at Object.runInThisContext (node:vm:309:38)
+// at node:internal/process/execution:77:19
+// at [eval]-wrapper:6:22
+// at evalScript (node:internal/process/execution:76:60)
+// at node:internal/main/eval_string:23:3
 const name = 'Will Robinson';
 console.warn(`Danger ${name}! Danger!`);
 // Prints: Danger Will Robinson! Danger!, to stderr
@@ -453,11 +357,11 @@ JavaScript console mechanism provided by web browsers.
 
 The module exports two specific components:
 
--   A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
--   A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
-    [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
+- A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
+- A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
+  [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
 
-***Warning***: The global console object’s methods are neither consistently
+**_Warning_**: The global console object’s methods are neither consistently
 synchronous like the browser APIs they resemble, nor are they consistently
 asynchronous like all other Node.js streams. See the [`note on process I/O`](https://nodejs.org/docs/latest-v20.x/api/process.html#a-note-on-process-io) for
 more information.
@@ -470,14 +374,14 @@ console.log('hello %s', 'world');
 // Prints: hello world, to stdout
 console.error(new Error('Whoops, something bad happened'));
 // Prints error message and stack trace to stderr:
-//   Error: Whoops, something bad happened
-//     at [eval]:5:15
-//     at Script.runInThisContext (node:vm:132:18)
-//     at Object.runInThisContext (node:vm:309:38)
-//     at node:internal/process/execution:77:19
-//     at [eval]-wrapper:6:22
-//     at evalScript (node:internal/process/execution:76:60)
-//     at node:internal/main/eval_string:23:3
+// Error: Whoops, something bad happened
+// at [eval]:5:15
+// at Script.runInThisContext (node:vm:132:18)
+// at Object.runInThisContext (node:vm:309:38)
+// at node:internal/process/execution:77:19
+// at [eval]-wrapper:6:22
+// at evalScript (node:internal/process/execution:76:60)
+// at node:internal/main/eval_string:23:3
 const name = 'Will Robinson';
 console.warn(`Danger ${name}! Danger!`);
 // Prints: Danger Will Robinson! Danger!, to stderr
@@ -517,7 +421,7 @@ See [`util.format()`](https://nodejs.org/docs/latest-v20.x/api/util.html#utilfor
 @sincev0.1.100
 
 log(`let total: number`total); // still 3!function `function add(a: number, b: number): number`add(`a: number`a: number, `b: number`b: number) {
-	return `a: number`a + `b: number`b;
+return `a: number`a + `b: number`b;
 }
 let `let a: number`a = 1;
 let `let b: number`b = 2;
@@ -529,11 +433,11 @@ JavaScript console mechanism provided by web browsers.
 
 The module exports two specific components:
 
--   A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
--   A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
-    [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
+- A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
+- A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
+  [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
 
-***Warning***: The global console object’s methods are neither consistently
+**_Warning_**: The global console object’s methods are neither consistently
 synchronous like the browser APIs they resemble, nor are they consistently
 asynchronous like all other Node.js streams. See the [`note on process I/O`](https://nodejs.org/docs/latest-v20.x/api/process.html#a-note-on-process-io) for
 more information.
@@ -546,14 +450,14 @@ console.log('hello %s', 'world');
 // Prints: hello world, to stdout
 console.error(new Error('Whoops, something bad happened'));
 // Prints error message and stack trace to stderr:
-//   Error: Whoops, something bad happened
-//     at [eval]:5:15
-//     at Script.runInThisContext (node:vm:132:18)
-//     at Object.runInThisContext (node:vm:309:38)
-//     at node:internal/process/execution:77:19
-//     at [eval]-wrapper:6:22
-//     at evalScript (node:internal/process/execution:76:60)
-//     at node:internal/main/eval_string:23:3
+// Error: Whoops, something bad happened
+// at [eval]:5:15
+// at Script.runInThisContext (node:vm:132:18)
+// at Object.runInThisContext (node:vm:309:38)
+// at node:internal/process/execution:77:19
+// at [eval]-wrapper:6:22
+// at evalScript (node:internal/process/execution:76:60)
+// at node:internal/main/eval_string:23:3
 const name = 'Will Robinson';
 console.warn(`Danger ${name}! Danger!`);
 // Prints: Danger Will Robinson! Danger!, to stderr
@@ -602,11 +506,11 @@ JavaScript console mechanism provided by web browsers.
 
 The module exports two specific components:
 
--   A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
--   A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
-    [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
+- A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
+- A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
+  [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
 
-***Warning***: The global console object’s methods are neither consistently
+**_Warning_**: The global console object’s methods are neither consistently
 synchronous like the browser APIs they resemble, nor are they consistently
 asynchronous like all other Node.js streams. See the [`note on process I/O`](https://nodejs.org/docs/latest-v20.x/api/process.html#a-note-on-process-io) for
 more information.
@@ -619,14 +523,14 @@ console.log('hello %s', 'world');
 // Prints: hello world, to stdout
 console.error(new Error('Whoops, something bad happened'));
 // Prints error message and stack trace to stderr:
-//   Error: Whoops, something bad happened
-//     at [eval]:5:15
-//     at Script.runInThisContext (node:vm:132:18)
-//     at Object.runInThisContext (node:vm:309:38)
-//     at node:internal/process/execution:77:19
-//     at [eval]-wrapper:6:22
-//     at evalScript (node:internal/process/execution:76:60)
-//     at node:internal/main/eval_string:23:3
+// Error: Whoops, something bad happened
+// at [eval]:5:15
+// at Script.runInThisContext (node:vm:132:18)
+// at Object.runInThisContext (node:vm:309:38)
+// at node:internal/process/execution:77:19
+// at [eval]-wrapper:6:22
+// at evalScript (node:internal/process/execution:76:60)
+// at node:internal/main/eval_string:23:3
 const name = 'Will Robinson';
 console.warn(`Danger ${name}! Danger!`);
 // Prints: Danger Will Robinson! Danger!, to stderr
@@ -667,36 +571,37 @@ See [`util.format()`](https://nodejs.org/docs/latest-v20.x/api/util.html#utilfor
 
 log(`let total: number`total); // still 3!
 
-If `add` wanted to have access to the *current* values of `a` and `b`, and to return the current `total` value, you would need to use functions instead:
+If `add` wanted to have access to the _current_ values of `a` and `b`, and to return the current `total` value, you would need to use functions instead:
 
 index
 
-/**
- * @param {() => number} getA
- * @param {() => number} getB
- */
-function `function add(getA: () => number, getB: () => number): () => number`
+/\*\*
 
-@paramgetA 
+- @param {() => number} getA
+- @param {() => number} getB
+  \*/
+  function `function add(getA: () => number, getB: () => number): () => number`
 
-@paramgetB 
+@paramgetA
+
+@paramgetB
 
 add(`getA: () => number`
 
-@paramgetA 
+@paramgetA
 
 getA, `getB: () => number`
 
-@paramgetB 
+@paramgetB
 
 getB) {
-	return () => `getA: () => number`
+return () => `getA: () => number`
 
-@paramgetA 
+@paramgetA
 
 getA() + `getB: () => number`
 
-@paramgetB 
+@paramgetB
 
 getB();
 }
@@ -704,9 +609,9 @@ let `let a: number`a = 1;
 let `let b: number`b = 2;
 let `let total: () => number`total = `function add(getA: () => number, getB: () => number): () => number`
 
-@paramgetA 
+@paramgetA
 
-@paramgetB 
+@paramgetB
 
 add(() => `let a: number`a, () => `let b: number`b);
 `var console: Console`
@@ -716,11 +621,11 @@ JavaScript console mechanism provided by web browsers.
 
 The module exports two specific components:
 
--   A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
--   A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
-    [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
+- A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
+- A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
+  [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
 
-***Warning***: The global console object’s methods are neither consistently
+**_Warning_**: The global console object’s methods are neither consistently
 synchronous like the browser APIs they resemble, nor are they consistently
 asynchronous like all other Node.js streams. See the [`note on process I/O`](https://nodejs.org/docs/latest-v20.x/api/process.html#a-note-on-process-io) for
 more information.
@@ -733,14 +638,14 @@ console.log('hello %s', 'world');
 // Prints: hello world, to stdout
 console.error(new Error('Whoops, something bad happened'));
 // Prints error message and stack trace to stderr:
-//   Error: Whoops, something bad happened
-//     at [eval]:5:15
-//     at Script.runInThisContext (node:vm:132:18)
-//     at Object.runInThisContext (node:vm:309:38)
-//     at node:internal/process/execution:77:19
-//     at [eval]-wrapper:6:22
-//     at evalScript (node:internal/process/execution:76:60)
-//     at node:internal/main/eval_string:23:3
+// Error: Whoops, something bad happened
+// at [eval]:5:15
+// at Script.runInThisContext (node:vm:132:18)
+// at Object.runInThisContext (node:vm:309:38)
+// at node:internal/process/execution:77:19
+// at [eval]-wrapper:6:22
+// at evalScript (node:internal/process/execution:76:60)
+// at node:internal/main/eval_string:23:3
 const name = 'Will Robinson';
 console.warn(`Danger ${name}! Danger!`);
 // Prints: Danger Will Robinson! Danger!, to stderr
@@ -789,11 +694,11 @@ JavaScript console mechanism provided by web browsers.
 
 The module exports two specific components:
 
--   A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
--   A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
-    [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
+- A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
+- A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
+  [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
 
-***Warning***: The global console object’s methods are neither consistently
+**_Warning_**: The global console object’s methods are neither consistently
 synchronous like the browser APIs they resemble, nor are they consistently
 asynchronous like all other Node.js streams. See the [`note on process I/O`](https://nodejs.org/docs/latest-v20.x/api/process.html#a-note-on-process-io) for
 more information.
@@ -806,14 +711,14 @@ console.log('hello %s', 'world');
 // Prints: hello world, to stdout
 console.error(new Error('Whoops, something bad happened'));
 // Prints error message and stack trace to stderr:
-//   Error: Whoops, something bad happened
-//     at [eval]:5:15
-//     at Script.runInThisContext (node:vm:132:18)
-//     at Object.runInThisContext (node:vm:309:38)
-//     at node:internal/process/execution:77:19
-//     at [eval]-wrapper:6:22
-//     at evalScript (node:internal/process/execution:76:60)
-//     at node:internal/main/eval_string:23:3
+// Error: Whoops, something bad happened
+// at [eval]:5:15
+// at Script.runInThisContext (node:vm:132:18)
+// at Object.runInThisContext (node:vm:309:38)
+// at node:internal/process/execution:77:19
+// at [eval]-wrapper:6:22
+// at evalScript (node:internal/process/execution:76:60)
+// at node:internal/main/eval_string:23:3
 const name = 'Will Robinson';
 console.warn(`Danger ${name}! Danger!`);
 // Prints: Danger Will Robinson! Danger!, to stderr
@@ -853,7 +758,7 @@ See [`util.format()`](https://nodejs.org/docs/latest-v20.x/api/util.html#utilfor
 @sincev0.1.100
 
 log(`let total: () => number`total()); // 7function `function add(getA: () => number, getB: () => number): () => number`add(`getA: () => number`getA: () => number, `getB: () => number`getB: () => number) {
-	return () => `getA: () => number`getA() + `getB: () => number`getB();
+return () => `getA: () => number`getA() + `getB: () => number`getB();
 }
 let `let a: number`a = 1;
 let `let b: number`b = 2;
@@ -865,11 +770,11 @@ JavaScript console mechanism provided by web browsers.
 
 The module exports two specific components:
 
--   A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
--   A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
-    [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
+- A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
+- A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
+  [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
 
-***Warning***: The global console object’s methods are neither consistently
+**_Warning_**: The global console object’s methods are neither consistently
 synchronous like the browser APIs they resemble, nor are they consistently
 asynchronous like all other Node.js streams. See the [`note on process I/O`](https://nodejs.org/docs/latest-v20.x/api/process.html#a-note-on-process-io) for
 more information.
@@ -882,14 +787,14 @@ console.log('hello %s', 'world');
 // Prints: hello world, to stdout
 console.error(new Error('Whoops, something bad happened'));
 // Prints error message and stack trace to stderr:
-//   Error: Whoops, something bad happened
-//     at [eval]:5:15
-//     at Script.runInThisContext (node:vm:132:18)
-//     at Object.runInThisContext (node:vm:309:38)
-//     at node:internal/process/execution:77:19
-//     at [eval]-wrapper:6:22
-//     at evalScript (node:internal/process/execution:76:60)
-//     at node:internal/main/eval_string:23:3
+// Error: Whoops, something bad happened
+// at [eval]:5:15
+// at Script.runInThisContext (node:vm:132:18)
+// at Object.runInThisContext (node:vm:309:38)
+// at node:internal/process/execution:77:19
+// at [eval]-wrapper:6:22
+// at evalScript (node:internal/process/execution:76:60)
+// at node:internal/main/eval_string:23:3
 const name = 'Will Robinson';
 console.warn(`Danger ${name}! Danger!`);
 // Prints: Danger Will Robinson! Danger!, to stderr
@@ -938,11 +843,11 @@ JavaScript console mechanism provided by web browsers.
 
 The module exports two specific components:
 
--   A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
--   A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
-    [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
+- A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
+- A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
+  [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
 
-***Warning***: The global console object’s methods are neither consistently
+**_Warning_**: The global console object’s methods are neither consistently
 synchronous like the browser APIs they resemble, nor are they consistently
 asynchronous like all other Node.js streams. See the [`note on process I/O`](https://nodejs.org/docs/latest-v20.x/api/process.html#a-note-on-process-io) for
 more information.
@@ -955,14 +860,14 @@ console.log('hello %s', 'world');
 // Prints: hello world, to stdout
 console.error(new Error('Whoops, something bad happened'));
 // Prints error message and stack trace to stderr:
-//   Error: Whoops, something bad happened
-//     at [eval]:5:15
-//     at Script.runInThisContext (node:vm:132:18)
-//     at Object.runInThisContext (node:vm:309:38)
-//     at node:internal/process/execution:77:19
-//     at [eval]-wrapper:6:22
-//     at evalScript (node:internal/process/execution:76:60)
-//     at node:internal/main/eval_string:23:3
+// Error: Whoops, something bad happened
+// at [eval]:5:15
+// at Script.runInThisContext (node:vm:132:18)
+// at Object.runInThisContext (node:vm:309:38)
+// at node:internal/process/execution:77:19
+// at [eval]-wrapper:6:22
+// at evalScript (node:internal/process/execution:76:60)
+// at node:internal/main/eval_string:23:3
 const name = 'Will Robinson';
 console.warn(`Danger ${name}! Danger!`);
 // Prints: Danger Will Robinson! Danger!, to stderr
@@ -1032,37 +937,38 @@ let count = $state(0);
 
 $state(2);
 
-...you’re accessing its *current value*.
+...you’re accessing its _current value_.
 
 Note that ‘functions’ is broad — it encompasses properties of proxies and [`get`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get)/[`set`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/set) properties...
 
 index
 
-/**
- * @param {{ a: number, b: number }} input
- */
-function `function add(input: {     a: number;     b: number; }): {     readonly value: number; }`
+/\*\*
 
-@paraminput 
+- @param {{ a: number, b: number }} input
+  \*/
+  function `function add(input: {     a: number;     b: number; }): {     readonly value: number; }`
+
+@paraminput
 
 add(`input: {     a: number;     b: number; }`
 
-@paraminput 
+@paraminput
 
 input) {
-	return {
-		get `value: number`value() {
-			return `input: {     a: number;     b: number; }`
+return {
+get `value: number`value() {
+return `input: {     a: number;     b: number; }`
 
-@paraminput 
+@paraminput
 
 input.`a: number`a + `input: {     a: number;     b: number; }`
 
-@paraminput 
+@paraminput
 
 input.`b: number`b;
-		}
-	};
+}
+};
 }
 let `module input let input: {     a: number;     b: number; }`input = `function $state<{     a: number;     b: number; }>(initial: {     a: number;     b: number; }): {     a: number;     b: number; } (+1 overload) namespace $state`
 
@@ -1079,7 +985,7 @@ let count = $state(0);
 $state({ `a: number`a: 1, `b: number`b: 2 });
 let `let total: {     readonly value: number; }`total = `function add(input: {     a: number;     b: number; }): {     readonly value: number; }`
 
-@paraminput 
+@paraminput
 
 add(`module input let input: {     a: number;     b: number; }`input);
 `var console: Console`
@@ -1089,11 +995,11 @@ JavaScript console mechanism provided by web browsers.
 
 The module exports two specific components:
 
--   A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
--   A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
-    [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
+- A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
+- A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
+  [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
 
-***Warning***: The global console object’s methods are neither consistently
+**_Warning_**: The global console object’s methods are neither consistently
 synchronous like the browser APIs they resemble, nor are they consistently
 asynchronous like all other Node.js streams. See the [`note on process I/O`](https://nodejs.org/docs/latest-v20.x/api/process.html#a-note-on-process-io) for
 more information.
@@ -1106,14 +1012,14 @@ console.log('hello %s', 'world');
 // Prints: hello world, to stdout
 console.error(new Error('Whoops, something bad happened'));
 // Prints error message and stack trace to stderr:
-//   Error: Whoops, something bad happened
-//     at [eval]:5:15
-//     at Script.runInThisContext (node:vm:132:18)
-//     at Object.runInThisContext (node:vm:309:38)
-//     at node:internal/process/execution:77:19
-//     at [eval]-wrapper:6:22
-//     at evalScript (node:internal/process/execution:76:60)
-//     at node:internal/main/eval_string:23:3
+// Error: Whoops, something bad happened
+// at [eval]:5:15
+// at Script.runInThisContext (node:vm:132:18)
+// at Object.runInThisContext (node:vm:309:38)
+// at node:internal/process/execution:77:19
+// at [eval]-wrapper:6:22
+// at evalScript (node:internal/process/execution:76:60)
+// at node:internal/main/eval_string:23:3
 const name = 'Will Robinson';
 console.warn(`Danger ${name}! Danger!`);
 // Prints: Danger Will Robinson! Danger!, to stderr
@@ -1162,11 +1068,11 @@ JavaScript console mechanism provided by web browsers.
 
 The module exports two specific components:
 
--   A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
--   A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
-    [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
+- A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
+- A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
+  [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
 
-***Warning***: The global console object’s methods are neither consistently
+**_Warning_**: The global console object’s methods are neither consistently
 synchronous like the browser APIs they resemble, nor are they consistently
 asynchronous like all other Node.js streams. See the [`note on process I/O`](https://nodejs.org/docs/latest-v20.x/api/process.html#a-note-on-process-io) for
 more information.
@@ -1179,14 +1085,14 @@ console.log('hello %s', 'world');
 // Prints: hello world, to stdout
 console.error(new Error('Whoops, something bad happened'));
 // Prints error message and stack trace to stderr:
-//   Error: Whoops, something bad happened
-//     at [eval]:5:15
-//     at Script.runInThisContext (node:vm:132:18)
-//     at Object.runInThisContext (node:vm:309:38)
-//     at node:internal/process/execution:77:19
-//     at [eval]-wrapper:6:22
-//     at evalScript (node:internal/process/execution:76:60)
-//     at node:internal/main/eval_string:23:3
+// Error: Whoops, something bad happened
+// at [eval]:5:15
+// at Script.runInThisContext (node:vm:132:18)
+// at Object.runInThisContext (node:vm:309:38)
+// at node:internal/process/execution:77:19
+// at [eval]-wrapper:6:22
+// at evalScript (node:internal/process/execution:76:60)
+// at node:internal/main/eval_string:23:3
 const name = 'Will Robinson';
 console.warn(`Danger ${name}! Danger!`);
 // Prints: Danger Will Robinson! Danger!, to stderr
@@ -1226,11 +1132,11 @@ See [`util.format()`](https://nodejs.org/docs/latest-v20.x/api/util.html#utilfor
 @sincev0.1.100
 
 log(`let total: {     readonly value: number; }`total.`value: number`value); // 7function `function add(input: {     a: number;     b: number; }): {     readonly value: number; }`add(`input: {     a: number;     b: number; }`input: { `a: number`a: number, `b: number`b: number }) {
-	return {
-		get `value: number`value() {
-			return `input: {     a: number;     b: number; }`input.`a: number`a + `input: {     a: number;     b: number; }`input.`b: number`b;
-		}
-	};
+return {
+get `value: number`value() {
+return `input: {     a: number;     b: number; }`input.`a: number`a + `input: {     a: number;     b: number; }`input.`b: number`b;
+}
+};
 }
 let `let input: {     a: number;     b: number; }`input = `function $state<{     a: number;     b: number; }>(initial: {     a: number;     b: number; }): {     a: number;     b: number; } (+1 overload) namespace $state`
 
@@ -1253,11 +1159,11 @@ JavaScript console mechanism provided by web browsers.
 
 The module exports two specific components:
 
--   A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
--   A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
-    [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
+- A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
+- A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
+  [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
 
-***Warning***: The global console object’s methods are neither consistently
+**_Warning_**: The global console object’s methods are neither consistently
 synchronous like the browser APIs they resemble, nor are they consistently
 asynchronous like all other Node.js streams. See the [`note on process I/O`](https://nodejs.org/docs/latest-v20.x/api/process.html#a-note-on-process-io) for
 more information.
@@ -1270,14 +1176,14 @@ console.log('hello %s', 'world');
 // Prints: hello world, to stdout
 console.error(new Error('Whoops, something bad happened'));
 // Prints error message and stack trace to stderr:
-//   Error: Whoops, something bad happened
-//     at [eval]:5:15
-//     at Script.runInThisContext (node:vm:132:18)
-//     at Object.runInThisContext (node:vm:309:38)
-//     at node:internal/process/execution:77:19
-//     at [eval]-wrapper:6:22
-//     at evalScript (node:internal/process/execution:76:60)
-//     at node:internal/main/eval_string:23:3
+// Error: Whoops, something bad happened
+// at [eval]:5:15
+// at Script.runInThisContext (node:vm:132:18)
+// at Object.runInThisContext (node:vm:309:38)
+// at node:internal/process/execution:77:19
+// at [eval]-wrapper:6:22
+// at evalScript (node:internal/process/execution:76:60)
+// at node:internal/main/eval_string:23:3
 const name = 'Will Robinson';
 console.warn(`Danger ${name}! Danger!`);
 // Prints: Danger Will Robinson! Danger!, to stderr
@@ -1326,11 +1232,11 @@ JavaScript console mechanism provided by web browsers.
 
 The module exports two specific components:
 
--   A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
--   A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
-    [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
+- A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
+- A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
+  [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
 
-***Warning***: The global console object’s methods are neither consistently
+**_Warning_**: The global console object’s methods are neither consistently
 synchronous like the browser APIs they resemble, nor are they consistently
 asynchronous like all other Node.js streams. See the [`note on process I/O`](https://nodejs.org/docs/latest-v20.x/api/process.html#a-note-on-process-io) for
 more information.
@@ -1343,14 +1249,14 @@ console.log('hello %s', 'world');
 // Prints: hello world, to stdout
 console.error(new Error('Whoops, something bad happened'));
 // Prints error message and stack trace to stderr:
-//   Error: Whoops, something bad happened
-//     at [eval]:5:15
-//     at Script.runInThisContext (node:vm:132:18)
-//     at Object.runInThisContext (node:vm:309:38)
-//     at node:internal/process/execution:77:19
-//     at [eval]-wrapper:6:22
-//     at evalScript (node:internal/process/execution:76:60)
-//     at node:internal/main/eval_string:23:3
+// Error: Whoops, something bad happened
+// at [eval]:5:15
+// at Script.runInThisContext (node:vm:132:18)
+// at Object.runInThisContext (node:vm:309:38)
+// at node:internal/process/execution:77:19
+// at [eval]-wrapper:6:22
+// at evalScript (node:internal/process/execution:76:60)
+// at node:internal/main/eval_string:23:3
 const name = 'Will Robinson';
 console.warn(`Danger ${name}! Danger!`);
 // Prints: Danger Will Robinson! Danger!, to stderr

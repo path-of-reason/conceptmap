@@ -1,110 +1,12 @@
--   ### Introduction
-    
-    -   [Overview](overview.html)
-    -   [Getting started](getting-started.html)
-    -   [.svelte files](svelte-files.html)
-    -   [.svelte.js and .svelte.ts files](svelte-js-files.html)
--   ### Runes
-    
-    -   [What are runes?](what-are-runes.html)
-    -   [$state]($state.html)
-    -   [$derived]($derived.html)
-    -   [$effect]($effect.html)
-    -   [$props]($props.html)
-    -   [$bindable]($bindable.html)
-    -   [$inspect]($inspect.html)
-    -   [$host]($host.html)
--   ### Template syntax
-    
-    -   [Basic markup](basic-markup.html)
-    -   [{#if ...}](if.html)
-    -   [{#each ...}](each.html)
-    -   [{#key ...}](key.html)
-    -   [{#await ...}](await.html)
-    -   [{#snippet ...}](snippet.html)
-    -   [{@render ...}](@render.html)
-    -   [{@html ...}](@html.html)
-    -   [{@const ...}](@const.html)
-    -   [{@debug ...}](@debug.html)
-    -   [bind:](bind.html)
-    -   [use:](use.html)
-    -   [transition:](transition.html)
-    -   [in: and out:](in-and-out.html)
-    -   [animate:](animate.html)
-    -   [style:](style.html)
-    -   [class](class.html)
--   ### Styling
-    
-    -   [Scoped styles](scoped-styles.html)
-    -   [Global styles](global-styles.html)
-    -   [Custom properties](custom-properties.html)
-    -   [Nested <style> elements](nested-style-elements.html)
--   ### Special elements
-    
-    -   [<svelte:boundary>](svelte-boundary.html)
-    -   [<svelte:window>](svelte-window.html)
-    -   [<svelte:document>](svelte-document.html)
-    -   [<svelte:body>](svelte-body.html)
-    -   [<svelte:head>](svelte-head.html)
-    -   [<svelte:element>](svelte-element.html)
-    -   [<svelte:options>](svelte-options.html)
--   ### Runtime
-    
-    -   [Stores](stores.html)
-    -   [Context](context.html)
-    -   [Lifecycle hooks](lifecycle-hooks.html)
-    -   [Imperative component API](imperative-component-api.html)
--   ### Misc
-    
-    -   [Testing](testing.html)
-    -   [TypeScript](typescript.html)
-    -   [Custom elements](custom-elements.html)
-    -   [Svelte 4 migration guide](v4-migration-guide.html)
-    -   [Svelte 5 migration guide](v5-migration-guide.html)
-    -   [Frequently asked questions](faq.html)
--   ### Reference
-    
-    -   [svelte](svelte.html)
-    -   [svelte/action](svelte-action.html)
-    -   [svelte/animate](svelte-animate.html)
-    -   [svelte/compiler](svelte-compiler.html)
-    -   [svelte/easing](svelte-easing.html)
-    -   [svelte/events](svelte-events.html)
-    -   [svelte/legacy](svelte-legacy.html)
-    -   [svelte/motion](svelte-motion.html)
-    -   [svelte/reactivity/window](svelte-reactivity-window.html)
-    -   [svelte/reactivity](svelte-reactivity.html)
-    -   [svelte/server](svelte-server.html)
-    -   [svelte/store](svelte-store.html)
-    -   [svelte/transition](svelte-transition.html)
-    -   [Compiler errors](compiler-errors.html)
-    -   [Compiler warnings](compiler-warnings.html)
-    -   [Runtime errors](runtime-errors.html)
-    -   [Runtime warnings](runtime-warnings.html)
--   ### Legacy APIs
-    
-    -   [Overview](legacy-overview.html)
-    -   [Reactive let/var declarations](legacy-let.html)
-    -   [Reactive $: statements](legacy-reactive-assignments.html)
-    -   [export let](legacy-export-let.html)
-    -   [$$props and $$restProps](legacy-$$props-and-$$restProps.html)
-    -   [on:](legacy-on.html)
-    -   [<slot>](legacy-slots.html)
-    -   [$$slots](legacy-$$slots.html)
-    -   [<svelte:fragment>](legacy-svelte-fragment.html)
-    -   [<svelte:component>](legacy-svelte-component.html)
-    -   [<svelte:self>](legacy-svelte-self.html)
-    -   [Imperative component API](legacy-component-api.html)
-
 SvelteRunes
 
 # $inspect
 
 ### On this page
 
--   [$inspect]($inspect.html)
--   [$inspect(...).with]($inspect.html#$inspect\(\).with)
--   [$inspect.trace(...)]($inspect.html#$inspect.trace\(\))
+- [$inspect]($inspect.html)
+- [$inspect(...).with](<$inspect.html#$inspect().with>)
+- [$inspect.trace(...)](<$inspect.html#$inspect.trace()>)
 
 > `$inspect` only works during development. In a production build it becomes a noop.
 
@@ -115,6 +17,7 @@ The `$inspect` rune is roughly equivalent to `console.log`, with the exception t
 	let message = $state('hello');
 	$inspect(count, message); // will console.log when `count` or `message` change
 </script>
+
 <button onclick={() => count++}>Increment</button>
 <input bind:value={message} />
 
@@ -130,6 +33,7 @@ The `$inspect` rune is roughly equivalent to `console.log`, with the exception t
 		}
 	});
 </script>
+
 <button onclick={() => count++}>Increment</button>
 
 A convenient way to find the origin of some change is to pass `console.trace` to `with`:
@@ -156,11 +60,11 @@ JavaScript console mechanism provided by web browsers.
 
 The module exports two specific components:
 
--   A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
--   A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
-    [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
+- A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
+- A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstdout) and
+  [`process.stderr`](https://nodejs.org/docs/latest-v20.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
 
-***Warning***: The global console object’s methods are neither consistently
+**_Warning_**: The global console object’s methods are neither consistently
 synchronous like the browser APIs they resemble, nor are they consistently
 asynchronous like all other Node.js streams. See the [`note on process I/O`](https://nodejs.org/docs/latest-v20.x/api/process.html#a-note-on-process-io) for
 more information.
@@ -173,14 +77,14 @@ console.log('hello %s', 'world');
 // Prints: hello world, to stdout
 console.error(new Error('Whoops, something bad happened'));
 // Prints error message and stack trace to stderr:
-//   Error: Whoops, something bad happened
-//     at [eval]:5:15
-//     at Script.runInThisContext (node:vm:132:18)
-//     at Object.runInThisContext (node:vm:309:38)
-//     at node:internal/process/execution:77:19
-//     at [eval]-wrapper:6:22
-//     at evalScript (node:internal/process/execution:76:60)
-//     at node:internal/main/eval_string:23:3
+// Error: Whoops, something bad happened
+// at [eval]:5:15
+// at Script.runInThisContext (node:vm:132:18)
+// at Object.runInThisContext (node:vm:309:38)
+// at node:internal/process/execution:77:19
+// at [eval]-wrapper:6:22
+// at evalScript (node:internal/process/execution:76:60)
+// at node:internal/main/eval_string:23:3
 const name = 'Will Robinson';
 console.warn(`Danger ${name}! Danger!`);
 // Prints: Danger Will Robinson! Danger!, to stderr
@@ -210,7 +114,7 @@ trace);
 
 ## $inspect.trace(...)[]($inspect.html#$inspect.trace\(\))
 
-This rune, added in 5.14, causes the surrounding function to be *traced* in development. Any time the function re-runs as part of an [effect]($effect.html) or a [derived]($derived.html), information will be printed to the console about which pieces of reactive state caused the effect to fire.
+This rune, added in 5.14, causes the surrounding function to be _traced_ in development. Any time the function re-runs as part of an [effect]($effect.html) or a [derived]($derived.html), information will be printed to the console about which pieces of reactive state caused the effect to fire.
 
 <script>
 	import { doSomeWork } from './elsewhere';

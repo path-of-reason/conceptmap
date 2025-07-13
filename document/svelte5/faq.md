@@ -1,122 +1,24 @@
--   ### Introduction
-    
-    -   [Overview](overview.html)
-    -   [Getting started](getting-started.html)
-    -   [.svelte files](svelte-files.html)
-    -   [.svelte.js and .svelte.ts files](svelte-js-files.html)
--   ### Runes
-    
-    -   [What are runes?](what-are-runes.html)
-    -   [$state]($state.html)
-    -   [$derived]($derived.html)
-    -   [$effect]($effect.html)
-    -   [$props]($props.html)
-    -   [$bindable]($bindable.html)
-    -   [$inspect]($inspect.html)
-    -   [$host]($host.html)
--   ### Template syntax
-    
-    -   [Basic markup](basic-markup.html)
-    -   [{#if ...}](if.html)
-    -   [{#each ...}](each.html)
-    -   [{#key ...}](key.html)
-    -   [{#await ...}](await.html)
-    -   [{#snippet ...}](snippet.html)
-    -   [{@render ...}](@render.html)
-    -   [{@html ...}](@html.html)
-    -   [{@const ...}](@const.html)
-    -   [{@debug ...}](@debug.html)
-    -   [bind:](bind.html)
-    -   [use:](use.html)
-    -   [transition:](transition.html)
-    -   [in: and out:](in-and-out.html)
-    -   [animate:](animate.html)
-    -   [style:](style.html)
-    -   [class](class.html)
--   ### Styling
-    
-    -   [Scoped styles](scoped-styles.html)
-    -   [Global styles](global-styles.html)
-    -   [Custom properties](custom-properties.html)
-    -   [Nested <style> elements](nested-style-elements.html)
--   ### Special elements
-    
-    -   [<svelte:boundary>](svelte-boundary.html)
-    -   [<svelte:window>](svelte-window.html)
-    -   [<svelte:document>](svelte-document.html)
-    -   [<svelte:body>](svelte-body.html)
-    -   [<svelte:head>](svelte-head.html)
-    -   [<svelte:element>](svelte-element.html)
-    -   [<svelte:options>](svelte-options.html)
--   ### Runtime
-    
-    -   [Stores](stores.html)
-    -   [Context](context.html)
-    -   [Lifecycle hooks](lifecycle-hooks.html)
-    -   [Imperative component API](imperative-component-api.html)
--   ### Misc
-    
-    -   [Testing](testing.html)
-    -   [TypeScript](typescript.html)
-    -   [Custom elements](custom-elements.html)
-    -   [Svelte 4 migration guide](v4-migration-guide.html)
-    -   [Svelte 5 migration guide](v5-migration-guide.html)
-    -   [Frequently asked questions](faq.html)
--   ### Reference
-    
-    -   [svelte](svelte.html)
-    -   [svelte/action](svelte-action.html)
-    -   [svelte/animate](svelte-animate.html)
-    -   [svelte/compiler](svelte-compiler.html)
-    -   [svelte/easing](svelte-easing.html)
-    -   [svelte/events](svelte-events.html)
-    -   [svelte/legacy](svelte-legacy.html)
-    -   [svelte/motion](svelte-motion.html)
-    -   [svelte/reactivity/window](svelte-reactivity-window.html)
-    -   [svelte/reactivity](svelte-reactivity.html)
-    -   [svelte/server](svelte-server.html)
-    -   [svelte/store](svelte-store.html)
-    -   [svelte/transition](svelte-transition.html)
-    -   [Compiler errors](compiler-errors.html)
-    -   [Compiler warnings](compiler-warnings.html)
-    -   [Runtime errors](runtime-errors.html)
-    -   [Runtime warnings](runtime-warnings.html)
--   ### Legacy APIs
-    
-    -   [Overview](legacy-overview.html)
-    -   [Reactive let/var declarations](legacy-let.html)
-    -   [Reactive $: statements](legacy-reactive-assignments.html)
-    -   [export let](legacy-export-let.html)
-    -   [$$props and $$restProps](legacy-$$props-and-$$restProps.html)
-    -   [on:](legacy-on.html)
-    -   [<slot>](legacy-slots.html)
-    -   [$$slots](legacy-$$slots.html)
-    -   [<svelte:fragment>](legacy-svelte-fragment.html)
-    -   [<svelte:component>](legacy-svelte-component.html)
-    -   [<svelte:self>](legacy-svelte-self.html)
-    -   [Imperative component API](legacy-component-api.html)
-
 SvelteMisc
 
 # Frequently asked questions
 
 ### On this page
 
--   [Frequently asked questions](faq.html)
--   [I’m new to Svelte. Where should I start?](faq.html#I'm-new-to-Svelte.-Where-should-I-start)
--   [Where can I get support?](faq.html#Where-can-I-get-support)
--   [Are there any third-party resources?](faq.html#Are-there-any-third-party-resources)
--   [How can I get VS Code to syntax-highlight my .svelte files?](faq.html#How-can-I-get-VS-Code-to-syntax-highlight-my-.svelte-files)
--   [Is there a tool to automatically format my .svelte files?](faq.html#Is-there-a-tool-to-automatically-format-my-.svelte-files)
--   [How do I document my components?](faq.html#How-do-I-document-my-components)
--   [Does Svelte scale?](faq.html#Does-Svelte-scale)
--   [Is there a UI component library?](faq.html#Is-there-a-UI-component-library)
--   [How do I test Svelte apps?](faq.html#How-do-I-test-Svelte-apps)
--   [Is there a router?](faq.html#Is-there-a-router)
--   [How do I write a mobile app with Svelte?](faq.html#How-do-I-write-a-mobile-app-with-Svelte)
--   [Can I tell Svelte not to remove my unused styles?](faq.html#Can-I-tell-Svelte-not-to-remove-my-unused-styles)
--   [Is Svelte v2 still available?](faq.html#Is-Svelte-v2-still-available)
--   [How do I do hot module reloading?](faq.html#How-do-I-do-hot-module-reloading)
+- [Frequently asked questions](faq.html)
+- [I’m new to Svelte. Where should I start?](faq.html#I'm-new-to-Svelte.-Where-should-I-start)
+- [Where can I get support?](faq.html#Where-can-I-get-support)
+- [Are there any third-party resources?](faq.html#Are-there-any-third-party-resources)
+- [How can I get VS Code to syntax-highlight my .svelte files?](faq.html#How-can-I-get-VS-Code-to-syntax-highlight-my-.svelte-files)
+- [Is there a tool to automatically format my .svelte files?](faq.html#Is-there-a-tool-to-automatically-format-my-.svelte-files)
+- [How do I document my components?](faq.html#How-do-I-document-my-components)
+- [Does Svelte scale?](faq.html#Does-Svelte-scale)
+- [Is there a UI component library?](faq.html#Is-there-a-UI-component-library)
+- [How do I test Svelte apps?](faq.html#How-do-I-test-Svelte-apps)
+- [Is there a router?](faq.html#Is-there-a-router)
+- [How do I write a mobile app with Svelte?](faq.html#How-do-I-write-a-mobile-app-with-Svelte)
+- [Can I tell Svelte not to remove my unused styles?](faq.html#Can-I-tell-Svelte-not-to-remove-my-unused-styles)
+- [Is Svelte v2 still available?](faq.html#Is-Svelte-v2-still-available)
+- [How do I do hot module reloading?](faq.html#How-do-I-do-hot-module-reloading)
 
 ## I’m new to Svelte. Where should I start?[](faq.html#I'm-new-to-Svelte.-Where-should-I-start)
 
@@ -185,20 +87,20 @@ How your application is structured and where logic is defined will determine the
 
 A Svelte application will typically have three different types of tests: Unit, Component, and End-to-End (E2E).
 
-*Unit Tests*: Focus on testing business logic in isolation. Often this is validating individual functions and edge cases. By minimizing the surface area of these tests they can be kept lean and fast, and by extracting as much logic as possible from your Svelte components more of your application can be covered using them. When creating a new SvelteKit project, you will be asked whether you would like to setup [Vitest](https://vitest.dev/) for unit testing. There are a number of other test runners that could be used as well.
+_Unit Tests_: Focus on testing business logic in isolation. Often this is validating individual functions and edge cases. By minimizing the surface area of these tests they can be kept lean and fast, and by extracting as much logic as possible from your Svelte components more of your application can be covered using them. When creating a new SvelteKit project, you will be asked whether you would like to setup [Vitest](https://vitest.dev/) for unit testing. There are a number of other test runners that could be used as well.
 
-*Component Tests*: Validating that a Svelte component mounts and interacts as expected throughout its lifecycle requires a tool that provides a Document Object Model (DOM). Components can be compiled (since Svelte is a compiler and not a normal library) and mounted to allow asserting against element structure, listeners, state, and all the other capabilities provided by a Svelte component. Tools for component testing range from an in-memory implementation like jsdom paired with a test runner like [Vitest](https://vitest.dev/) to solutions that leverage an actual browser to provide a visual testing capability such as [Playwright](https://playwright.dev/docs/test-components) or [Cypress](https://www.cypress.io/).
+_Component Tests_: Validating that a Svelte component mounts and interacts as expected throughout its lifecycle requires a tool that provides a Document Object Model (DOM). Components can be compiled (since Svelte is a compiler and not a normal library) and mounted to allow asserting against element structure, listeners, state, and all the other capabilities provided by a Svelte component. Tools for component testing range from an in-memory implementation like jsdom paired with a test runner like [Vitest](https://vitest.dev/) to solutions that leverage an actual browser to provide a visual testing capability such as [Playwright](https://playwright.dev/docs/test-components) or [Cypress](https://www.cypress.io/).
 
-*End-to-End Tests*: To ensure your users are able to interact with your application it is necessary to test it as a whole in a manner as close to production as possible. This is done by writing end-to-end (E2E) tests which load and interact with a deployed version of your application in order to simulate how the user will interact with your application. When creating a new SvelteKit project, you will be asked whether you would like to setup [Playwright](https://playwright.dev/) for end-to-end testing. There are many other E2E test libraries available for use as well.
+_End-to-End Tests_: To ensure your users are able to interact with your application it is necessary to test it as a whole in a manner as close to production as possible. This is done by writing end-to-end (E2E) tests which load and interact with a deployed version of your application in order to simulate how the user will interact with your application. When creating a new SvelteKit project, you will be asked whether you would like to setup [Playwright](https://playwright.dev/) for end-to-end testing. There are many other E2E test libraries available for use as well.
 
 Some resources for getting started with testing:
 
--   [Svelte Testing Library](https://testing-library.com/docs/svelte-testing-library/example/)
--   [Svelte Component Testing in Cypress](https://docs.cypress.io/guides/component-testing/svelte/overview)
--   [Example using vitest](https://github.com/vitest-dev/vitest/tree/main/examples/sveltekit)
--   [Example using uvu test runner with JSDOM](https://github.com/lukeed/uvu/tree/master/examples/svelte)
--   [Test Svelte components using Vitest & Playwright](https://davipon.hashnode.dev/test-svelte-component-using-vitest-playwright)
--   [Component testing with WebdriverIO](https://webdriver.io/docs/component-testing/svelte)
+- [Svelte Testing Library](https://testing-library.com/docs/svelte-testing-library/example/)
+- [Svelte Component Testing in Cypress](https://docs.cypress.io/guides/component-testing/svelte/overview)
+- [Example using vitest](https://github.com/vitest-dev/vitest/tree/main/examples/sveltekit)
+- [Example using uvu test runner with JSDOM](https://github.com/lukeed/uvu/tree/master/examples/svelte)
+- [Test Svelte components using Vitest & Playwright](https://davipon.hashnode.dev/test-svelte-component-using-vitest-playwright)
+- [Component testing with WebdriverIO](https://webdriver.io/docs/component-testing/svelte)
 
 ## Is there a router?[](faq.html#Is-there-a-router)
 
@@ -226,8 +128,8 @@ No. Svelte removes the styles from the component and warns you about them in ord
 
 Svelte’s component style scoping works by generating a class unique to the given component, adding it to the relevant elements in the component that are under Svelte’s control, and then adding it to each of the selectors in that component’s styles. When the compiler can’t see what elements a style selector applies to, there would be two bad options for keeping it:
 
--   If it keeps the selector and adds the scoping class to it, the selector will likely not match the expected elements in the component, and they definitely won’t if they were created by a child component or `{@html ...}`.
--   If it keeps the selector without adding the scoping class to it, the given style will become a global style, affecting your entire page.
+- If it keeps the selector and adds the scoping class to it, the selector will likely not match the expected elements in the component, and they definitely won’t if they were created by a child component or `{@html ...}`.
+- If it keeps the selector without adding the scoping class to it, the given style will become a global style, affecting your entire page.
 
 If you need to style something that Svelte can’t identify at compile time, you will need to explicitly opt into global styles by using `:global(...)`. But also keep in mind that you can wrap `:global(...)` around only part of a selector. `.foo :global(.bar) { ... }` will style any `.bar` elements that appear within the component’s `.foo` elements. As long as there’s some parent element in the current component to start from, partially global selectors like this will almost always be able to get you what you want.
 
