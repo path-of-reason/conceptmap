@@ -1,9 +1,7 @@
 <script lang="ts">
-    import App from "$lib/components/resizable-pane/App.svelte";
   import "../app.css";
-  import AppLayout from "./AppLayout.svelte";
-    import Paneforge from "./Paneforge.svelte";
-    import SplitPanes from "./SplitPanes.svelte";
+  // import AppLayout from "./AppLayout.svelte";
+  import AppLayout from "../layout/AppLayout.svelte"
 
   let { children } = $props();
 
@@ -11,13 +9,7 @@
 </script>
 
 <div class="w-screen h-screen bg-transparent">
-{#if origin}
     <AppLayout>
       {@render children?.()}
     </AppLayout>
-  {:else}
-  <!-- <SplitPanes/> -->
-  <!-- <Paneforge/> -->
-  <App/>
-{/if}
 </div>

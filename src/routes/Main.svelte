@@ -21,7 +21,7 @@
   //
 
   import { getCurrentWindow } from '@tauri-apps/api/window';
-    import Tabbar from "./Tabbar.svelte";
+  import Tabbar from "./Tabbar.svelte";
   const handleMouseDown = (e:MouseEvent) => {
     if (e.buttons === 1) {
       const appWindow = getCurrentWindow();

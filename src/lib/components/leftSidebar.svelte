@@ -8,7 +8,6 @@
   import ChevronUp from "@lucide/svelte/icons/chevron-up";
   import type { Side } from "./ui/sidebar/types";
   import * as DropdownMenu from "./ui/dropdown-menu";
-  import * as Tabs from "./ui/tabs"
 
   type SidebarProps = {
     ctxKey: Side;

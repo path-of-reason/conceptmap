@@ -10,7 +10,7 @@
   }
 </script>
 
-<main class="h-full text-lg">
+<main class="h-full text-lg bg-white">
   <h1>Welcome to Tauri + Svelte</h1>
   sadfasdfasdfsadf
 </main>

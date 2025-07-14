@@ -1,3 +1,4 @@
+// --- 타입 정의 ---
 type HotkeyMode = "normal" | "leader";
 type HotkeyOptions = {
   mode: HotkeyMode;
@@ -9,71 +10,53 @@ type HotkeyCallback = (event: KeyboardEvent) => void;
 type KeyState = {
   pressedKeys: string;
   currentMode: HotkeyMode;
-  pendingKeys: string[]; // ✨ 리더 모드에서 입력 중인 키 시퀀스를 저장
+  pendingKeys: string[];
+  registeredHotkeys: RegisteredHotkey[];
 };
 type RegisteredHotkey = {
-  id: number; // 고유 ID로 등록/해제 관리
-  sequence: string[]; // ✨ 예: ['Space', 'KeyT', 'KeyF']와 같이 전체 키 시퀀스 저장
-  keys: string[]; // ex: ['KeyS']
-  modifiers: {
-    ctrl?: boolean;
-    shift?: boolean;
-    alt?: boolean;
-    meta?: boolean;
-  };
+  id: string;
+  sequence: string[];
   callback: HotkeyCallback;
+  description: string;
+  options: HotkeyOptions;
+};
+type RegistHotkey = {
+  hotkeySequence: string | string[];
+  callback: HotkeyCallback;
+  description: string;
   options: HotkeyOptions;
 };
 
 // --- 전역 상태 및 변수 ---
-// 현재 눌린 키를 추적하는 Set
+// 현재 눌린 키를 추적하는 Set (UI 표시 및 동시 입력 확인용)
 const pressedKeys = new Set<string>();
 // 등록된 핫키 목록
 const registeredHotkeys: RegisteredHotkey[] = [];
-let nextHotkeyId = 0;
 // 전역 이벤트 리스너가 이미 등록되었는지 확인
 let isListenersAttached = false;
 // ✨ 현재 키 입력 모드 상태 ($state로 반응성 추가)
 // Svelte의 $state를 사용하여 반응성을 확보합니다.
 const keyState = $state<KeyState>({
+  pendingKeys: [], // ✨ pendingKeys 추가 및 초기화
   pressedKeys: "",
   currentMode: "normal",
+  registeredHotkeys: [],
 });
-
-// ✨ 리더 모드 타이머 ID
-// 리더 모드의 자동 복귀를 위한 타이머를 관리합니다.
-let leaderModeTimeoutId: ReturnType<typeof setTimeout> | null = null;
-const LEADER_MODE_TIMEOUT_MS = 700; // 리더 모드가 자동으로 해제되기까지의 대기 시간 (밀리초)
 
 // --- 리더 모드 관리 함수 ---
 
 /**
- * 리더 모드 타이머를 초기화하고 필요한 경우 모드를 'normal'로 되돌립니다.
+ * 리더 모드를 'normal'로 되돌리고, 현재 처리 중인 키 시퀀스를 초기화합니다.
  */
 function resetLeaderMode(): void {
-  // 현재 설정된 리더 모드 타이머가 있다면 취소합니다.
-  if (leaderModeTimeoutId) {
-    clearTimeout(leaderModeTimeoutId);
-    leaderModeTimeoutId = null;
-  }
-  // 현재 모드가 'leader'라면 'normal'로 전환합니다.
+  // ✨ 타이머 관련 로직은 모두 제거되었습니다.
   if (keyState.currentMode === "leader") {
-    console.log("Leader mode timed out or reset. Returning to normal.");
-    keyState.currentMode = "normal"; // 반응형 상태 업데이트
+    keyState.currentMode = "normal";
+    keyState.pendingKeys = []; // pendingKeys 초기화
   }
 }
 
-/**
- * 리더 모드 타이머를 새로 설정하여 대기 시간을 연장합니다.
- * 이 함수는 리더 모드에서 추가 키 입력이 감지되었을 때 호출됩니다.
- */
-function extendLeaderModeTimeout(): void {
-  // 기존 타이머가 있다면 취소하고 새로운 타이머를 설정하여 대기 시간을 연장합니다.
-  if (leaderModeTimeoutId) {
-    clearTimeout(leaderModeTimeoutId);
-  }
-  leaderModeTimeoutId = setTimeout(resetLeaderMode, LEADER_MODE_TIMEOUT_MS);
-}
+// ✨ extendLeaderModeTimeout 함수는 더 이상 사용하지 않으므로 제거되었습니다.
 
 // --- 이벤트 리스너 관리 함수 ---
 
@@ -82,8 +65,7 @@ function extendLeaderModeTimeout(): void {
  * 리스너는 한 번만 부착되도록 보장합니다.
  */
 function attachListeners(): void {
-  if (isListenersAttached) return; // 이미 부착되어 있다면 건너뛰m
-
+  if (isListenersAttached) return;
   document.addEventListener("keydown", handleKeyDown);
   document.addEventListener("keyup", handleKeyUp);
   isListenersAttached = true;
@@ -93,125 +75,222 @@ function attachListeners(): void {
  * 모든 핫키가 해제되었을 경우 전역 키 이벤트 리스너를 DOM에서 제거합니다.
  */
 function detachListeners(): void {
-  // 등록된 핫키가 없고, 리스너가 부착되어 있을 때만 제거합니다.
   if (registeredHotkeys.length === 0 && isListenersAttached) {
     document.removeEventListener("keydown", handleKeyDown);
     document.removeEventListener("keyup", handleKeyUp);
     isListenersAttached = false;
   }
 }
+// --- 핫키 매칭 유틸리티 ---
+/**
+ * 주어진 키 입력 상태에 따라 등록된 핫키 중에서 일치하는 핫키를 찾습니다.
+ * @param event - 현재 KeyboardEvent 객체
+ * @param isInput - 현재 입력 필드에 포커스되어 있는지 여부
+ * @param currentMode - 현재 핫키 시스템 모드 ('normal' 또는 'leader')
+ * @param pendingKeys - 리더 모드일 경우 현재까지 입력된 키 시퀀스
+ * @param pressedKeysSet - 현재 물리적으로 눌린 모든 키 Set (KeyboardEvent.code)
+ * @returns {matchedHotkey: RegisteredHotkey | null, hasPotentialMatch: boolean} 일치하는 핫키와 잠재적 매치 여부
+ */
+function findMatchingHotkey(
+  event: KeyboardEvent,
+  isInput: boolean,
+  currentMode: HotkeyMode,
+  pendingKeys: string[],
+  pressedKeysSet: Set<string>,
+): { matchedHotkey: RegisteredHotkey | null; hasPotentialMatch: boolean } {
+  let matchedHotkey: RegisteredHotkey | null = null;
+  let hasPotentialMatch = false;
 
+  for (const hotkey of registeredHotkeys) {
+    if (hotkey.options.ignoreInInputs && isInput) continue;
+    if (hotkey.options.mode !== currentMode) continue;
+
+    if (currentMode === "leader") {
+      // 리더 모드 매칭 로직: pendingKeys와 hotkey.sequence 비교 (이전과 동일)
+      const isPartialMatch =
+        hotkey.sequence.length >= pendingKeys.length &&
+        pendingKeys.every((key, index) => hotkey.sequence[index] === key);
+
+      if (isPartialMatch && hotkey.sequence.length === pendingKeys.length) {
+        matchedHotkey = hotkey;
+        break;
+      }
+
+      if (isPartialMatch && hotkey.sequence.length > pendingKeys.length) {
+        hasPotentialMatch = true;
+      }
+    } else {
+      // currentMode === "normal"
+      // Normal 모드 매칭 로직 개선: 수식어 키와 일반 키를 분리하여 매칭
+
+      const requiredNonModifiers = hotkey.sequence.filter(
+        (key) =>
+          !(
+            key.startsWith("Control") ||
+            key.startsWith("Shift") ||
+            key.startsWith("Alt") ||
+            key.startsWith("Meta")
+          ),
+      );
+
+      // 1. 필요한 비-수식어 키가 현재 눌린 키인지 확인 (예: 'S'가 눌렸는지)
+      const nonModifierKeysMatch =
+        requiredNonModifiers.length === 1 &&
+        requiredNonModifiers[0] === event.code;
+      // 수식어만으로 구성된 핫키 (예: 'Ctrl')의 경우 이 조건은 false가 되어야 함.
+      // 또는 핫키가 여러 개의 비-수식어 키를 포함하는 경우 (이는 현재 시스템 설계에서 지원 안함)
+
+      // 핫키가 순수하게 수식어로만 구성된 경우 (예: 'Ctrl')
+      const isPureModifierHotkey = requiredNonModifiers.length === 0;
+
+      // 현재 이벤트의 `code`가 핫키 시퀀스에 있는 수식어 키 중 하나인지 확인
+      const isEventCodeModifier =
+        event.code.startsWith("Control") ||
+        event.code.startsWith("Shift") ||
+        event.code.startsWith("Alt") ||
+        event.code.startsWith("Meta");
+
+      // 핫키가 순수 수식어이고, 현재 이벤트의 키가 수식어일 경우
+      if (isPureModifierHotkey && !isEventCodeModifier) {
+        // 순수 수식어 핫키인데, 일반 키가 눌렸다면 매칭되지 않음
+        continue;
+      }
+      if (!isPureModifierHotkey && !nonModifierKeysMatch) {
+        // 일반 키를 포함하는 핫키인데, 현재 눌린 키가 그 일반 키가 아니라면 매칭되지 않음
+        continue;
+      }
+      // TODO: 만약 `Ctrl+Shift+S`처럼 여러 일반 키와 수식어 키가 섞인 복합 핫키가 있다면, 이 `nonModifierKeysMatch` 로직은 더 복잡해져야 합니다.
+      // 현재는 하나의 일반 키와 여러 수식어 키 조합을 가정합니다.
+
+      // 2. 수식어 키 상태 확인 (KeyboardEvent 속성 사용)
+      const modifiersMatch =
+        (hotkey.sequence.includes("ControlLeft")
+          ? event.ctrlKey
+          : !event.ctrlKey) &&
+        (hotkey.sequence.includes("ShiftLeft")
+          ? event.shiftKey
+          : !event.shiftKey) &&
+        (hotkey.sequence.includes("AltLeft") ? event.altKey : !event.altKey) &&
+        (hotkey.sequence.includes("MetaLeft") ? event.metaKey : !event.metaKey);
+
+      if (!modifiersMatch) continue;
+
+      // 3. 다른 불필요한 키가 눌렸는지 확인 (옵션, 더 엄격한 매칭)
+      // `pressedKeysSet`에 `hotkey.sequence`에 없는 비-수식어 키가 있다면 매칭되지 않음
+      const anyUnexpectedNonModifierKeys = Array.from(pressedKeysSet).some(
+        (pressedKey) =>
+          !hotkey.sequence.includes(pressedKey) &&
+          !mapAliasToKeyCode(pressedKey).startsWith("Control") && // mapAliasToKeyCode의 결과를 사용하여 수식어 키를 더 정확히 판단
+          !mapAliasToKeyCode(pressedKey).startsWith("Shift") &&
+          !mapAliasToKeyCode(pressedKey).startsWith("Alt") &&
+          !mapAliasToKeyCode(pressedKey).startsWith("Meta"),
+      );
+      if (anyUnexpectedNonModifierKeys) continue;
+
+      matchedHotkey = hotkey;
+      break;
+    }
+  }
+
+  return { matchedHotkey, hasPotentialMatch };
+}
 // --- 이벤트 핸들러 ---
+
+/**
+ * 'normal' 모드에서 키다운 이벤트를 처리합니다.
+ */
+function handleNormalModeKeyDown(event: KeyboardEvent, isInput: boolean): void {
+  // ✨ Space 키가 'normal' 모드에서 눌렸을 때 (리더 모드 진입)
+  if (event.code === "Space" && !isInput) {
+    event.preventDefault();
+    event.stopPropagation();
+    keyState.currentMode = "leader"; // 모드를 'leader'로 변경
+    keyState.pendingKeys = ["Space"]; // pendingKeys를 'Space'로 초기화
+    return; // Space 키는 자체적으로 핫키 액션을 실행하지 않고 모드 전환만 합니다.
+  }
+  const { matchedHotkey } = findMatchingHotkey(
+    event,
+    isInput,
+    "normal",
+    [], // normal 모드에서는 pendingKeys를 사용하지 않음
+    pressedKeys, // 현재 눌린 키 Set
+  );
+
+  if (matchedHotkey) {
+    matchedHotkey.callback(event);
+    if (matchedHotkey.options.preventDefault) event.preventDefault();
+    if (matchedHotkey.options.stopPropagation) event.stopPropagation();
+    return;
+  }
+}
+
+/**
+ * 'leader' 모드에서 키다운 이벤트를 처리합니다.
+ */
+function handleLeaderModeKeyDown(event: KeyboardEvent, isInput: boolean): void {
+  // ✨ ESC 키가 눌리면 리더 모드 즉시 종료
+  if (event.code === "Escape") {
+    event.preventDefault();
+    event.stopPropagation();
+    resetLeaderMode();
+    return;
+  }
+
+  // 현재 입력된 키를 pendingKeys에 추가
+  if (
+    !(
+      event.code === "Space" &&
+      keyState.pendingKeys.length === 1 &&
+      keyState.pendingKeys[0] === "Space"
+    )
+  ) {
+    keyState.pendingKeys.push(event.code);
+  }
+  // console.log("Current pendingKeys:", keyState.pendingKeys); // 디버그 로그
+
+  const { matchedHotkey, hasPotentialMatch } = findMatchingHotkey(
+    event,
+    isInput,
+    "leader",
+    keyState.pendingKeys, // leader 모드에서는 pendingKeys를 사용
+    pressedKeys,
+  );
+
+  if (matchedHotkey) {
+    matchedHotkey.callback(event);
+    if (matchedHotkey.options.preventDefault) event.preventDefault();
+    if (matchedHotkey.options.stopPropagation) event.stopPropagation();
+    resetLeaderMode();
+    return;
+  } else if (hasPotentialMatch) {
+    event.preventDefault();
+    event.stopPropagation();
+    return;
+  } else {
+    // console.log("Invalid key sequence in leader mode. Returning to normal.");
+    resetLeaderMode();
+    return;
+  }
+}
 
 /**
  * 'keydown' 이벤트를 처리하는 메인 함수입니다.
  * 키 입력에 따른 핫키 매칭 및 모드 전환 로직을 포함합니다.
  */
 function handleKeyDown(event: KeyboardEvent): void {
-  // 입력 필드(`input`, `textarea`) 또는 편집 가능한 요소(`contenteditable`) 여부 확인
   const target = event.target as HTMLElement;
   const isInput =
     target.tagName === "INPUT" ||
     target.tagName === "TEXTAREA" ||
     target.isContentEditable;
 
-  // ✨ ESC 키가 눌리면 리더 모드 즉시 종료
-  if (event.code === "Escape" && keyState.currentMode === "leader") {
-    event.preventDefault(); // 기본 동작 방지 (예: 브라우저 뒤로 가기 등)
-    event.stopPropagation(); // 이벤트 전파 중단
-    resetLeaderMode(); // 리더 모드 종료 및 타이머 리셋
-    return; // ESC 키는 핫키 매칭을 시도하지 않고 모드 전환만 합니다.
-  }
-
-  // ✨ Leader 모드 전환 로직: Space 키가 'normal' 모드에서 눌렸을 때
-  // 입력 필드에서는 Space 키가 일반 입력으로 처리되도록 무시합니다.
-  if (event.code === "Space" && keyState.currentMode === "normal" && !isInput) {
-    event.preventDefault(); // Space 키의 기본 스크롤 동작 방지
-    event.stopPropagation(); // 이벤트 전파 중단
-    keyState.currentMode = "leader"; // 모드를 'leader'로 변경
-    // 리더 모드 진입 시 타이머를 시작하여 일정 시간 내 다음 입력이 없으면 복귀시킵니다.
-    leaderModeTimeoutId = setTimeout(resetLeaderMode, LEADER_MODE_TIMEOUT_MS);
-    return; // Space 키는 자체적으로 핫키 액션을 실행하지 않고 모드 전환만 합니다.
-  }
-
-  // ✨ Leader 모드에서 다음 키 입력 처리 (타이머 연장)
-  // 현재 'leader' 모드이고 Space 키가 다시 눌렸다면, 타이머를 연장합니다.
-  // 또는 'leader' 모드에서 Space가 아닌 다른 키가 눌렸다면, 타이머를 연장합니다.
-  if (keyState.currentMode === "leader") {
-    if (event.code === "Space") {
-      extendLeaderModeTimeout();
-      // Space 키가 리더 모드에서도 특정 핫키로 등록될 수 있으므로,
-      // 여기서는 모드 연장만 하고 핫키 매칭 루프로 진행되도록 return 하지 않습니다.
-    } else {
-      // Space가 아닌 다른 키가 눌렸을 때도 타이머 연장
-      extendLeaderModeTimeout();
-    }
-  }
-
-  // 현재 눌린 키를 `Set`에 추가하여 동시 입력 상태를 추적합니다.
   pressedKeys.add(event.code);
-  // 디버깅 및 UI 표시를 위해 현재 눌린 키 목록을 문자열로 업데이트합니다.
   keyState.pressedKeys = Array.from(pressedKeys).join(" ");
-  // console.log("pressedKeys", pressedKeys); // 디버그 로그
-  // console.log(registeredHotkeys); // 디버그 로그
 
-  let hotkeyExecuted = false; // 이번 `keydown` 이벤트로 핫키가 실행되었는지 여부 플래그
-
-  // 등록된 핫키 목록을 순회하며 현재 입력과 일치하는 핫키를 찾습니다.
-  for (const hotkey of registeredHotkeys) {
-    // 핫키 옵션에 따라 입력 필드에서는 무시합니다.
-    if (hotkey.options.ignoreInInputs && isInput) continue;
-
-    // ✨ 현재 모드와 핫키의 모드가 일치하는지 확인합니다.
-    // console.log("mode", hotkey.options.mode, keyState.currentMode); // 디버그 로그
-    if (hotkey.options.mode !== keyState.currentMode) continue;
-
-    // 핫키에 등록된 모든 필수 키가 `pressedKeys` Set에 포함되어 있는지 확인합니다.
-    // console.log("", pressedKeys, hotkey.keys); // 디버그 로그
-    const allKeysPressed = hotkey.keys.every((key) => pressedKeys.has(key));
-    if (!allKeysPressed) continue;
-
-    // 수식어 키(Ctrl, Shift, Alt, Meta)의 일치 여부를 확인합니다.
-    // `undefined`는 해당 수식어 키가 필수가 아님을 의미합니다.
-    const modifiersMatch =
-      (hotkey.modifiers.ctrl === undefined ||
-        hotkey.modifiers.ctrl === event.ctrlKey) &&
-      (hotkey.modifiers.shift === undefined ||
-        hotkey.modifiers.shift === event.shiftKey) &&
-      (hotkey.modifiers.alt === undefined ||
-        hotkey.modifiers.alt === event.altKey) &&
-      (hotkey.modifiers.meta === undefined ||
-        hotkey.modifiers.meta === event.metaKey);
-
-    if (!modifiersMatch) continue;
-
-    // TODO: (고급) hotkey.keys에 명시되지 않은 다른 키가 pressedKeys에 있는지 추가 확인 로직 (더 엄격한 매칭)
-
-    // 일치하는 핫키가 발견되면 콜백 함수를 실행합니다.
-    hotkey.callback(event);
-    hotkeyExecuted = true; // 핫키가 실행되었음을 표시
-
-    // 핫키 옵션에 따라 이벤트의 기본 동작을 방지하거나 전파를 중단합니다.
-    if (hotkey.options.preventDefault) event.preventDefault();
-    if (hotkey.options.stopPropagation) event.stopPropagation();
-
-    // ✨ 예약된 핫키가 실행되었으므로 리더 모드 종료
-    if (keyState.currentMode === "leader") {
-      resetLeaderMode();
-    }
-
-    // 첫 번째 일치하는 핫키만 실행하려면 여기서 루프를 중단합니다.
-    return;
-  }
-
-  // ✨ 핫키 실행 결과에 따른 리더 모드 상태 최종 처리
-  // 리더 모드였는데, 유효한 핫키가 실행되지 않았다면(즉, 유효하지 않은 다음 키를 입력했다면)
-  // 리더 모드를 종료하고 'normal' 모드로 복귀시킵니다.
-  if (keyState.currentMode === "leader" && !hotkeyExecuted) {
-    console.log("Invalid key in leader mode. Returning to normal.");
-    keyState.currentMode = "normal"; // 'normal' 모드로 복귀
-    resetLeaderMode(); // 리더 모드 타이머도 확실히 정리
-  }
+  if (keyState.currentMode === "leader")
+    handleLeaderModeKeyDown(event, isInput);
+  if (keyState.currentMode === "normal")
+    handleNormalModeKeyDown(event, isInput);
 }
 
 /**
@@ -226,83 +305,247 @@ function handleKeyUp(event: KeyboardEvent): void {
 // --- 핫키 등록/해제 API ---
 
 /**
+ * 사용자 친화적인 키 별칭을 KeyboardEvent.code 값으로 매핑합니다.
+ * @param alias - 키 별칭 (예: 'ctrl', 'shift', 'space', 's')
+ * @returns 해당 키의 KeyboardEvent.code 값 또는 원본 별칭 (매핑되지 않은 경우)
+ */
+function mapAliasToKeyCode(alias: string): string {
+  const lowerAlias = alias.toLowerCase();
+  switch (lowerAlias) {
+    // 수식어 키 (매칭 로직에서 좌우 모두 고려할 수 있도록 일반적인 명칭 사용)
+    case "control":
+    case "ctrl":
+      return "ControlLeft"; // ControlRight도 이 키에 매핑되도록 처리
+    case "shift":
+      return "ShiftLeft"; // ShiftRight도 이 키에 매핑되도록 처리
+    case "alt":
+      return "AltLeft"; // AltRight도 이 키에 매핑되도록 처리
+    case "meta":
+    case "command": // Mac의 Command 키
+    case "windows": // Windows의 Windows 키
+      return "MetaLeft"; // MetaRight도 이 키에 매핑되도록 처리
+
+    // 특수 키
+    case "escape":
+    case "esc":
+      return "Escape";
+    case "space":
+      return "Space";
+    case "enter":
+      return "Enter";
+    case "tab":
+      return "Tab";
+    case "backspace":
+      return "Backspace";
+    case "delete":
+      return "Delete";
+    case "arrowup":
+      return "ArrowUp";
+    case "arrowdown":
+      return "ArrowDown";
+    case "arrowleft":
+      return "ArrowLeft";
+    case "arrowright":
+      return "ArrowRight";
+    case "home":
+      return "Home";
+    case "end":
+      return "End";
+    case "pageup":
+      return "PageUp";
+    case "pagedown":
+      return "PageDown";
+    case "capslock":
+      return "CapsLock";
+    case "numlock":
+      return "NumLock";
+    case "scrolllock":
+      return "ScrollLock";
+    case "pause":
+    case "break":
+      return "Pause";
+    case "printscreen":
+      return "PrintScreen";
+    case "insert":
+      return "Insert";
+
+    // 기능 키 (F1-F12)
+    case "f1":
+      return "F1";
+    case "f2":
+      return "F2";
+    case "f3":
+      return "F3";
+    case "f4":
+      return "F4";
+    case "f5":
+      return "F5";
+    case "f6":
+      return "F6";
+    case "f7":
+      return "F7";
+    case "f8":
+      return "F8";
+    case "f9":
+      return "F9";
+    case "f10":
+      return "F10";
+    case "f11":
+      return "F11";
+    case "f12":
+      return "F12";
+    // ... 필요한 경우 F13-F24 추가
+
+    // 숫자 키패드
+    case "numpad0":
+      return "Numpad0";
+    case "numpad1":
+      return "Numpad1";
+    case "numpad2":
+      return "Numpad2";
+    case "numpad3":
+      return "Numpad3";
+    case "numpad4":
+      return "Numpad4";
+    case "numpad5":
+      return "Numpad5";
+    case "numpad6":
+      return "Numpad6";
+    case "numpad7":
+      return "Numpad7";
+    case "numpad8":
+      return "Numpad8";
+    case "numpad9":
+      return "Numpad9";
+    case "numpadmultiply":
+      return "NumpadMultiply";
+    case "numpadadd":
+      return "NumpadAdd";
+    case "numpadsubtract":
+      return "NumpadSubtract";
+    case "numpaddecimal":
+      return "NumpadDecimal";
+    case "numpaddivide":
+      return "NumpadDivide";
+
+    // 일반 문자/숫자 키
+    default:
+      if (lowerAlias.length === 1 && /[a-z]/.test(lowerAlias)) {
+        return `Key${lowerAlias.toUpperCase()}`;
+      } else if (lowerAlias.length === 1 && /[0-9]/.test(lowerAlias)) {
+        return `Digit${lowerAlias}`;
+      } else if (lowerAlias === "plus" || lowerAlias === "+") {
+        // + 기호 매핑
+        return "Equal"; // 키보드마다 다를 수 있음
+      } else if (lowerAlias === "minus" || lowerAlias === "-") {
+        // - 기호 매핑
+        return "Minus";
+      } else if (lowerAlias === "equals" || lowerAlias === "=") {
+        return "Equal";
+      }
+      // TODO: 기타 특수 문자 ([], {}, ', ", ;, :, <, >, ,, ., /, ?, \, |, ` 등) 추가 매핑
+      // 예를 들어, `[` -> `BracketLeft`, `]` -> `BracketRight` 등
+
+      // 매핑되지 않은 경우 경고 후 원본 별칭 반환
+      console.warn(`Unknown key alias: ${alias}. Using as is.`);
+      return alias;
+  }
+}
+/**
  * 새로운 핫키 조합을 등록합니다.
- * @param keys - 핫키로 사용할 키 조합 문자열 또는 문자열 배열 (예: 's', ['control', 's'])
+ * @param hotkeySequence - 핫키로 사용할 키 조합 문자열 또는 문자열 배열 (예: 's', ['control', 's'], ['space', 't', 'f'])
  * @param callback - 핫키가 눌렸을 때 실행될 콜백 함수
  * @param options - 핫키의 동작을 제어하는 옵션 (모드, preventDefault 등)
  * @returns 등록된 핫키의 고유 ID
  */
 function registerHotkey(
-  keys: string | string[], // 's' 또는 ['control', 's']
+  hotkeySequence: string | string[],
   callback: HotkeyCallback,
-  options: HotkeyOptions = { mode: "normal" }, // 기본 옵션 설정
-): number {
-  // 입력된 키 문자열을 파싱하여 `KeyboardEvent.code` 형태의 키 배열과 수식어를 분리합니다.
-  const parsedKeys = Array.isArray(keys)
-    ? keys.map((k) => k.toLowerCase())
-    : [keys.toLowerCase()];
+  description: string,
+  options: HotkeyOptions = { mode: "normal" },
+): string {
+  const parsedInputKeys = Array.isArray(hotkeySequence)
+    ? hotkeySequence.map((k) => k.toLowerCase())
+    : [hotkeySequence.toLowerCase()];
 
-  const actualKeys: string[] = [];
-  const modifiers: {
-    ctrl?: boolean;
-    shift?: boolean;
-    alt?: boolean;
-    meta?: boolean;
-  } = {};
+  const sequence: string[] = [];
+  for (const k of parsedInputKeys) sequence.push(mapAliasToKeyCode(k));
 
-  // 파싱 로직: 키보드 이벤트 코드와 수식어 분리
-  for (const k of parsedKeys) {
-    if (k === "control" || k === "ctrl") modifiers.ctrl = true;
-    else if (k === "shift") modifiers.shift = true;
-    else if (k === "alt") modifiers.alt = true;
-    else if (k === "meta" || k === "command") modifiers.meta = true;
-    else {
-      // 일반 키는 `KeyboardEvent.code` 형태로 변환합니다.
-      // 예: 's' -> 'KeyS', 'space' -> 'Space'
-      // 이 부분은 실제 키보드 레이아웃과 `event.code` 사양에 맞춰 더 정교하게 매핑되어야 합니다.
-      actualKeys.push(`Key${k.toUpperCase()}`); // 현재는 대략적인 매핑
-    }
+  // ✨ 핫키 ID 생성: sequence를 underscore로 연결한 문자열
+  const hotkeyId = sequence.join("_");
+  // ✨ 중복 ID 검사
+  const existingHotkey = registeredHotkeys.find((h) => h.id === hotkeyId);
+  if (existingHotkey) {
+    // console.log(
+    //   `Hotkey "${hotkeyId}" (description: "${existingHotkey.description || "N/A"}") is already registered.`,
+    // );
+    return hotkeyId;
   }
 
-  // 새로운 핫키 객체를 생성하고 목록에 추가합니다.
+  // 리더 모드 핫키는 반드시 'Space'로 시작해야 한다는 규칙을 여기에 추가할 수 있습니다.
+  if (
+    options.mode === "leader" &&
+    (sequence[0] !== "Space" || sequence.length < 2)
+  ) {
+    console.warn(
+      "Leader mode hotkeys must start with 'Space' and have at least one follow-up key. This hotkey might not work as intended:",
+      hotkeySequence,
+    );
+    // 필요하다면 throw new Error(...) 로 등록을 막을 수도 있습니다.
+  }
+
   const hotkey: RegisteredHotkey = {
-    id: nextHotkeyId++,
-    keys: actualKeys,
-    modifiers: modifiers,
+    id: hotkeyId,
+    sequence: sequence,
     callback: callback,
+    description: description,
     options: {
       mode: options.mode,
-      preventDefault: options.preventDefault ?? true, // 기본은 true로 설정
+      preventDefault: options.preventDefault ?? true,
       stopPropagation: options.stopPropagation ?? false,
-      ignoreInInputs: options.ignoreInInputs ?? true, // 기본은 입력 필드에서 무시
+      ignoreInInputs: options.ignoreInInputs ?? true,
     },
   };
   registeredHotkeys.push(hotkey);
-  // console.log("Register hotkey:", registeredHotkeys); // 디버그 로그
+  keyState.registeredHotkeys.push(hotkey);
 
-  // 첫 핫키 등록 시 전역 이벤트 리스너를 부착합니다.
   attachListeners();
-  return hotkey.id;
+  return hotkeyId;
+}
+function registerHotKeyList(registHotkeys: RegistHotkey[]) {
+  registHotkeys.forEach((hotkey) => {
+    registerHotkey(
+      hotkey.hotkeySequence,
+      hotkey.callback,
+      hotkey.description,
+      hotkey.options,
+    );
+  });
 }
 
 /**
  * 이전에 등록된 핫키를 해제합니다.
  * @param hotkeyId - 해제할 핫키의 고유 ID
  */
-function unregisterHotkey(hotkeyId: number): void {
+function unregisterHotkey(hotkeyId: string): void {
   const index = registeredHotkeys.findIndex((h) => h.id === hotkeyId);
   if (index > -1) {
     registeredHotkeys.splice(index, 1);
+    keyState.registeredHotkeys.splice(index, 1);
   }
-  // 모든 핫키가 해제되면 전역 리스너도 제거합니다.
   detachListeners();
+}
+function unregisterHotkeyList(hotkeyIds: string[]): void {
+  hotkeyIds.forEach((hotkeyId) => {
+    unregisterHotkey(hotkeyId);
+  });
 }
 
 // --- Public API 내보내기 ---
-// Svelte 컴포넌트에서 임포트하여 사용할 수 있는 API들을 정의합니다.
 export const hotkeys = {
   register: registerHotkey,
+  registers: registerHotKeyList,
   unregister: unregisterHotkey,
-  registeredHotkeys, // (디버깅용) 현재 등록된 핫키 목록을 노출
-  keyState, // (반응형) 현재 키 입력 상태 (눌린 키, 모드)를 노출
+  unregisters: unregisterHotkeyList,
+  keyState,
 };
