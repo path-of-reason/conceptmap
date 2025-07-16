@@ -1,4 +1,6 @@
-import type { SvelteComponent } from "svelte";
+import { hotkeys } from "$lib/hooks/useKeyboard.svelte";
+import { mount, type SvelteComponent } from "svelte";
+import { useLayoutStore } from "../../layout/resizable-pane/layoutStore.svelte";
 
 // 뷰 타입 정의: 뷰의 고유 ID와 뷰를 렌더링할 Svelte 컴포넌트
 export type PluginView = {
@@ -22,6 +24,8 @@ function registerView(view: PluginView): void {
       `View with ID "${view.id}" is already registered. Overwriting.`,
     );
   }
+  // const div = document.createElement("div");
+  // mount(component, options);
   registeredViews.set(view.id, view);
   console.log(`View "${view.name}" (${view.id}) registered.`);
 }
@@ -43,7 +47,10 @@ function getView(viewId: string): PluginView | undefined {
   return registeredViews.get(viewId);
 }
 
-export const pluginApi = {
+export const PluginApi = {
+  mount,
+  hotkeys,
+  useLayoutStore,
   registeredViews,
   registerView,
   getRegisteredViews,

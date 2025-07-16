@@ -1,3 +1,5 @@
+use base64::prelude::BASE64_STANDARD;
+use base64::Engine;
 use std::fs;
 use std::path::Path;
 
@@ -160,6 +162,20 @@ pub fn greet(name: &str) -> String {
 #[tauri::command]
 pub fn read_file(path: &str) -> Result<String, String> {
     fs::read_to_string(path).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn read_file_base64(path: String) -> Result<String, String> {
+    // path를 String으로 받도록 변경
+    let path_obj = Path::new(&path);
+    if !path_obj.is_file() {
+        return Err(format!("File not found: {}", path_obj.display()));
+    }
+
+    let content = fs::read(path_obj)
+        .map_err(|e| format!("Failed to read file {}: {}", path_obj.display(), e))?;
+
+    Ok(BASE64_STANDARD.encode(&content))
 }
 
 // 파일에 내용을 쓰는 Command

@@ -1,4 +1,4 @@
-import { pluginApi } from "./api";
+import { PluginApi } from "./api";
 
 type PluginManifest = {
   id: string;
@@ -29,7 +29,7 @@ export async function loadPlugin(manifestPath: string): Promise<void> {
     // 플러그인 진입점에서 registerView 등을 호출하도록 가정
     if (typeof pluginModule.activate === "function") {
       console.log(`Activating plugin: ${manifest.name}`);
-      pluginModule.activate({ registerView: pluginApi.registerView }); // 플러그인에 API 전달
+      pluginModule.activate({ registerView: PluginApi.registerView }); // 플러그인에 API 전달
     } else {
       console.warn(
         `Plugin "${manifest.name}" does not have an 'activate' function.`,

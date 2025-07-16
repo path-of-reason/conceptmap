@@ -4,7 +4,7 @@
   import PaneGroup from "./resizable-pane/PaneGroup.svelte";
   import Resizer from "./resizable-pane/Resizer.svelte";
   import {
-    setLayoutConfig,
+    setSectionConfig,
     layoutIds,
     focusById,
   } from "./resizable-pane/layoutStore.svelte";
@@ -14,26 +14,27 @@
   import Headerbar from "./Headerbar.svelte";
   import Statusbar from "./Statusbar.svelte";
   import RightSidebar from "./RightSidebar.svelte";
-  import LeftSidebar from "./leftSidebar.svelte";
-  import "$lib/hooks/initHotkeys"
+  import LeftSidebar from "./LeftSidebar.svelte";
+  import "$lib/hooks/initHotkeys";
 
   let { children } = $props();
   let appVisible = $state(false);
 
   onMount(() => {
     appVisible = true;
+    // console.log("left sidebar compo", LeftSidebar)
   });
 
-  setLayoutConfig([
+  setSectionConfig([
     { id: LAYOUT.LEFT_SIDEBAR },
     { id: LAYOUT.RIGHT_SIDEBAR },
     {
       id: LAYOUT.HEADER_BAR,
-      option: { direction: "horizontal", default: 40, min: 0, max: 500 },
+      config: { direction: "horizontal", default: 40, min: 0, max: 500 },
     },
     {
       id: LAYOUT.STATUS_BAR,
-      option: { direction: "horizontal", default: 40, min: 0, max: 500 },
+      config: { direction: "horizontal", default: 40, min: 0, max: 500 },
     },
   ]);
 
@@ -63,7 +64,7 @@
         collapsedClass="blur-lg -translate-x-10"
       >
         <div class="p-1 pr-0 w-full h-full">
-          <LeftSidebar/>
+          <LeftSidebar />
         </div>
       </Pane>
       <Resizer id="leftSidebar" toggleKey={["space", "e"]} keyMode="leader" />
@@ -74,10 +75,14 @@
           collapsedClass="blur-lg"
         >
           <div class="w-full h-full pt-1">
-            <Headerbar/>
+            <Headerbar />
           </div>
         </Pane>
-        <Resizer id={LAYOUT.HEADER_BAR} toggleKey={["space", "t"]} keyMode="leader" />
+        <Resizer
+          id={LAYOUT.HEADER_BAR}
+          toggleKey={["space", "t"]}
+          keyMode="leader"
+        />
         <main class="w-full h-full rounded-lg bg-green-400 overflow-y-scroll">
           {#each hotkeys.keyState.registeredHotkeys as hotkey}
             <div>
@@ -94,7 +99,7 @@
         />
         <Pane id={LAYOUT.STATUS_BAR} class="flex-none shrink-0 box-border">
           <div class="pb-1 w-full h-full">
-            <Statusbar/>
+            <Statusbar />
           </div>
         </Pane>
       </PaneGroup>
@@ -109,7 +114,7 @@
         class="overflow-hidden text-nowrap box-border shrink-0"
       >
         <div class="p-1 pl-0 w-full h-full">
-          <RightSidebar/>
+          <RightSidebar />
         </div>
       </Pane>
     </PaneGroup>

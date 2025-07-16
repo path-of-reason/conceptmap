@@ -1,18 +1,20 @@
 // mod epub_parser;
-// mod file_system;
+mod file_system;
 // mod sidecar;
 // mod terminal;
-
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![
+            file_system::greet,
+            file_system::read_file,
+            file_system::read_file_base64,
+            file_system::write_file,
+            file_system::read_directory,
+            file_system::read_dir_recursive,
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

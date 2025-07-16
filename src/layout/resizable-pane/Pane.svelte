@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { pluginApi } from "$lib/plugin/api";
+  import { PluginApi } from "$lib/plugin/api";
+  import { load } from "$lib/plugin/pluginLoadStore.svelte";
+  import type { SvelteComponent } from "svelte";
   import { useLayoutStore } from "./layoutStore.svelte";
 
   type PaneProps = {
     id:string
-    // viewId?: string
     class?: string
     collapsedClass?: string
     children?: any
@@ -13,7 +14,15 @@
 
   const { sectionState , isVerticalSectionState} = useLayoutStore({id});
 
-  // const currentViewComponent = $derived(viewId ? pluginApi.getView(viewId)?.component : undefined);
+  // let currentViewComponent = $derived.by(()=>{
+  //   if (load.leftSidebar && viewId) {
+  //     const view = PluginApi.getView(viewId)
+  //     const compo = view?.component
+  //     console.log("load compo:", compo)
+  //     return compo ? compo : undefined;
+  //   }
+  //   return undefined
+  // })
 
   const styles = $derived(
     isVerticalSectionState(sectionState) ? `width: ${sectionState.w}px; height: 100%;` : `height: ${sectionState.h}px; width: 100%;`
@@ -30,7 +39,8 @@
 
   <!-- {#if currentViewComponent}
     {@const Component = currentViewComponent}
-    <Component/>
+    <div>hello compo</div>
+    <Component api={PluginApi} />
   {:else} -->
     {@render children?.()}
   <!-- {/if} -->
