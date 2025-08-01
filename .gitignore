@@ -1,4 +1,9 @@
 .DS_Store
+/.idea
+/.vscode
+/.zed
+/.gemini
+/.ropeproject
 node_modules
 /build
 /.svelte-kit
@@ -8,6 +13,7 @@ node_modules
 !.env.example
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+bun.lockb
 
 # Logs
 logs
@@ -20,8 +26,6 @@ dev-debug.log
 node_modules/
 # Environment variables
 # Editor directories and files
-.idea
-.vscode
 *.suo
 *.ntvs*
 *.njsproj
@@ -31,4 +35,4 @@ node_modules/
 
 # Task files
 # tasks.json
-# tasks/ 
+# tasks/

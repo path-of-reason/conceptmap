@@ -1,6 +1,6 @@
 import { hotkeys } from "$lib/hooks/useKeyboard.svelte";
 import { mount, type SvelteComponent } from "svelte";
-import { useLayoutStore } from "../../layout/resizable-pane/layoutStore.svelte";
+import { useSectionStore } from "../../layout/resizable-pane/sectionStore.svelte";
 
 // 뷰 타입 정의: 뷰의 고유 ID와 뷰를 렌더링할 Svelte 컴포넌트
 export type PluginView = {
@@ -50,7 +50,7 @@ function getView(viewId: string): PluginView | undefined {
 export const PluginApi = {
   mount,
   hotkeys,
-  useLayoutStore,
+  useSectionStore,
   registeredViews,
   registerView,
   getRegisteredViews,

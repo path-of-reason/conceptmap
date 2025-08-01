@@ -1,6 +1,10 @@
+import {
+  focusById,
+  layoutIds,
+  toggleZenMode,
+} from "../../layout/resizable-pane/sectionStore.svelte";
 import { hotkeys } from "./useKeyboard.svelte";
 
-// console.log("auto log: hotkey registers from 'src/lib/hooks/initHotkeys.ts'");
 hotkeys.registers([
   {
     hotkeySequence: ["space", "a", "a"],
@@ -26,4 +30,25 @@ hotkeys.registers([
     description: "특수키 두개 조합",
     options: { mode: "normal", preventDefault: true },
   },
+  {
+    hotkeySequence: ["space", "n"],
+    callback: () => {
+      const ids = layoutIds();
+      focusById(ids[focusIndex]);
+      focusIndex++;
+      if (focusIndex >= ids.length) {
+        focusIndex = 0;
+      }
+    },
+    description: "next layout focus",
+    options: { mode: "leader" },
+  },
+  {
+    hotkeySequence: ["space", "z"],
+    callback: toggleZenMode,
+    description: "toggle zen mode",
+    options: { mode: "leader" },
+  },
 ]);
+
+let focusIndex = 0;

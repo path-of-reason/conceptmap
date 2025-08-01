@@ -1,0 +1,11 @@
+# Task ID: 8
+# Title: Integrate Tabs with File Explorer
+# Status: pending
+# Dependencies: 5 (Not found), 7 (Not found)
+# Priority: medium
+# Description: Connect the file explorer so that opening a file creates a new tab in the main content area.
+# Details:
+
+
+# Test Strategy:
+

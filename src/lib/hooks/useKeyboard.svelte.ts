@@ -13,7 +13,7 @@ type KeyState = {
   pendingKeys: string[];
   registeredHotkeys: RegisteredHotkey[];
 };
-type RegisteredHotkey = {
+export type RegisteredHotkey = {
   id: string;
   sequence: string[];
   callback: HotkeyCallback;

@@ -1,6 +1,7 @@
 import { cubicOut, cubicInOut, linear } from "svelte/easing";
 import type { TransitionConfig } from "svelte/transition";
 
+// 안쓰고있음
 export function customSlide(
   node: HTMLElement,
   params?: { duration?: number; easing?: (t: number) => number },

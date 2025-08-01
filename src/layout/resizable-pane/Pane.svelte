@@ -1,31 +1,47 @@
 <script lang="ts">
-  import { PluginApi } from "$lib/plugin/api";
-  import { load } from "$lib/plugin/pluginLoadStore.svelte";
-  import type { SvelteComponent } from "svelte";
-  import { useLayoutStore } from "./layoutStore.svelte";
+  // import { PluginApi } from "$lib/plugin/api";
+  // import { load } from "$lib/plugin/pluginLoadStore.svelte";
+  // import type { SvelteComponent } from "svelte";
+  import { isVertical, useSectionStore } from "./sectionStore.svelte";
+  import { hotkeys } from "$lib/hooks/useKeyboard.svelte";
+    import type { LayoutType } from "../types";
 
+  type ToggleKey = string[];
+
+  /**
+   * innerClass : 내부 래퍼 클래스
+   */
   type PaneProps = {
-    id:string
+    id:LayoutType
+    toggleKey?: ToggleKey;
+    keyMode?: "normal" | "leader";
     class?: string
+    innerClass?: string
     collapsedClass?: string
     children?: any
   };
-  let {id, class: className, collapsedClass, children }: PaneProps = $props();
+  let {id,
+    toggleKey,
+    keyMode,
+    class: className,
+    innerClass,
+    collapsedClass, children }: PaneProps = $props();
 
-  const { sectionState , isVerticalSectionState} = useLayoutStore({id});
+  const { sectionState, toggleCollapsed} = useSectionStore({id});
 
-  // let currentViewComponent = $derived.by(()=>{
-  //   if (load.leftSidebar && viewId) {
-  //     const view = PluginApi.getView(viewId)
-  //     const compo = view?.component
-  //     console.log("load compo:", compo)
-  //     return compo ? compo : undefined;
-  //   }
-  //   return undefined
-  // })
+  if (toggleKey && keyMode) {
+    const regId = hotkeys.register(
+      toggleKey,
+      toggleCollapsed,
+      "toggle layout " + id,
+      {
+        mode: keyMode,
+      },
+    );
+  }
 
   const styles = $derived(
-    isVerticalSectionState(sectionState) ? `width: ${sectionState.w}px; height: 100%;` : `height: ${sectionState.h}px; width: 100%;`
+    isVertical(sectionState) ? `width: ${sectionState.w}px; height: 100%;` : `height: ${sectionState.h}px; width: 100%;`
   )
 </script>
 
@@ -34,17 +50,11 @@
   class={[
   "overflow-hidden relative",
   sectionState.collapsed && collapsedClass,
-  !sectionState.isResize && "transition-all duration-200",
+  sectionState.isResize ? "select-none" : "transition-all duration-200",
   className]}>
-
-  <!-- {#if currentViewComponent}
-    {@const Component = currentViewComponent}
-    <div>hello compo</div>
-    <Component api={PluginApi} />
-  {:else} -->
-    {@render children?.()}
-  <!-- {/if} -->
-
+    <div class={["w-full h-full", innerClass]}>
+      {@render children?.()}
+    </div>
   {#if sectionState.isFocused}
     <div class="absolute top-2 right-2 text-white bg-white rounded-full w-2 h-2"></div>
   {/if}

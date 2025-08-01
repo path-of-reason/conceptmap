@@ -1,0 +1,11 @@
+# Task ID: 6
+# Title: Implement Basic File Operations
+# Status: pending
+# Dependencies: 5 (Not found)
+# Priority: low
+# Description: Add backend and frontend logic for creating, renaming, and deleting files and folders.
+# Details:
+
+
+# Test Strategy:
+

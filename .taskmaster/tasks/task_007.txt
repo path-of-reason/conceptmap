@@ -1,0 +1,11 @@
+# Task ID: 7
+# Title: Implement Tabbed Interface
+# Status: pending
+# Dependencies: 2 (Not found)
+# Priority: medium
+# Description: Set up the core tab management system in the main view, allowing multiple tabs to be open.
+# Details:
+
+
+# Test Strategy:
+

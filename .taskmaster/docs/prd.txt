@@ -1,0 +1,31 @@
+# Project: Tauri Svelte File Explorer
+
+## 1. Overview
+
+This project is a desktop application built with Tauri and SvelteKit. It aims to provide a file explorer-like interface with a flexible, multi-pane layout.
+
+## 2. Core Features
+
+### 2.1. File System Explorer
+- Display a tree-view of the local file system.
+- Allow users to navigate through directories.
+- Open files with the default system application.
+- Basic file operations: create, rename, delete files and folders.
+
+### 2.2. Multi-Pane Layout
+- Implement a resizable multi-pane layout using split panes.
+- A main content area, a left sidebar for file navigation, and a right sidebar for additional information or controls.
+- A status bar at the bottom of the application window.
+- A header bar at the top for global actions.
+
+### 2.3. Tabbed Interface
+- Allow users to open multiple files or views in tabs.
+- Manage tab state, including active tab and tab order.
+- Close tabs individually or all at once.
+
+## 3. Technical Stack
+
+- **Frontend:** SvelteKit
+- **Backend:** Rust (Tauri)
+- **Desktop Framework:** Tauri
+- **Styling:** CSS (potentially with a framework like Tailwind CSS or plain CSS)

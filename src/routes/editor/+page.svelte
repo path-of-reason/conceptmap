@@ -1,32 +1,91 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import { useStore } from "./storetest.svelte";
-  import { useTabs } from "../useTabs.svelte";
-  import Swapy from "./swapy.svelte";
-  import Draggable from "./draggable.svelte";
-  import Sortable from "./sortable.svelte";
-  import SplitPanes from "../SplitPanes.svelte";
-  // import { appWindow } from "./webview";
-  const { increase, pushList, store } = useStore();
-  const { tabStore } = useTabs();
+  import Grid from "../../layout/work-space/Grid.svelte";
+  import {
+    CellUtil,
+    useLayoutStore,
+  } from "../../layout/work-space/layoutStore.svelte";
+  import Bookmark from "../../layout/work-space/Bookmark.svelte";
+  import { hotkeys } from "$lib/hooks/useKeyboard.svelte";
 
-  onMount(() => {});
+  const { layoutStore } = useLayoutStore();
+
+  hotkeys.registers([
+    {
+      hotkeySequence: ["space", "tab"],
+      callback: () => {
+        layoutStore.root.mode =
+          layoutStore.root.mode === "grid" ? "bookmark" : "grid";
+      },
+      description: "toggle Workspace layout mode",
+      options: { mode: "leader" },
+    },
+    {
+      hotkeySequence: ["meta", "shift", "-"],
+      callback: CellUtil.decreaseCellWidth,
+      description: "focused panel width -",
+      options: { mode: "normal" },
+    },
+    {
+      hotkeySequence: ["meta", "shift", "="],
+      callback: CellUtil.increaseCellWidth,
+      description: "focused panel width +",
+      options: { mode: "normal" },
+    },
+    {
+      hotkeySequence: ["space", "s", "v"],
+      callback: CellUtil.splitVertical,
+      description: "Split panel vertical",
+      options: { mode: "leader" },
+    },
+    {
+      hotkeySequence: ["space", "d", "v"],
+      callback: CellUtil.removeVertical,
+      description: "Delete panel vertical",
+      options: { mode: "leader" },
+    },
+    {
+      hotkeySequence: ["space", "s", "h"],
+      callback: CellUtil.splitHorizontal,
+      description: "Split panel horizontal",
+      options: { mode: "leader" },
+    },
+    {
+      hotkeySequence: ["space", "d", "h"],
+      callback: CellUtil.removeHorizontal,
+      description: "Delete panel horizontal",
+      options: { mode: "leader" },
+    },
+    {
+      hotkeySequence: ["ctrl", "h"],
+      callback: CellUtil.moveFocusLeft,
+      description: "Move left focus cell",
+      options: { mode: "normal" },
+    },
+    {
+      hotkeySequence: ["ctrl", "j"],
+      callback: CellUtil.moveFocusDown,
+      description: "Move down focus cell",
+      options: { mode: "normal" },
+    },
+    {
+      hotkeySequence: ["ctrl", "k"],
+      callback: CellUtil.moveFocusUp,
+      description: "Move up focus cell",
+      options: { mode: "normal" },
+    },
+    {
+      hotkeySequence: ["ctrl", "l"],
+      callback: CellUtil.moveFocusRight,
+      description: "Move right focus cell",
+      options: { mode: "normal" },
+    },
+  ]);
 </script>
 
-<div class="h-full overflow-scroll">
-  <div>{store.count}</div>
-  <div>{store.list.toString()}</div>
-  <button onclick={increase}>increase</button>
-  <button onclick={pushList}>pushList</button>
-  <a href="https://google.com">Link</a>
-  <div>
-    {JSON.stringify(
-      tabStore.tabItems.find((item) => item.slotId === tabStore.currentId),
-    )}
-  </div>
-  <!-- <Draggable /> -->
-  <!-- <Sortable>
-    <div>hello inner</div>
-  </Sortable> -->
-  <SplitPanes />
+<div class="h-full w-full overflow-hidden">
+  {#if layoutStore.root.mode === "grid"}
+    <Grid />
+  {:else if layoutStore.root.mode === "bookmark"}
+    <Bookmark />
+  {/if}
 </div>

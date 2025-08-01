@@ -1,10 +1,11 @@
 <script lang="ts">
   import { hotkeys } from "$lib/hooks/useKeyboard.svelte";
-  import { useLayoutStore } from "./layoutStore.svelte";
+  import type { LayoutType } from "../types";
+  import { useSectionStore } from "./sectionStore.svelte";
 
   type ToggleKey = string[];
   type ResizerProps = {
-    id: string;
+    id: LayoutType;
     toggleKey?: ToggleKey;
     keyMode?: "normal" | "leader";
     prev?: boolean;
@@ -19,20 +20,19 @@
     class: className,
   }: ResizerProps = $props();
 
-  const { sectionState, onResize, direction, toggleCollapsed } = useLayoutStore(
-    { id, prevResizer: prev },
-  );
+  const { sectionState, onResize, direction, toggleCollapsed } =
+    useSectionStore({ id, prevResizer: prev });
 
-  if (toggleKey && keyMode) {
-    const regId = hotkeys.register(
-      toggleKey,
-      toggleCollapsed,
-      "toggle layout " + id,
-      {
-        mode: keyMode,
-      },
-    );
-  }
+  // if (toggleKey && keyMode) {
+  //   const regId = hotkeys.register(
+  //     toggleKey,
+  //     toggleCollapsed,
+  //     "toggle layout " + id,
+  //     {
+  //       mode: keyMode,
+  //     },
+  //   );
+  // }
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -46,7 +46,7 @@
       : direction === "vertical"
         ? "hover:bg-gray-300/50 hover:cursor-ew-resize"
         : "hover:bg-gray-300/50 hover:cursor-ns-resize",
-    "transition-colors shrink-0 rounded-sm",
+    "transition-colors shrink-0 rounded-sm select-none",
     className,
   ]}
   onmousedown={onResize}

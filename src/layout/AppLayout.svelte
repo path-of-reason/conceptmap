@@ -3,119 +3,87 @@
   import Pane from "./resizable-pane/Pane.svelte";
   import PaneGroup from "./resizable-pane/PaneGroup.svelte";
   import Resizer from "./resizable-pane/Resizer.svelte";
-  import {
-    setSectionConfig,
-    layoutIds,
-    focusById,
-  } from "./resizable-pane/layoutStore.svelte";
-  import { hotkeys } from "$lib/hooks/useKeyboard.svelte";
+  import { sectionVisible } from "./resizable-pane/sectionStore.svelte";
   import { onMount } from "svelte";
   import { LAYOUT } from "./constant";
-  import Headerbar from "./Headerbar.svelte";
-  import Statusbar from "./Statusbar.svelte";
-  import RightSidebar from "./RightSidebar.svelte";
-  import LeftSidebar from "./LeftSidebar.svelte";
-  import "$lib/hooks/initHotkeys";
+  import Headerbar from "./components/Headerbar.svelte";
+  import Statusbar from "./components/Statusbar.svelte";
+  import LeftSidebar from "./components/LeftSidebar.svelte";
+  import Main from "./components/Main.svelte";
+  import RightSidebar from "./components/RightSidebar.svelte";
+  // import Searchbar from "./components/Searchbar.svelte";
+  import "./init"
 
   let { children } = $props();
   let appVisible = $state(false);
 
   onMount(() => {
     appVisible = true;
-    // console.log("left sidebar compo", LeftSidebar)
   });
 
-  setSectionConfig([
-    { id: LAYOUT.LEFT_SIDEBAR },
-    { id: LAYOUT.RIGHT_SIDEBAR },
-    {
-      id: LAYOUT.HEADER_BAR,
-      config: { direction: "horizontal", default: 40, min: 0, max: 500 },
-    },
-    {
-      id: LAYOUT.STATUS_BAR,
-      config: { direction: "horizontal", default: 40, min: 0, max: 500 },
-    },
-  ]);
 
-  let focusIndex = 0;
-
-  hotkeys.register(
-    ["space", "n"],
-    () => {
-      const ids = layoutIds();
-      focusById(ids[focusIndex]);
-      focusIndex++;
-      if (focusIndex >= ids.length) {
-        focusIndex = 0;
-      }
-    },
-    "next layout focus",
-    { mode: "leader" },
-  );
+  let mainClass = $derived.by(()=>{
+    let className = ""
+    const map = sectionVisible().map
+    if (map[LAYOUT.STATUS_BAR] !== undefined) {
+      map[LAYOUT.HEADER_BAR] ? className += "" : className += " pt-1"
+      map[LAYOUT.STATUS_BAR] ? className += "" : className += " pb-1"
+    }
+    return className
+  })
 </script>
 
 {#if appVisible}
   <div class="w-screen h-screen" transition:fade>
-    <PaneGroup direction="vertical">
+    <PaneGroup direction="horizontal" class={"transition-colors rounded-lg "}>
       <Pane
-        id={LAYOUT.LEFT_SIDEBAR}
-        class="text-nowrap box-border shrink-0"
-        collapsedClass="blur-lg -translate-x-10"
+        id={LAYOUT.HEADER_BAR}
+        class="shrink-0 box-border"
+        collapsedClass="blur-lg"
+        toggleKey={["space", "t"]} keyMode="leader"
       >
-        <div class="p-1 pr-0 w-full h-full">
-          <LeftSidebar />
-        </div>
+        <Headerbar />
       </Pane>
-      <Resizer id="leftSidebar" toggleKey={["space", "e"]} keyMode="leader" />
-      <PaneGroup direction="horizontal">
+      <PaneGroup
+        direction="vertical"
+        class={"relative pt-1 overflow-hidden"+ mainClass}>
         <Pane
-          id={LAYOUT.HEADER_BAR}
-          class="flex-none shrink-0 box-border"
-          collapsedClass="blur-lg"
+          id={LAYOUT.LEFT_SIDEBAR}
+          class="shrink-0 text-nowrap box-border absolute top-0 left-0"
+          collapsedClass="blur-lg -translate-x-10"
+          innerClass="pl-1"
+          toggleKey={["space", "e"]} keyMode="leader"
         >
-          <div class="w-full h-full pt-1">
-            <Headerbar />
-          </div>
+          <LeftSidebar />
         </Pane>
+        <Resizer id={LAYOUT.LEFT_SIDEBAR} />
+        <PaneGroup direction="horizontal">
+          <Main>
+            {@render children?.()}
+          </Main>
+        </PaneGroup>
         <Resizer
-          id={LAYOUT.HEADER_BAR}
-          toggleKey={["space", "t"]}
-          keyMode="leader"
-        />
-        <main class="w-full h-full rounded-lg bg-green-400 overflow-y-scroll">
-          {#each hotkeys.keyState.registeredHotkeys as hotkey}
-            <div>
-              {hotkey.id}: {hotkey.description}
-            </div>
-          {/each}
-          {@render children?.()}
-        </main>
-        <Resizer
-          id={LAYOUT.STATUS_BAR}
+          id={LAYOUT.RIGHT_SIDEBAR}
           prev={true}
-          toggleKey={["space", "b"]}
-          keyMode="leader"
         />
-        <Pane id={LAYOUT.STATUS_BAR} class="flex-none shrink-0 box-border">
-          <div class="pb-1 w-full h-full">
-            <Statusbar />
-          </div>
+        <Pane
+          id={LAYOUT.RIGHT_SIDEBAR}
+          class="shrink-0 overflow-hidden text-nowrap box-border"
+          collapsedClass="blur-lg translate-x-10"
+          innerClass="pr-1"
+          toggleKey={["space", "r"]}
+          keyMode="leader"
+        >
+          <RightSidebar />
         </Pane>
       </PaneGroup>
-      <Resizer
-        id={LAYOUT.RIGHT_SIDEBAR}
-        toggleKey={["space", "r"]}
-        keyMode="leader"
-        prev={true}
-      />
       <Pane
-        id={LAYOUT.RIGHT_SIDEBAR}
-        class="overflow-hidden text-nowrap box-border shrink-0"
+        id={LAYOUT.STATUS_BAR}
+        class="shrink-0 box-border"
+        toggleKey={["space", "b"]}
+        keyMode="leader"
       >
-        <div class="p-1 pl-0 w-full h-full">
-          <RightSidebar />
-        </div>
+        <Statusbar  />
       </Pane>
     </PaneGroup>
   </div>

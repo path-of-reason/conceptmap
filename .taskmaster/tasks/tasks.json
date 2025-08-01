@@ -1,0 +1,83 @@
+
+{
+  "master": {
+    "tasks": [
+      {
+        "id": "1",
+        "title": "Project Setup & Basic Layout",
+        "description": "Initialize the main application window and structure the basic layout components.",
+        "status": "pending",
+        "priority": "high",
+        "dependencies": [],
+        "subtasks": []
+      },
+      {
+        "id": "2",
+        "title": "Implement Multi-Pane Layout",
+        "description": "Implement the resizable multi-pane layout using split panes for the left sidebar, main content area, and right sidebar.",
+        "status": "pending",
+        "priority": "high",
+        "dependencies": ["1"],
+        "subtasks": []
+      },
+      {
+        "id": "3",
+        "title": "Implement Header and Status Bars",
+        "description": "Add the top header bar for global actions and the bottom status bar for displaying application status.",
+        "status": "pending",
+        "priority": "medium",
+        "dependencies": ["1"],
+        "subtasks": []
+      },
+      {
+        "id": "4",
+        "title": "Implement File System Tree View",
+        "description": "Display the local file system in a tree-view component within the left sidebar.",
+        "status": "pending",
+        "priority": "high",
+        "dependencies": ["2"],
+        "subtasks": []
+      },
+      {
+        "id": "5",
+        "title": "Implement File Navigation Logic",
+        "description": "Handle directory expansion, collapsing, and item selection within the file system tree view.",
+        "status": "pending",
+        "priority": "medium",
+        "dependencies": ["4"],
+        "subtasks": []
+      },
+      {
+        "id": "6",
+        "title": "Implement Basic File Operations",
+        "description": "Add backend and frontend logic for creating, renaming, and deleting files and folders.",
+        "status": "pending",
+        "priority": "low",
+        "dependencies": ["5"],
+        "subtasks": []
+      },
+      {
+        "id": "7",
+        "title": "Implement Tabbed Interface",
+        "description": "Set up the core tab management system in the main view, allowing multiple tabs to be open.",
+        "status": "pending",
+        "priority": "medium",
+        "dependencies": ["2"],
+        "subtasks": []
+      },
+      {
+        "id": "8",
+        "title": "Integrate Tabs with File Explorer",
+        "description": "Connect the file explorer so that opening a file creates a new tab in the main content area.",
+        "status": "pending",
+        "priority": "medium",
+        "dependencies": ["5", "7"],
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "description": "Default tag for the project",
+      "createdAt": "2024-07-21T00:00:00.000Z"
+    }
+  }
+}

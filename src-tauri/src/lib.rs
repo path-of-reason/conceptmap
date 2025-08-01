@@ -1,11 +1,15 @@
 // mod epub_parser;
-mod file_system;
 // mod sidecar;
 // mod terminal;
+mod app_state;
+mod file_system;
+use std::sync::{Arc, Mutex};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    let app_state = Arc::new(Mutex::new(app_state::AppState::new()));
     tauri::Builder::default()
+        .manage(app_state.clone())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             file_system::greet,
@@ -14,6 +18,7 @@ pub fn run() {
             file_system::write_file,
             file_system::read_directory,
             file_system::read_dir_recursive,
+            app_state::get_load_time,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
