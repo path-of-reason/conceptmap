@@ -5,6 +5,7 @@
 
   type Props = {
     class?: string;
+    isCallapsed?: boolean;
   };
   const { class: className }: Props = $props();
 

@@ -1,26 +1,16 @@
 <script lang="ts">
   import XIcon from "@lucide/svelte/icons/x";
-  import { useLayoutStore } from "./layoutStore.svelte";
+  import { API } from "$lib/store/api";
 
-  const { layoutStore, removeTab, assignTabToCell, focusCell } =
-    useLayoutStore();
-
-  function handleTabClick(tabId: string) {
-    if (layoutStore.root.focusedCellId) {
-      assignTabToCell(tabId, layoutStore.root.focusedCellId);
-    } else if (layoutStore.root.cells.length > 0) {
-      assignTabToCell(tabId, layoutStore.root.cells[0].id);
-      focusCell(layoutStore.root.cells[0].id);
-    }
-  }
+  const { store, removeTab, handleTabClick } = API.workspace;
 </script>
 
 <div
   data-tauri-drag-region
   class="w-full flex gap-1 justify-start overflow-x-scroll hide-scrollbar"
 >
-  {#each layoutStore.tabs as tab (tab.id)}
-    {@const curTab = layoutStore.root.cells.reduce(
+  {#each store.tabs as tab (tab.id)}
+    {@const curTab = store.layout.cells.reduce(
       (acc, cell) => {
         if (!acc.ok && cell.activeTabId === tab.id)
           acc = { ok: true, tabId: tab.id, color: cell.color };
@@ -33,10 +23,9 @@
       },
     )}
     {@const isFocused =
-      layoutStore.root.cells.findIndex(
+      store.layout.cells.findIndex(
         (cell) =>
-          cell.id === layoutStore.root.focusedCellId &&
-          cell.activeTabId === tab.id,
+          cell.id === store.layout.focusedCellId && cell.activeTabId === tab.id,
       ) > -1}
     <div class="relative w-fit flex-shrink-0 group">
       <button

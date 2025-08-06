@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as Icons from "@lucide/svelte/icons";
-  import { LAYOUT } from "../../constant";
-  import { useSectionStore } from "../../resizable-pane/sectionStore.svelte";
+  import { LAYOUT } from "$lib/constant/layout";
+  import { API } from "$lib/store/api";
   type Props = {
     class?: string;
   };
@@ -9,7 +9,7 @@
   let { class: className }: Props = $props();
 
   const { toggleCollapsed: leftCollapse, sectionState: leftState } =
-    useSectionStore<"vertical">({
+    API.section.useSectionStore<"vertical">({
       id: LAYOUT.LEFT_SIDEBAR,
     });
 </script>

@@ -1,4 +1,4 @@
-import type { Config, Direction } from "../types";
+import type { Config, Direction } from "$lib/types/layout";
 
 const defaultConfig: Config = {
   direction: "vertical" as Direction,

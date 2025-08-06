@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as Icons from "@lucide/svelte/icons";
   import { goto } from "$app/navigation";
-  import { hotkeys } from "$lib/hooks/useKeyboard.svelte";
+  import { API } from "$lib/store/api";
 
   let address = $state("");
   const keydown = (e: KeyboardEvent) => {
@@ -14,7 +14,7 @@
       document.getElementById("searchbar")?.blur();
     }
   };
-  hotkeys.registers([
+  API.hotkey.registerAll([
     {
       hotkeySequence: ["meta", "k"],
       callback: () => {

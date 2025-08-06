@@ -1,8 +1,8 @@
 <script lang="ts">
-  import type { GridCell } from "./types";
-  import { useLayoutStore } from "./layoutStore.svelte";
+  import { API } from "$lib/store/api";
+  import type { GridCell } from "$lib/types/workspace";
 
-  const { layoutStore, getTabById, focusCell } = useLayoutStore();
+  const { store, getTabById, focusCell, CellUtil } = API.workspace;
 
   function renderCellContent(cell: GridCell) {
     if (!cell.activeTabId) return null;
@@ -11,39 +11,9 @@
     return { title: tab.title, content: tab.content, type: tab.type };
   }
 
-  const focusedCell = $derived(
-    layoutStore.root.cells.find((c) => c.id === layoutStore.root.focusedCellId),
-  );
-  // 현재 포커스된 셀을 기준으로 왼쪽에 있는 셀들
-  const leftSideCells = $derived(
-    focusedCell
-      ? layoutStore.root.cells
-          .filter(
-            (cell) =>
-              cell.col < focusedCell.col &&
-              // 동일한 행 범위 내의 셀만 포함하거나, 논리적으로 왼쪽에 있는 모든 셀을 포함하도록 조정
-              // 여기서는 모든 왼쪽 셀을 가져오되, 정렬은 나중에 합니다.
-              cell.row < layoutStore.root.rows, // 모든 행을 포함하도록 가정. 필요시 row 범위 조정
-          )
-          .sort((a, b) => a.col - b.col || a.row - b.row) // 왼쪽에서 오른쪽, 위에서 아래로 정렬
-      : [],
-  );
-
-  // 현재 포커스된 셀을 기준으로 오른쪽에 있는 셀들
-  const rightSideCells = $derived(
-    focusedCell
-      ? layoutStore.root.cells
-          .filter(
-            (cell) =>
-              cell.col + cell.colspan >=
-                focusedCell.col + focusedCell.colspan &&
-              // 동일한 행 범위 내의 셀만 포함하거나, 논리적으로 오른쪽에 있는 모든 셀을 포함하도록 조정
-              // 여기서는 모든 오른쪽 셀을 가져오되, 정렬은 나중에 합니다.
-              cell.row < layoutStore.root.rows, // 모든 행을 포함하도록 가정. 필요시 row 범위 조정
-          )
-          .sort((a, b) => a.col - b.col || a.row - b.row) // 왼쪽에서 오른쪽, 위에서 아래로 정렬
-      : [],
-  );
+  const focusedCell = $derived(CellUtil.getFocusedCell());
+  const leftSideCells = $derived(CellUtil.getLeftSideCells());
+  const rightSideCells = $derived(CellUtil.getRightSideCells());
 
   // 북마크 스티커 클릭 핸들러
   function handleBookmarkClick(cellId: string) {
@@ -59,16 +29,16 @@
         class={[
           "absolute hover:z-50 hover:bg-amber-400 ",
           "w-full p-2 rounded transition-colors duration-200 text-right",
-          cell.id === layoutStore.root.focusedCellId
+          cell.id === store.layout.focusedCellId
             ? "bg-amber-600"
             : "bg-zinc-800/0",
         ]}
-        style={`top: ${Math.floor((100 * cell.row) / layoutStore.root.rows + cell.col * 3)}%; `}
+        style={`top: ${Math.floor((100 * cell.row) / store.layout.rows + cell.col * 3)}%; `}
         onclick={() => handleBookmarkClick(cell.id)}
       >
         <div
           class="flex justify-end items-center space-x-2 pr-3"
-          style={`padding-right: ${Math.floor((30 * (layoutStore.root.cols - cell.col - 1)) / layoutStore.root.cols)}px;`}
+          style={`padding-right: ${Math.floor((30 * (store.layout.cols - cell.col - 1)) / store.layout.cols)}px;`}
         >
           <span
             class={[
@@ -157,15 +127,15 @@
         class={[
           "absolute left-0 hover:z-50 hover:bg-amber-400", // left-0으로 변경하여 왼쪽에 붙도록
           "w-full p-2 rounded transition-colors duration-200 text-left", // text-left로 변경
-          cell.id === layoutStore.root.focusedCellId
+          cell.id === store.layout.focusedCellId
             ? "bg-amber-600"
             : "bg-zinc-800/0",
         ]}
-        style={`top: ${Math.floor((100 * cell.row) / layoutStore.root.rows + cell.col * 3)}%;`}
+        style={`top: ${Math.floor((100 * cell.row) / store.layout.rows + cell.col * 3)}%;`}
         onclick={() => handleBookmarkClick(cell.id)}
       >
         <div
-          style={`padding-left: ${Math.floor((30 * (cell.col + 1)) / layoutStore.root.cols)}px;`}
+          style={`padding-left: ${Math.floor((30 * (cell.col + 1)) / store.layout.cols)}px;`}
           class="flex justify-start items-center space-x-2"
         >
           <div

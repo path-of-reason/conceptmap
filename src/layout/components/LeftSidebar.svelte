@@ -1,30 +1,39 @@
 <script lang="ts">
   import { slide } from "svelte/transition";
-
-  import { useSectionStore } from "../resizable-pane/sectionStore.svelte";
-  import { layoutState, ViewApi } from "../views/ViewApi.svelte";
-  const { sectionState } = useSectionStore<"vertical">({
+  import { API } from "$lib/store/api";
+  import { onMount } from "svelte";
+  const {
+    viewState,
+    hasView,
+    getView,
+    getRegisteredViews,
+    setActiveLeftSidebarView,
+  } = API.view;
+  const { sectionState } = API.section.useSectionStore<"vertical">({
     id: "leftSidebar",
   });
 
-  const registeredViews = ViewApi.getRegisteredViews();
+  const registeredViews = getRegisteredViews().filter(
+    (v) => v.type === "leftSidebar",
+  );
 
   // viewId변경되면 자동으로 view를 업데이트한다.
   const activeView = $derived.by(() => {
-    if (
-      layoutState.leftSidebarViewId &&
-      ViewApi.hasView(layoutState.leftSidebarViewId)
-    ) {
-      const view = ViewApi.getView(layoutState.leftSidebarViewId)!;
+    if (viewState.leftSidebarViewId && hasView(viewState.leftSidebarViewId)) {
+      const view = getView(viewState.leftSidebarViewId)!;
       return view;
     }
     return null;
   });
 
+  onMount(() => {
+    if (!viewState.leftSidebarViewId)
+      setActiveLeftSidebarView(registeredViews[0]?.id);
+  });
+
   function sidebarClick(viewId: string) {
-    if (layoutState.leftSidebarViewId === viewId)
-      ViewApi.setActiveLeftSidebarView(null);
-    else ViewApi.setActiveLeftSidebarView(viewId);
+    if (viewState.leftSidebarViewId === viewId) setActiveLeftSidebarView(null);
+    else setActiveLeftSidebarView(viewId);
   }
 </script>
 
@@ -43,7 +52,7 @@
   <div class="grow w-full h-full flex flex-col">
     {#if activeView}
       {@const Compo = activeView.component}
-      <Compo />
+      <Compo isCallapsed={sectionState.collapsed} />
     {:else}
       <p class="p-2">사이드바 뷰를 선택해주세요.</p>
     {/if}
@@ -57,7 +66,7 @@
             class={[
               "w-full flex justify-center",
               "h-5 p-px rounded-xs hover:bg-black/50 transition-colors",
-              layoutState.leftSidebarViewId === view.id
+              viewState.leftSidebarViewId === view.id
                 ? "text-white"
                 : "text-zinc-500",
             ]}

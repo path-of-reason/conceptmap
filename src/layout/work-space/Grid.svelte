@@ -1,15 +1,15 @@
 <script lang="ts">
-  import type { GridCell } from "./types.d.ts";
-  import { useLayoutStore } from "./layoutStore.svelte";
+  import { API } from "$lib/store/api";
+  import type { GridCell } from "$lib/types/workspace";
   import { slide } from "svelte/transition";
 
-  const { layoutStore, getTabById, focusCell } = useLayoutStore();
+  const { store, getTabById, focusCell } = API.workspace;
 
   const gridStyle = $derived(
     `
     display: grid;
-    grid-template-rows: ${layoutStore.root.rowSizes.join(" ")};
-    grid-template-columns: ${layoutStore.root.colSizes.join(" ")};
+    grid-template-rows: ${store.layout.rowSizes.join(" ")};
+    grid-template-columns: ${store.layout.colSizes.join(" ")};
   `,
   );
 
@@ -22,8 +22,8 @@
 </script>
 
 <div class="w-full h-full" style={gridStyle}>
-  {#each layoutStore.root.cells as cell (cell.id)}
-    {@const isFocused = layoutStore.root.focusedCellId === cell.id}
+  {#each store.layout.cells as cell (cell.id)}
+    {@const isFocused = store.layout.focusedCellId === cell.id}
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div

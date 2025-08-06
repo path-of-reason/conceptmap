@@ -1,41 +1,19 @@
-// --- 타입 정의 ---
-type HotkeyMode = "normal" | "leader";
-type HotkeyOptions = {
-  mode: HotkeyMode;
-  preventDefault?: boolean;
-  stopPropagation?: boolean;
-  ignoreInInputs?: boolean;
-};
-type HotkeyCallback = (event: KeyboardEvent) => void;
-type KeyState = {
-  pressedKeys: string;
-  currentMode: HotkeyMode;
-  pendingKeys: string[];
-  registeredHotkeys: RegisteredHotkey[];
-};
-export type RegisteredHotkey = {
-  id: string;
-  sequence: string[];
-  callback: HotkeyCallback;
-  description: string;
-  options: HotkeyOptions;
-};
-type RegistHotkey = {
-  hotkeySequence: string | string[];
-  callback: HotkeyCallback;
-  description: string;
-  options: HotkeyOptions;
-};
+import type {
+  HotkeyCallback,
+  HotkeyMode,
+  HotkeyOptions,
+  KeyState,
+  RegisteredHotkey,
+  HotkeyDef,
+} from "$lib/types/hotkey";
+import { CommandApi } from "./command";
 
-// --- 전역 상태 및 변수 ---
 // 현재 눌린 키를 추적하는 Set (UI 표시 및 동시 입력 확인용)
 const pressedKeys = new Set<string>();
-// 등록된 핫키 목록
 const registeredHotkeys: RegisteredHotkey[] = [];
 // 전역 이벤트 리스너가 이미 등록되었는지 확인
 let isListenersAttached = false;
 // ✨ 현재 키 입력 모드 상태 ($state로 반응성 추가)
-// Svelte의 $state를 사용하여 반응성을 확보합니다.
 const keyState = $state<KeyState>({
   pendingKeys: [], // ✨ pendingKeys 추가 및 초기화
   pressedKeys: "",
@@ -55,8 +33,6 @@ function resetLeaderMode(): void {
     keyState.pendingKeys = []; // pendingKeys 초기화
   }
 }
-
-// ✨ extendLeaderModeTimeout 함수는 더 이상 사용하지 않으므로 제거되었습니다.
 
 // --- 이벤트 리스너 관리 함수 ---
 
@@ -458,7 +434,7 @@ function mapAliasToKeyCode(alias: string): string {
  * @param options - 핫키의 동작을 제어하는 옵션 (모드, preventDefault 등)
  * @returns 등록된 핫키의 고유 ID
  */
-function registerHotkey(
+function register(
   hotkeySequence: string | string[],
   callback: HotkeyCallback,
   description: string,
@@ -512,22 +488,21 @@ function registerHotkey(
   attachListeners();
   return hotkeyId;
 }
-function registerHotKeyList(registHotkeys: RegistHotkey[]) {
-  registHotkeys.forEach((hotkey) => {
-    registerHotkey(
-      hotkey.hotkeySequence,
-      hotkey.callback,
-      hotkey.description,
-      hotkey.options,
-    );
+
+const registerAll = (defs: HotkeyDef[]) =>
+  defs.map((h) => {
+    if ("commandKey" in h) {
+      const action = CommandApi.getCommandAction(h.commandKey);
+      const desc = CommandApi.getCommandDescription(h.commandKey);
+      if (action && desc) register(h.hotkeySequence, action, desc, h.options);
+    } else register(h.hotkeySequence, h.callback, h.description, h.options);
   });
-}
 
 /**
  * 이전에 등록된 핫키를 해제합니다.
  * @param hotkeyId - 해제할 핫키의 고유 ID
  */
-function unregisterHotkey(hotkeyId: string): void {
+function unregister(hotkeyId: string): void {
   const index = registeredHotkeys.findIndex((h) => h.id === hotkeyId);
   if (index > -1) {
     registeredHotkeys.splice(index, 1);
@@ -535,17 +510,15 @@ function unregisterHotkey(hotkeyId: string): void {
   }
   detachListeners();
 }
-function unregisterHotkeyList(hotkeyIds: string[]): void {
-  hotkeyIds.forEach((hotkeyId) => {
-    unregisterHotkey(hotkeyId);
-  });
+function unregisterAll(hotkeyIds: string[]): void {
+  hotkeyIds.forEach((hotkeyId) => unregister(hotkeyId));
 }
 
 // --- Public API 내보내기 ---
-export const hotkeys = {
-  register: registerHotkey,
-  registers: registerHotKeyList,
-  unregister: unregisterHotkey,
-  unregisters: unregisterHotkeyList,
+export const HotkeyApi = {
   keyState,
+  register,
+  registerAll,
+  unregister,
+  unregisterAll,
 };

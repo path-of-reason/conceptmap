@@ -1,16 +1,14 @@
 <script lang="ts">
+  import "$lib/store/initials"
   import "../app.css";
-  // import AppLayout from "./AppLayout.svelte";
-  import AppLayout from "../layout/AppLayout.svelte"
-  // import "$lib/tauri/test_fs"
+  import AppLayout from "@/layout/AppLayout.svelte";
 
   let { children } = $props();
 
-  const origin = false
 </script>
 
 <div class="w-screen h-screen bg-transparent">
-    <AppLayout>
-      {@render children?.()}
-    </AppLayout>
+  <AppLayout>
+    {@render children?.()}
+  </AppLayout>
 </div>

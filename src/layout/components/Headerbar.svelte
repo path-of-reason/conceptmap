@@ -3,16 +3,15 @@
   import TrafficLights from "./header/TrafficLights.svelte";
   import ToggleLeftSidebarBtn from "./header/ToggleLeftSidebarBtn.svelte";
   import ToggleRightSidebarBtn from "./header/ToggleRightSidebarBtn.svelte";
-  import TabUi from "../work-space/TabUI.svelte";
-  import { useLayoutStore } from "../work-space/layoutStore.svelte";
-  import { hotkeys } from "$lib/hooks/useKeyboard.svelte";
+  import TabUi from "./header/TabUI.svelte";
+  import { API } from "$lib/store/api";
+  import { CMDKEYS } from "$lib/constant/commandKey";
 
-  const { createNewTab } = useLayoutStore();
-  hotkeys.registers([
+  const { createNewTab } = API.workspace;
+  API.hotkey.registerAll([
     {
       hotkeySequence: ["meta", "t"],
-      callback: createNewTab,
-      description: "create new tab",
+      commandKey: CMDKEYS.WORKSPACE.TAB.NEW,
       options: { mode: "normal" },
     },
   ]);

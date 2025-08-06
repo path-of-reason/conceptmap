@@ -1,38 +1,20 @@
 <script lang="ts">
-  import { hotkeys } from "$lib/hooks/useKeyboard.svelte";
-  import type { LayoutType } from "../types";
-  import { useSectionStore } from "./sectionStore.svelte";
+  import { API } from "$lib/store/api";
+  import type { SectionType } from "$lib/types/layout";
 
   type ToggleKey = string[];
   type ResizerProps = {
-    id: LayoutType;
+    id: SectionType;
     toggleKey?: ToggleKey;
     keyMode?: "normal" | "leader";
     prev?: boolean;
     class?: string;
   };
 
-  let {
-    id,
-    toggleKey,
-    keyMode,
-    prev = false,
-    class: className,
-  }: ResizerProps = $props();
+  let { id, prev = false, class: className }: ResizerProps = $props();
 
   const { sectionState, onResize, direction, toggleCollapsed } =
-    useSectionStore({ id, prevResizer: prev });
-
-  // if (toggleKey && keyMode) {
-  //   const regId = hotkeys.register(
-  //     toggleKey,
-  //     toggleCollapsed,
-  //     "toggle layout " + id,
-  //     {
-  //       mode: keyMode,
-  //     },
-  //   );
-  // }
+    API.section.useSectionStore({ id, prevResizer: prev });
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->

@@ -1,12 +1,20 @@
-import type { Component, SvelteComponent } from "svelte";
+import type { Component } from "svelte";
 
-export type LayoutType =
+export type SectionType =
   | "leftSidebar"
   | "rightSidebar"
   | "headerBar"
   | "searchBar"
-  | "statusBar"
-  | "mainContent";
+  | "statusBar";
+
+export type ModalType =
+  | "leftModal"
+  | "rightModal"
+  | "topModal"
+  | "bottomModal"
+  | "centerModal"
+  | "fullModal";
+
 export type Direction = "vertical" | "horizontal";
 export type Config = {
   direction: Direction;
@@ -32,20 +40,19 @@ export type HorizontalSectionState = BaseSectionState & {
 export type SectionState = VerticalSectionState | HorizontalSectionState;
 
 export type LayoutState = {
-  isResize: boolean;
-  leftSidebarViewId: string | null;
-  mainPosition: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  };
+  isSectionResize: boolean;
+  zoomLevel: number;
 };
+
+export type ViewState = {
+  leftSidebarViewId: string | null;
+  rightSidebarViewId: string | null;
+};
+
 export type LayoutView = {
   id: string; // 뷰의 고유 식별자 (예: 'my-plugin/todo-list')
   name: string; // 사용자에게 표시될 이름 (예: '할 일 목록')
-  type: LayoutType;
+  type: SectionType;
   component: Component<any, {}, "">;
   icon?: Component<any, {}, "">;
-  // icon?: string;
 };

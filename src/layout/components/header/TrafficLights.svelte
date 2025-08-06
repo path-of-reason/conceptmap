@@ -13,6 +13,7 @@
 <div class="flex-none flex items-center h-full gap-2 px-2" transition:slide>
   <button
     onclick={close}
+    tabindex="-1"
     class="relative w-3 h-3 rounded-full bg-[#ff6159] border border-black/10 group focus:outline-none"
   >
     <span
@@ -25,6 +26,7 @@
   </button>
   <button
     onclick={minimize}
+    tabindex="-1"
     class="relative w-3 h-3 rounded-full bg-[#ffbd2e] border border-black/10 group focus:outline-none"
   >
     <span
@@ -36,6 +38,7 @@
   </button>
   <button
     onclick={maximize}
+    tabindex="-1"
     class="relative w-3 h-3 rounded-full bg-[#28c941] border border-black/10 group focus:outline-none"
   >
     <span

@@ -1,22 +1,22 @@
-import { layoutState } from "../views/ViewApi.svelte";
-import { SectionConfig } from "./sectionConfig";
 import {
   type SectionState,
   type BaseSectionState,
   type Direction,
   type HorizontalSectionState,
   type VerticalSectionState,
-  type LayoutType,
-} from "../types.d";
+  type SectionType,
+} from "@/lib/types/layout";
+import { LayoutApi } from "@/lib/store/layout.svelte";
+import { SectionConfig } from "./sectionConfig";
 
-// ------------ state
+/** for mouse resizing */
 const mouseState = {
   startX: 0,
   startY: 0,
 };
-const sectionStateMap = new Map<LayoutType, SectionState>();
+const sectionStateMap = new Map<SectionType, SectionState>();
 const getSectionState = <D extends Direction>(
-  id: LayoutType,
+  id: SectionType,
 ): D extends "vertical" ? VerticalSectionState : HorizontalSectionState => {
   if (sectionStateMap.has(id))
     return sectionStateMap.get(id) as D extends "vertical"
@@ -24,10 +24,11 @@ const getSectionState = <D extends Direction>(
       : HorizontalSectionState;
   else return initSectionState(id);
 };
-const setSectionState = (id: LayoutType, state: SectionState) =>
+const setSectionState = (id: SectionType, state: SectionState) =>
   sectionStateMap.set(id, state);
+
 const initSectionState = <D extends Direction>(
-  id: LayoutType,
+  id: SectionType,
 ): D extends "vertical" ? VerticalSectionState : HorizontalSectionState => {
   const config = SectionConfig.map.get(id)!;
   const baseState: BaseSectionState = {
@@ -57,16 +58,24 @@ const initSectionState = <D extends Direction>(
   return state;
 };
 
+const zenSnapshot: Record<SectionType, boolean> = {
+  rightSidebar: false,
+  leftSidebar: false,
+  headerBar: false,
+  statusBar: false,
+  searchBar: false,
+};
+
 // # util functions ---------------------------------
 /**
  * # use svelte script
  * - let visibleLayoutList = $derived.by(()=>sectionVisible().list)
  * - let visibleLayoutMap = $derived.by(()=>sectionVisible().map)
  */
-export function sectionVisible() {
+function sectionVisible() {
   const map: Record<string, boolean> = {};
   const list: {
-    id: LayoutType;
+    id: SectionType;
     visible: boolean;
   }[] = [];
   for (const [key, value] of sectionStateMap.entries()) {
@@ -78,7 +87,7 @@ export function sectionVisible() {
     list,
   };
 }
-export function collapseSection(id: LayoutType, bool: boolean) {
+function collapseSection(id: SectionType, bool: boolean) {
   const sectionState = getSectionState(id);
   const config = SectionConfig.get(id);
   sectionState.collapsed = bool;
@@ -86,18 +95,19 @@ export function collapseSection(id: LayoutType, bool: boolean) {
     sectionState.w = bool ? config.min : config.default;
   else sectionState.h = bool ? config.min : config.default;
 }
-export function isVertical(state: SectionState): state is VerticalSectionState {
+function isVertical(state: SectionState): state is VerticalSectionState {
   return state.direction === "vertical";
 }
-export function layoutIds() {
+function sectionIds() {
   return Array.from(sectionStateMap.keys());
 }
-export function focusById(id: LayoutType) {
+function focusById(id: SectionType) {
   return sectionStateMap.forEach(
     (sectionState, key) => (sectionState.isFocused = key === id ? true : false),
   );
 }
-export function toggleZenMode() {
+function toggleZenMode() {
+  // zen 상태 결정
   let zenMode = true;
   for (const [id, sectionState] of sectionStateMap)
     if (sectionState.collapsed === false) {
@@ -105,27 +115,47 @@ export function toggleZenMode() {
       break;
     }
 
-  if (zenMode)
+  if (!zenMode)
     sectionStateMap.forEach((sectionState, id) => {
-      const config = SectionConfig.get(id);
-      sectionState.collapsed = false;
-      if (isVertical(sectionState)) sectionState.w = config.default;
-      else sectionState.h = config.default;
-    });
-  else
-    sectionStateMap.forEach((sectionState, id) => {
+      zenSnapshot[id] = sectionState.collapsed;
       const config = SectionConfig.get(id);
       sectionState.collapsed = true;
       if (isVertical(sectionState)) sectionState.w = config.min;
       else sectionState.h = config.min;
     });
+  else
+    sectionStateMap.forEach((sectionState, id) => {
+      const config = SectionConfig.get(id);
+      const collapsed = zenSnapshot[id];
+      sectionState.collapsed = collapsed;
+      if (isVertical(sectionState))
+        sectionState.w = collapsed ? config.min : config.default;
+      else sectionState.h = collapsed ? config.min : config.default;
+    });
 }
 
-export function useSectionStore<D extends Direction>({
+function toggleLayout(layoutType: SectionType) {
+  const ss = sectionStateMap.get(layoutType);
+  if (ss) ss.collapsed = ss.collapsed ? false : true;
+}
+function toggleHeader() {
+  toggleLayout("headerBar");
+}
+function toggleLeftSidebar() {
+  toggleLayout("leftSidebar");
+}
+function toggleRightSidebar() {
+  toggleLayout("rightSidebar");
+}
+function toggleStatusbar() {
+  toggleLayout("statusBar");
+}
+
+function useSectionStore<D extends Direction>({
   id,
   prevResizer = false,
 }: {
-  id: LayoutType;
+  id: SectionType;
   prevResizer?: boolean;
 }) {
   const sectionState = getSectionState<D>(id);
@@ -135,7 +165,7 @@ export function useSectionStore<D extends Direction>({
 
   const onResize = (e: MouseEvent) => {
     sectionState.isResize = true;
-    layoutState.isResize = true;
+    LayoutApi.state.isSectionResize = true;
     mouseState.startX = e.clientX;
     mouseState.startY = e.clientY;
     if (isVertical(sectionState)) {
@@ -174,7 +204,7 @@ export function useSectionStore<D extends Direction>({
   };
   const onResizeEnd = (e: MouseEvent) => {
     sectionState.isResize = false;
-    layoutState.isResize = false;
+    LayoutApi.state.isSectionResize = false;
     document.body.style.cursor = "default";
     document.removeEventListener("mousemove", onResizeMove);
     document.removeEventListener("mouseup", onResizeEnd);
@@ -184,9 +214,22 @@ export function useSectionStore<D extends Direction>({
   return {
     direction: config.direction,
     sectionState,
-    layoutState,
     toggleCollapsed,
     onResize,
     setFocus,
   };
 }
+
+export const SectionApi = {
+  useSectionStore,
+  sectionVisible,
+  collapseSection,
+  isVertical,
+  sectionIds,
+  focusById,
+  toggleZenMode,
+  toggleHeader,
+  toggleLeftSidebar,
+  toggleRightSidebar,
+  toggleStatusbar,
+};
