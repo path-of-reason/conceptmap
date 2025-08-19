@@ -16,6 +16,8 @@
     innerClass?: string;
     collapsedClass?: string;
     children?: any;
+    onfocusin?: () => void;
+    onfocusout?: () => void;
   };
   let {
     id,
@@ -25,6 +27,8 @@
     innerClass,
     collapsedClass,
     children,
+    onfocusin,
+    onfocusout,
   }: PaneProps = $props();
 
   const { sectionState, toggleCollapsed } = useSectionStore({ id });
@@ -54,6 +58,8 @@
     sectionState.isResize ? "select-none" : "transition-all duration-200",
     className,
   ]}
+  {onfocusin}
+  {onfocusout}
 >
   <div class={["w-full h-full", innerClass]}>
     {@render children?.()}

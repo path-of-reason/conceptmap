@@ -11,6 +11,7 @@
       });
   });
   const { keyState } = API.hotkey;
+  const { contextState } = API.context;
 </script>
 
 <div
@@ -23,5 +24,8 @@
   <div>loadtime: {loadtime}</div>
   <div>
     {keyState.currentMode}: ({JSON.stringify(keyState.pendingKeys)}), {keyState.pressedKeys}
+  </div>
+  <div>
+    Contexts: {JSON.stringify(contextState.contextStack)}
   </div>
 </div>

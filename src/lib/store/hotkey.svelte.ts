@@ -7,6 +7,7 @@ import type {
   HotkeyDef,
 } from "$lib/types/hotkey";
 import { CommandApi } from "./command";
+import { ContextApi } from "./context.svelte";
 
 // 현재 눌린 키를 추적하는 Set (UI 표시 및 동시 입력 확인용)
 const pressedKeys = new Set<string>();
@@ -74,101 +75,69 @@ function findMatchingHotkey(
   pendingKeys: string[],
   pressedKeysSet: Set<string>,
 ): { matchedHotkey: RegisteredHotkey | null; hasPotentialMatch: boolean } {
+  const activeLocalContext = ContextApi.getActiveLocalContext();
   let matchedHotkey: RegisteredHotkey | null = null;
   let hasPotentialMatch = false;
 
-  for (const hotkey of registeredHotkeys) {
-    if (hotkey.options.ignoreInInputs && isInput) continue;
-    if (hotkey.options.mode !== currentMode) continue;
+  const findMatchInContext = (context: string | null) => {
+    for (const hotkey of registeredHotkeys) {
+      const hotkeyContext = hotkey.options.context ?? "global";
+      if (hotkeyContext !== context) continue;
 
-    if (currentMode === "leader") {
-      // 리더 모드 매칭 로직: pendingKeys와 hotkey.sequence 비교 (이전과 동일)
-      const isPartialMatch =
-        hotkey.sequence.length >= pendingKeys.length &&
-        pendingKeys.every((key, index) => hotkey.sequence[index] === key);
+      if (hotkey.options.ignoreInInputs && isInput) continue;
+      if (hotkey.options.mode !== currentMode) continue;
 
-      if (isPartialMatch && hotkey.sequence.length === pendingKeys.length) {
-        matchedHotkey = hotkey;
-        break;
+      if (currentMode === "leader") {
+        const isPartialMatch =
+          hotkey.sequence.length >= pendingKeys.length &&
+          pendingKeys.every((key, index) => hotkey.sequence[index] === key);
+        if (isPartialMatch && hotkey.sequence.length === pendingKeys.length) {
+          return { matchedHotkey: hotkey, hasPotentialMatch: false };
+        }
+        if (isPartialMatch && hotkey.sequence.length > pendingKeys.length) {
+          hasPotentialMatch = true;
+        }
+      } else { // normal mode
+        const requiredNonModifiers = hotkey.sequence.filter(
+          (key) =>
+            !(
+              key.startsWith("Control") ||
+              key.startsWith("Shift") ||
+              key.startsWith("Alt") ||
+              key.startsWith("Meta")
+            )
+        );
+
+        const nonModifierKeysMatch = requiredNonModifiers.length > 0 && requiredNonModifiers.every(k => pressedKeysSet.has(k));
+        const eventKeyIsModifier = event.code.startsWith("Control") || event.code.startsWith("Shift") || event.code.startsWith("Alt") || event.code.startsWith("Meta");
+        if (requiredNonModifiers.length === 0 && !eventKeyIsModifier) continue;
+        if (requiredNonModifiers.length > 0 && !nonModifierKeysMatch) continue;
+
+        const ctrlMatch = hotkey.sequence.some(k => k.startsWith("Control")) ? event.ctrlKey : true;
+        const shiftMatch = hotkey.sequence.some(k => k.startsWith("Shift")) ? event.shiftKey : true;
+        const altMatch = hotkey.sequence.some(k => k.startsWith("Alt")) ? event.altKey : true;
+        const metaMatch = hotkey.sequence.some(k => k.startsWith("Meta")) ? event.metaKey : true;
+
+        if (ctrlMatch && shiftMatch && altMatch && metaMatch) {
+            return { matchedHotkey: hotkey, hasPotentialMatch: false };
+        }
       }
+    }
+    return { matchedHotkey: null, hasPotentialMatch };
+  };
 
-      if (isPartialMatch && hotkey.sequence.length > pendingKeys.length) {
-        hasPotentialMatch = true;
-      }
-    } else {
-      // currentMode === "normal"
-      // Normal 모드 매칭 로직 개선: 수식어 키와 일반 키를 분리하여 매칭
-
-      const requiredNonModifiers = hotkey.sequence.filter(
-        (key) =>
-          !(
-            key.startsWith("Control") ||
-            key.startsWith("Shift") ||
-            key.startsWith("Alt") ||
-            key.startsWith("Meta")
-          ),
-      );
-
-      // 1. 필요한 비-수식어 키가 현재 눌린 키인지 확인 (예: 'S'가 눌렸는지)
-      const nonModifierKeysMatch =
-        requiredNonModifiers.length === 1 &&
-        requiredNonModifiers[0] === event.code;
-      // 수식어만으로 구성된 핫키 (예: 'Ctrl')의 경우 이 조건은 false가 되어야 함.
-      // 또는 핫키가 여러 개의 비-수식어 키를 포함하는 경우 (이는 현재 시스템 설계에서 지원 안함)
-
-      // 핫키가 순수하게 수식어로만 구성된 경우 (예: 'Ctrl')
-      const isPureModifierHotkey = requiredNonModifiers.length === 0;
-
-      // 현재 이벤트의 `code`가 핫키 시퀀스에 있는 수식어 키 중 하나인지 확인
-      const isEventCodeModifier =
-        event.code.startsWith("Control") ||
-        event.code.startsWith("Shift") ||
-        event.code.startsWith("Alt") ||
-        event.code.startsWith("Meta");
-
-      // 핫키가 순수 수식어이고, 현재 이벤트의 키가 수식어일 경우
-      if (isPureModifierHotkey && !isEventCodeModifier) {
-        // 순수 수식어 핫키인데, 일반 키가 눌렸다면 매칭되지 않음
-        continue;
-      }
-      if (!isPureModifierHotkey && !nonModifierKeysMatch) {
-        // 일반 키를 포함하는 핫키인데, 현재 눌린 키가 그 일반 키가 아니라면 매칭되지 않음
-        continue;
-      }
-      // TODO: 만약 `Ctrl+Shift+S`처럼 여러 일반 키와 수식어 키가 섞인 복합 핫키가 있다면, 이 `nonModifierKeysMatch` 로직은 더 복잡해져야 합니다.
-      // 현재는 하나의 일반 키와 여러 수식어 키 조합을 가정합니다.
-
-      // 2. 수식어 키 상태 확인 (KeyboardEvent 속성 사용)
-      const modifiersMatch =
-        (hotkey.sequence.includes("ControlLeft")
-          ? event.ctrlKey
-          : !event.ctrlKey) &&
-        (hotkey.sequence.includes("ShiftLeft")
-          ? event.shiftKey
-          : !event.shiftKey) &&
-        (hotkey.sequence.includes("AltLeft") ? event.altKey : !event.altKey) &&
-        (hotkey.sequence.includes("MetaLeft") ? event.metaKey : !event.metaKey);
-
-      if (!modifiersMatch) continue;
-
-      // 3. 다른 불필요한 키가 눌렸는지 확인 (옵션, 더 엄격한 매칭)
-      // `pressedKeysSet`에 `hotkey.sequence`에 없는 비-수식어 키가 있다면 매칭되지 않음
-      const anyUnexpectedNonModifierKeys = Array.from(pressedKeysSet).some(
-        (pressedKey) =>
-          !hotkey.sequence.includes(pressedKey) &&
-          !mapAliasToKeyCode(pressedKey).startsWith("Control") && // mapAliasToKeyCode의 결과를 사용하여 수식어 키를 더 정확히 판단
-          !mapAliasToKeyCode(pressedKey).startsWith("Shift") &&
-          !mapAliasToKeyCode(pressedKey).startsWith("Alt") &&
-          !mapAliasToKeyCode(pressedKey).startsWith("Meta"),
-      );
-      if (anyUnexpectedNonModifierKeys) continue;
-
-      matchedHotkey = hotkey;
-      break;
+  // 1. Search in active local context
+  if (activeLocalContext) {
+    const result = findMatchInContext(activeLocalContext);
+    if (result.matchedHotkey || result.hasPotentialMatch) {
+      return result;
     }
   }
 
-  return { matchedHotkey, hasPotentialMatch };
+  // 2. If no match, search in global context
+  const globalResult = findMatchInContext("global");
+
+  return globalResult;
 }
 // --- 이벤트 핸들러 ---
 
@@ -438,7 +407,7 @@ function register(
   hotkeySequence: string | string[],
   callback: HotkeyCallback,
   description: string,
-  options: HotkeyOptions = { mode: "normal" },
+  options: HotkeyOptions = { mode: "normal", context: "global" },
 ): string {
   const parsedInputKeys = Array.isArray(hotkeySequence)
     ? hotkeySequence.map((k) => k.toLowerCase())
@@ -477,6 +446,7 @@ function register(
     description: description,
     options: {
       mode: options.mode,
+      context: options.context ?? "global",
       preventDefault: options.preventDefault ?? true,
       stopPropagation: options.stopPropagation ?? false,
       ignoreInInputs: options.ignoreInInputs ?? true,

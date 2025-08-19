@@ -1,6 +1,7 @@
 export type HotkeyMode = "normal" | "leader";
 export type HotkeyOptions = {
   mode: HotkeyMode;
+  context?: string;
   preventDefault?: boolean;
   stopPropagation?: boolean;
   ignoreInInputs?: boolean;

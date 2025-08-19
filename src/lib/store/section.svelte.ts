@@ -8,6 +8,7 @@ import {
 } from "@/lib/types/layout";
 import { LayoutApi } from "@/lib/store/layout.svelte";
 import { SectionConfig } from "./sectionConfig";
+import { ContextApi } from "./context.svelte";
 
 /** for mouse resizing */
 const mouseState = {
@@ -136,7 +137,16 @@ function toggleZenMode() {
 
 function toggleLayout(layoutType: SectionType) {
   const ss = sectionStateMap.get(layoutType);
-  if (ss) ss.collapsed = ss.collapsed ? false : true;
+  if (ss) {
+    ss.collapsed = !ss.collapsed;
+    if (ss.collapsed) {
+      ContextApi.leave(layoutType);
+      console.log(ContextApi.contextState.contextStack);
+    } else {
+      ContextApi.enter(layoutType);
+      console.log(ContextApi.contextState.contextStack);
+    }
+  }
 }
 function toggleHeader() {
   toggleLayout("headerBar");
