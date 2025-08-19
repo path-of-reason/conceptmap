@@ -1,4 +1,5 @@
 <script lang="ts">
+  // route/editor에서 분기되어 사용 됨
   import { API } from "$lib/store/api";
   import type { GridCell } from "$lib/types/workspace";
 
@@ -27,24 +28,26 @@
       {@const content = renderCellContent(cell)}
       <button
         class={[
-          "absolute hover:z-50 hover:bg-amber-400 ",
-          "w-full p-2 rounded transition-colors duration-200 text-right",
+          "absolute hover:z-50 hover:bg-amber-400",
+          "py-2 rounded transition-colors duration-200 text-right",
           cell.id === store.layout.focusedCellId
             ? "bg-amber-600"
             : "bg-zinc-800/0",
         ]}
-        style={`top: ${Math.floor((100 * cell.row) / store.layout.rows + cell.col * 3)}%; `}
+        style={`
+          top: ${Math.floor((100 * cell.row) / store.layout.rows)}%; 
+          padding-top: ${cell.col * 3}%;
+          left: ${Math.floor((100 / store.layout.cols) * cell.col)}%;
+        `}
         onclick={() => handleBookmarkClick(cell.id)}
       >
-        <div
-          class="flex justify-end items-center space-x-2 pr-3"
-          style={`padding-right: ${Math.floor((30 * (store.layout.cols - cell.col - 1)) / store.layout.cols)}px;`}
-        >
+        <div class="flex flex-col justify-end items-center space-x-2 pr-3">
           <span
             class={[
               "text-sm truncate text-gray-200",
               content ? "opacity-100" : "opacity-40",
             ]}
+            style="writing-mode: vertical-rl; text-orientation: mixed;"
           >
             {content ? content.title : "Empty Panel"}</span
           >
@@ -61,9 +64,7 @@
       {#if focusedCell}
         {#if focusedCell.type === "leaf"}
           {@const content = renderCellContent(focusedCell)}
-          <div
-            class="flex-1 text-gray-300 p-2 bg-zinc-800/30 rounded-sm w-full h-full"
-          >
+          <div class="flex-1 text-gray-300 p-2 rounded-sm w-full h-full">
             <div class={["truncate text-2xl opacity-50", "relative"]}>
               {content ? content.title : "No Tab"}
               <div
@@ -99,7 +100,7 @@
           <div
             class={[
               "w-full h-full flex flex-col items-center justify-center relative",
-              "text-gray-500 text-lg bg-zinc-800/30 rounded-sm",
+              "text-gray-500 text-lg rounded-sm",
             ]}
           >
             <div

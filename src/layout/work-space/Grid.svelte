@@ -1,4 +1,5 @@
 <script lang="ts">
+  // route/editor에서 분기되어 사용 됨
   import { API } from "$lib/store/api";
   import type { GridCell } from "$lib/types/workspace";
   import { slide } from "svelte/transition";

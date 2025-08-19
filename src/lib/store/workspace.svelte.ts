@@ -76,9 +76,9 @@ function createNewTab() {
   const newTabId = nanoid();
   addTab({
     id: newTabId,
-    title: `New Tab ${workspaceStore.tabs.length + 1}`,
+    title: `아주 긴 한글로 테스트 해보자. 파일 제목이 긴게 상당히 많거든 인용문을 사용하니까 뉴 탭 ${workspaceStore.tabs.length + 1}`,
     type: "file",
-    content: `Content for new tab ${workspaceStore.tabs.length + 1}`,
+    content: `한글로 테스트 해보자 뉴 탭 ${workspaceStore.tabs.length + 1}`,
   });
   // 새로 생성된 탭을 현재 포커스된 셀에 자동으로 할당합니다.
   if (workspaceStore.layout.focusedCellId) {
