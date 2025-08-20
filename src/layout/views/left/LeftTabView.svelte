@@ -6,8 +6,7 @@
 </script>
 
 <div
-  data-tauri-drag-region
-  class="h-full w-full flex gap-1 justify-start overflow-x-scroll hide-scrollbar"
+  class="h-full w-full flex flex-col gap-1 justify-start overflow-y-scroll hide-scrollbar"
 >
   {#each store.tabs as tab (tab.id)}
     {@const curTab = store.layout.cells.reduce(

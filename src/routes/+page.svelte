@@ -1,5 +1,6 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
+  import TabUi from "@/layout/components/header/TabUI.svelte";
 
   let name = $state("");
   let greetMsg = $state("");

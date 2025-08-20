@@ -40,7 +40,7 @@
     >
       <Pane
         id={LAYOUT.HEADER_BAR}
-        class="shrink-0 box-border"
+        class="shrink box-border "
         collapsedClass="blur-lg"
         toggleKey={["space", "t"]}
         keyMode="leader"

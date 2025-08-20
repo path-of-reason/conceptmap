@@ -44,6 +44,11 @@
       ? `width: ${sectionState.w}px; height: 100%;`
       : `height: ${sectionState.h}px; width: 100%;`,
   );
+  const classStyle = $derived(
+    isVertical(sectionState)
+      ? `w-[${sectionState.w}px] h-full`
+      : `h-[${sectionState.h}px] w-full`,
+  );
 </script>
 
 <div
@@ -51,7 +56,7 @@
   class={[
     "overflow-hidden relative",
     sectionState.collapsed && collapsedClass,
-    sectionState.isResize ? "select-none" : "transition-all duration-200",
+    sectionState.isResize ? "select-none" : "aatransition-all duration-200",
     className,
   ]}
 >

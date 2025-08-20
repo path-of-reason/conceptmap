@@ -134,9 +134,16 @@ export const initHotkey = () => {
 
   // for test
   API.hotkey.register(
-    ["arrowleft"],
+    ["enter"],
     () => console.log("Hello from right sidebar context!"),
     "test: right sidebar context",
     { mode: "normal", context: "rightSidebar" },
+  );
+
+  API.hotkey.register(
+    ["enter"],
+    () => console.log("Hello from left sidebar context!"),
+    "test: left sidebar context",
+    { mode: "normal", context: "leftSidebar" },
   );
 };

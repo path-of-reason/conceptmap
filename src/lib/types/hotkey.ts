@@ -1,10 +1,12 @@
+import type { SectionType } from "./layout";
+
 export type HotkeyMode = "normal" | "leader";
 export type HotkeyOptions = {
   mode: HotkeyMode;
   preventDefault?: boolean;
   stopPropagation?: boolean;
   ignoreInInputs?: boolean;
-  context?: string;
+  context?: SectionType | string;
 };
 export type HotkeyCallback = (event: KeyboardEvent) => void;
 export type KeyState = {
