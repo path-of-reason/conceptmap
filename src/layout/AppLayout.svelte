@@ -58,8 +58,6 @@
           innerClass="pl-1"
           toggleKey={["space", "e"]}
           keyMode="leader"
-          onfocusin={() => API.context.enter("leftSidebar")}
-          onfocusout={() => API.context.leave("leftSidebar")}
         >
           <LeftSidebar />
         </Pane>

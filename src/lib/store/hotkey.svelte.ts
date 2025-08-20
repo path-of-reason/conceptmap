@@ -97,7 +97,8 @@ function findMatchingHotkey(
         if (isPartialMatch && hotkey.sequence.length > pendingKeys.length) {
           hasPotentialMatch = true;
         }
-      } else { // normal mode
+      } else {
+        // normal mode
         const requiredNonModifiers = hotkey.sequence.filter(
           (key) =>
             !(
@@ -105,21 +106,35 @@ function findMatchingHotkey(
               key.startsWith("Shift") ||
               key.startsWith("Alt") ||
               key.startsWith("Meta")
-            )
+            ),
         );
 
-        const nonModifierKeysMatch = requiredNonModifiers.length > 0 && requiredNonModifiers.every(k => pressedKeysSet.has(k));
-        const eventKeyIsModifier = event.code.startsWith("Control") || event.code.startsWith("Shift") || event.code.startsWith("Alt") || event.code.startsWith("Meta");
+        const nonModifierKeysMatch =
+          requiredNonModifiers.length > 0 &&
+          requiredNonModifiers.every((k) => pressedKeysSet.has(k));
+        const eventKeyIsModifier =
+          event.code.startsWith("Control") ||
+          event.code.startsWith("Shift") ||
+          event.code.startsWith("Alt") ||
+          event.code.startsWith("Meta");
         if (requiredNonModifiers.length === 0 && !eventKeyIsModifier) continue;
         if (requiredNonModifiers.length > 0 && !nonModifierKeysMatch) continue;
 
-        const ctrlMatch = hotkey.sequence.some(k => k.startsWith("Control")) ? event.ctrlKey : true;
-        const shiftMatch = hotkey.sequence.some(k => k.startsWith("Shift")) ? event.shiftKey : true;
-        const altMatch = hotkey.sequence.some(k => k.startsWith("Alt")) ? event.altKey : true;
-        const metaMatch = hotkey.sequence.some(k => k.startsWith("Meta")) ? event.metaKey : true;
+        const ctrlMatch = hotkey.sequence.some((k) => k.startsWith("Control"))
+          ? event.ctrlKey
+          : true;
+        const shiftMatch = hotkey.sequence.some((k) => k.startsWith("Shift"))
+          ? event.shiftKey
+          : true;
+        const altMatch = hotkey.sequence.some((k) => k.startsWith("Alt"))
+          ? event.altKey
+          : true;
+        const metaMatch = hotkey.sequence.some((k) => k.startsWith("Meta"))
+          ? event.metaKey
+          : true;
 
         if (ctrlMatch && shiftMatch && altMatch && metaMatch) {
-            return { matchedHotkey: hotkey, hasPotentialMatch: false };
+          return { matchedHotkey: hotkey, hasPotentialMatch: false };
         }
       }
     }
@@ -271,6 +286,10 @@ function mapAliasToKeyCode(alias: string): string {
       return "MetaLeft"; // MetaRight도 이 키에 매핑되도록 처리
 
     // 특수 키
+    case "[":
+      return "BracketLeft";
+    case "]":
+      return "BracketRight";
     case "escape":
     case "esc":
       return "Escape";
@@ -416,8 +435,8 @@ function register(
   const sequence: string[] = [];
   for (const k of parsedInputKeys) sequence.push(mapAliasToKeyCode(k));
 
-  // ✨ 핫키 ID 생성: sequence를 underscore로 연결한 문자열
-  const hotkeyId = sequence.join("_");
+  // ✨ 핫키 ID 생성: sequence, mode, context를 underscore로 연결한 문자열
+  const hotkeyId = `${sequence.join("_")}_${options.mode}_${options.context}`;
   // ✨ 중복 ID 검사
   const existingHotkey = registeredHotkeys.find((h) => h.id === hotkeyId);
   if (existingHotkey) {

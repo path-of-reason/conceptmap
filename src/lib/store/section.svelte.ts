@@ -138,14 +138,14 @@ function toggleZenMode() {
 function toggleLayout(layoutType: SectionType) {
   const ss = sectionStateMap.get(layoutType);
   if (ss) {
+    // 상태변경
     ss.collapsed = !ss.collapsed;
-    if (ss.collapsed) {
-      ContextApi.leave(layoutType);
-      console.log(ContextApi.contextState.contextStack);
-    } else {
-      ContextApi.enter(layoutType);
-      console.log(ContextApi.contextState.contextStack);
-    }
+    // 사이즈 변경
+    collapseSection(layoutType, ss.collapsed);
+    if (layoutType === "headerBar") return;
+    if (layoutType === "statusBar") return;
+    if (ss.collapsed) ContextApi.leave(layoutType);
+    else ContextApi.enter(layoutType);
   }
 }
 function toggleHeader() {
@@ -170,8 +170,6 @@ function useSectionStore<D extends Direction>({
 }) {
   const sectionState = getSectionState<D>(id);
   const config = SectionConfig.get(id);
-
-  const toggleCollapsed = () => collapseSection(id, !sectionState.collapsed);
 
   const onResize = (e: MouseEvent) => {
     sectionState.isResize = true;
@@ -224,7 +222,6 @@ function useSectionStore<D extends Direction>({
   return {
     direction: config.direction,
     sectionState,
-    toggleCollapsed,
     onResize,
     setFocus,
   };
@@ -242,4 +239,5 @@ export const SectionApi = {
   toggleLeftSidebar,
   toggleRightSidebar,
   toggleStatusbar,
+  toggleLayout,
 };

@@ -12,8 +12,8 @@ const contextState = $state<ContextState>({
  */
 const enter = (context: string) => {
   if (!context || context === "global") return;
-  // Avoid duplicates if already at the top of the stack
-  if (contextState.contextStack.at(-1) === context) return;
+  // Prevent adding if context already exists anywhere in the stack
+  if (contextState.contextStack.includes(context)) return;
   contextState.contextStack.push(context);
 };
 

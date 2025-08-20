@@ -83,6 +83,7 @@ function prevLeftView() {
 }
 
 function nextRightView() {
+  console.log("next right");
   const views = getRegisteredViews().filter((v) => v.type === "rightSidebar");
   const currentIndex =
     views.findIndex((view) => view.id === viewState.rightSidebarViewId) ?? 0;
@@ -90,6 +91,7 @@ function nextRightView() {
   setActiveRightSidebarView(views[nextIndex].id);
 }
 function prevRightView() {
+  console.log("prev right");
   const views = getRegisteredViews().filter((v) => v.type === "rightSidebar");
   const currentIndex =
     views.findIndex((view) => view.id === viewState.rightSidebarViewId) ?? 0;

@@ -17,8 +17,14 @@ const modalState = $state<ModalState>({
   modalViews: [],
 });
 
-const openModal = () => (modalState.isOpen = true);
-const closeModal = () => (modalState.isOpen = false);
+const openModal = () => {
+  modalState.isOpen = true;
+  API.context.enter("modal");
+};
+const closeModal = () => {
+  modalState.isOpen = false;
+  API.context.leave("modal");
+};
 const toggleModal = () => {
   modalState.isOpen = !modalState.isOpen;
   console.log("toggle modal", modalState.isOpen);

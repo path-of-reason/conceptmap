@@ -6,3 +6,5 @@
 ## 변경 이력 (Change History)
 - **2025-08-20**: AI 코드 온톨로지 시스템 도입에 따라 초기 문서 생성.
 - **2025-08-20**: `toggleLayout` 함수를 수정하여, 섹션이 열리고 닫힐 때 `ContextApi`의 `enter`/`leave`를 호출하도록 변경했습니다. (요청: "고급 컨텍스트 핫키 시스템 구현")
+- **2025-08-20**: `toggleLayout` 함수를 `SectionApi`에 노출하여 외부에서 직접 호출할 수 있도록 변경했습니다. (요청: "토글 로직 통합 리팩토링")
+- **2025-08-20**: `toggleLayout` 함수 이전에 사용하던 useSectionStore 의 toggleCollapsed 함수를 제거하도록 변경했습니다. (요청: "불필요한 onfocusin/onfocusout 제거")

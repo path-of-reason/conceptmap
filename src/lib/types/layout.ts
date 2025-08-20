@@ -22,6 +22,7 @@ export type Config = {
   min: number;
   max: number;
   collapsed?: boolean;
+  isHotkeyContext?: boolean;
 };
 export type BaseSectionState = {
   collapsed: boolean;

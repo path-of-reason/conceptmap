@@ -7,15 +7,14 @@
   };
 
   let { class: className }: Props = $props();
-
-  const { toggleCollapsed: rightCollapse, sectionState: rightState } =
-    API.section.useSectionStore<"vertical">({
-      id: LAYOUT.RIGHT_SIDEBAR,
-    });
+  const { toggleLayout } = API.section;
+  const { sectionState: rightState } = API.section.useSectionStore<"vertical">({
+    id: LAYOUT.RIGHT_SIDEBAR,
+  });
 </script>
 
 <button
-  onclick={rightCollapse}
+  onclick={() => toggleLayout(LAYOUT.RIGHT_SIDEBAR)}
   class={["rounded-sm shrink-0 hover:bg-zinc-900", className]}
 >
   {#if rightState.collapsed}

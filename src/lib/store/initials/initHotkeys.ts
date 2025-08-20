@@ -1,7 +1,7 @@
 import { CMDKEYS } from "$lib/constant/commandKey";
 import { API } from "$lib/store/api";
 
-export const initHotkey = () => {
+const initGlobalHotkeys = () => {
   API.hotkey.registerAll([
     {
       hotkeySequence: ["meta", "="],
@@ -21,28 +21,6 @@ export const initHotkey = () => {
     {
       hotkeySequence: ["space", "m"],
       commandKey: CMDKEYS.LAYOUT.TOGGLE.MODAL,
-      options: { mode: "leader", context: "global" },
-    },
-  ]);
-  API.hotkey.registerAll([
-    {
-      hotkeySequence: ["space", "h", "b"],
-      commandKey: CMDKEYS.LEFTSIDEBAR.PREV,
-      options: { mode: "leader", context: "global" },
-    },
-    {
-      hotkeySequence: ["space", "h", "n"],
-      commandKey: CMDKEYS.LEFTSIDEBAR.NEXT,
-      options: { mode: "leader", context: "global" },
-    },
-    {
-      hotkeySequence: ["space", "l", "b"],
-      commandKey: CMDKEYS.RIGHTSIDEBAR.PREV,
-      options: { mode: "leader", context: "global" },
-    },
-    {
-      hotkeySequence: ["space", "l", "n"],
-      commandKey: CMDKEYS.RIGHTSIDEBAR.NEXT,
       options: { mode: "leader", context: "global" },
     },
     {
@@ -80,48 +58,75 @@ export const initHotkey = () => {
       commandKey: CMDKEYS.WORKSPACE.CELL.REMOVE.HORIZONTAL,
       options: { mode: "leader", context: "global" },
     },
+  ]);
+};
+
+const initLeftSidebarHotkeys = () => {
+  API.hotkey.registerAll([
+    {
+      hotkeySequence: ["meta", "shift", "["],
+      commandKey: CMDKEYS.LEFTSIDEBAR.PREV,
+      options: { mode: "normal", context: "leftSidebar" },
+    },
+    {
+      hotkeySequence: ["meta", "shift", "]"],
+      commandKey: CMDKEYS.LEFTSIDEBAR.NEXT,
+      options: { mode: "normal", context: "leftSidebar" },
+    },
+  ]);
+};
+
+const initRightSidebarHotkeys = () => {
+  API.hotkey.registerAll([
+    {
+      hotkeySequence: ["meta", "shift", "["],
+      commandKey: CMDKEYS.RIGHTSIDEBAR.PREV,
+      options: { mode: "normal", context: "rightSidebar" },
+    },
+    {
+      hotkeySequence: ["meta", "shift", "]"],
+      commandKey: CMDKEYS.RIGHTSIDEBAR.NEXT,
+      options: { mode: "normal", context: "rightSidebar" },
+    },
+  ]);
+};
+
+const initWorkspaceHotkeys = () => {
+  API.hotkey.registerAll([
     {
       hotkeySequence: ["ctrl", "h"],
       commandKey: CMDKEYS.WORKSPACE.CELL.FOCUS.LEFT,
-      options: { mode: "normal", context: "global" },
+      options: { mode: "normal", context: "workspace" },
     },
     {
       hotkeySequence: ["ctrl", "j"],
       commandKey: CMDKEYS.WORKSPACE.CELL.FOCUS.DOWN,
-      options: { mode: "normal", context: "global" },
+      options: { mode: "normal", context: "workspace" },
     },
     {
       hotkeySequence: ["ctrl", "k"],
       commandKey: CMDKEYS.WORKSPACE.CELL.FOCUS.UP,
-      options: { mode: "normal", context: "global" },
+      options: { mode: "normal", context: "workspace" },
     },
     {
       hotkeySequence: ["ctrl", "l"],
       commandKey: CMDKEYS.WORKSPACE.CELL.FOCUS.RIGHT,
-      options: { mode: "normal", context: "global" },
+      options: { mode: "normal", context: "workspace" },
     },
   ]);
+};
+
+export const initHotkey = () => {
+  initGlobalHotkeys();
+  initLeftSidebarHotkeys();
+  initRightSidebarHotkeys();
+  initWorkspaceHotkeys();
 
   // for test
   API.hotkey.register(
     ["arrowleft"],
-    () => alert("Hello from left sidebar context!"),
-    "test: left sidebar context",
-    { mode: "normal", context: "leftSidebar" },
+    () => console.log("Hello from right sidebar context!"),
+    "test: right sidebar context",
+    { mode: "normal", context: "rightSidebar" },
   );
 };
-
-// {
-//   hotkeySequence: ["space", "n"],
-//   callback: () => {
-//     const ids = API.section.layoutIds();
-//     API.section.focusById(ids[focusIndex]);
-//     focusIndex++;
-//     if (focusIndex >= ids.length) {
-//       focusIndex = 0;
-//     }
-//   },
-//   description: "next layout focus",
-//   options: { mode: "leader" },
-// },
-// let focusIndex = 0;

@@ -6,6 +6,7 @@ const defaultConfig: Config = {
   min: 0,
   max: 700,
   collapsed: false,
+  isHotkeyContext: false,
 };
 const layoutConfig = new Map<string, Config>();
 

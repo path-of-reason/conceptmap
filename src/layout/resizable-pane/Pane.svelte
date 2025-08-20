@@ -16,8 +16,6 @@
     innerClass?: string;
     collapsedClass?: string;
     children?: any;
-    onfocusin?: () => void;
-    onfocusout?: () => void;
   };
   let {
     id,
@@ -27,16 +25,14 @@
     innerClass,
     collapsedClass,
     children,
-    onfocusin,
-    onfocusout,
   }: PaneProps = $props();
 
-  const { sectionState, toggleCollapsed } = useSectionStore({ id });
+  const { sectionState } = useSectionStore({ id });
 
   if (toggleKey && keyMode)
     API.hotkey.register(
       toggleKey,
-      toggleCollapsed,
+      () => API.section.toggleLayout(id),
       "LAYOUT: toggle layout " + id,
       {
         mode: keyMode,
@@ -58,8 +54,6 @@
     sectionState.isResize ? "select-none" : "transition-all duration-200",
     className,
   ]}
-  {onfocusin}
-  {onfocusout}
 >
   <div class={["w-full h-full", innerClass]}>
     {@render children?.()}
