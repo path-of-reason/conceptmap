@@ -113,6 +113,16 @@ const initWorkspaceHotkeys = () => {
       commandKey: CMDKEYS.WORKSPACE.CELL.FOCUS.RIGHT,
       options: { mode: "normal", context: "workspace" },
     },
+    {
+      hotkeySequence: ["meta", "shift", "]"],
+      commandKey: CMDKEYS.WORKSPACE.TAB.NEXT,
+      options: { mode: "normal", context: "workspace" },
+    },
+    {
+      hotkeySequence: ["meta", "shift", "["],
+      commandKey: CMDKEYS.WORKSPACE.TAB.PREV,
+      options: { mode: "normal", context: "workspace" },
+    },
   ]);
 };
 

@@ -139,5 +139,15 @@ export const initCommand = () => {
       description: "WORKSPACE: focus cell down",
       action: API.workspace.CellActions.moveFocusDown,
     },
+    {
+      key: CMDKEYS.WORKSPACE.TAB.NEXT,
+      description: "WORKSPACE: next tab",
+      action: API.workspace.nextTab,
+    },
+    {
+      key: CMDKEYS.WORKSPACE.TAB.PREV,
+      description: "WORKSPACE: prev tab",
+      action: API.workspace.prevTab,
+    },
   ]);
 };

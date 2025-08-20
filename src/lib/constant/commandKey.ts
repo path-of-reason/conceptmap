@@ -29,6 +29,8 @@ export const CMDKEYS = {
     TAB: {
       NEW: "workspace_add_new_tab",
       REMOVE: "workspace_remove_tab",
+      NEXT: "workspace_next_tab",
+      PREV: "workspace_prev_tab",
     },
     CELL: {
       INCREASE: {

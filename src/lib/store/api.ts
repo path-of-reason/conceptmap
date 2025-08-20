@@ -1,6 +1,6 @@
 import { ViewApi } from "./view.svelte";
 import { HotkeyApi } from "./hotkey.svelte";
-import { WorkspaceApi } from "./workspace.svelte";
+import { WorkspaceApi } from "./workspace";
 import { SectionApi } from "./section.svelte";
 import { CommandApi } from "./command";
 import { LayoutApi } from "./layout.svelte";
