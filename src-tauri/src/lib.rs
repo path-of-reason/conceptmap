@@ -2,7 +2,10 @@
 // mod sidecar;
 // mod terminal;
 mod app_state;
+mod error;
 mod file_system;
+mod kuzu_query;
+mod kuzudb;
 use std::sync::{Arc, Mutex};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -18,6 +21,7 @@ pub fn run() {
             file_system::write_file,
             file_system::read_directory,
             file_system::read_dir_recursive,
+            kuzu_query::kuzu_test,
             app_state::get_load_time,
         ])
         .run(tauri::generate_context!())

@@ -19,9 +19,9 @@
       icon: Icons.Inbox,
     },
     {
-      title: "Editor/hello-world",
-      url: "/editor/hello-world",
-      icon: Icons.IceCream,
+      title: "Project Luman",
+      url: "/luman",
+      icon: Icons.NotebookPen,
     },
     {
       title: "Webview",
