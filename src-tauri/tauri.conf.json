@@ -19,7 +19,9 @@
         "transparent": true,
         "decorations": false,
         "windowEffects": {
-          "effects": ["popover"],
+          "effects": [
+            "popover"
+          ],
           "radius": 12,
           "state": "active"
         }
@@ -39,6 +41,9 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
+    ],
+    "resources": [
+      "data/"
     ]
   }
 }

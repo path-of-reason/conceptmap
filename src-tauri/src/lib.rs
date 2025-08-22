@@ -2,16 +2,16 @@
 // mod sidecar;
 // mod terminal;
 mod app_state;
-mod error;
 mod file_system;
 mod kuzu_query;
-mod kuzudb;
+mod vault_manager; // Add this line
 use std::sync::{Arc, Mutex};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let app_state = Arc::new(Mutex::new(app_state::AppState::new()));
     tauri::Builder::default()
+        .plugin(tauri_plugin_store::Builder::new().build())
         .manage(app_state.clone())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
@@ -23,6 +23,8 @@ pub fn run() {
             file_system::read_dir_recursive,
             kuzu_query::kuzu_test,
             app_state::get_load_time,
+            vault_manager::save_vault_path, // Add this line
+            vault_manager::load_vault_path,  // Add this line
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

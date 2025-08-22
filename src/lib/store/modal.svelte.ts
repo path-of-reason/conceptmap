@@ -1,4 +1,6 @@
 import type { Component } from "svelte";
+import { ContextApi } from "./context.svelte";
+
 type Modal = {
   id: string;
   type: "full" | "left" | "right" | "top" | "bottom";
@@ -19,11 +21,11 @@ const modalState = $state<ModalState>({
 
 const openModal = () => {
   modalState.isOpen = true;
-  API.context.enter("modal");
+  ContextApi.enter("modal");
 };
 const closeModal = () => {
   modalState.isOpen = false;
-  API.context.leave("modal");
+  ContextApi.leave("modal");
 };
 const toggleModal = () => {
   modalState.isOpen = !modalState.isOpen;

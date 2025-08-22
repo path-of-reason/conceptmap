@@ -24,24 +24,9 @@
       icon: Icons.NotebookPen,
     },
     {
-      title: "Webview",
-      url: "/webview/hello",
-      icon: Icons.Calendar,
-    },
-    {
-      title: "Search",
-      url: "/search",
-      icon: Icons.Search,
-    },
-    {
-      title: "Google",
-      url: "/webview/www.google.com",
-      icon: Icons.Search,
-    },
-    {
-      title: "Google2",
-      url: "https://www.google.com",
-      icon: Icons.Search,
+      title: "Logs",
+      url: "/logs",
+      icon: Icons.ScrollText,
     },
   ];
 </script>

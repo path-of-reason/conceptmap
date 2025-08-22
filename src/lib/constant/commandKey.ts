@@ -1,4 +1,7 @@
 export const CMDKEYS = {
+  KUZU: {
+    TEST: "kuzu_test",
+  },
   LEFTSIDEBAR: {
     NEXT: "next_left_sidebar_view",
     PREV: "prev_left_sidebar_view",
@@ -58,5 +61,3 @@ export const CMDKEYS = {
     },
   },
 };
-
-//  | Codeium: completion request failed: {"code":"deadline_exceeded","message":"deadline_exceeded: context deadline exceeded"}

@@ -8,13 +8,6 @@ import LayoutVisibleState from "@/layout/views/right/LayoutState.svelte";
 import CommandPalette from "@/layout/views/modal/Palette.svelte";
 
 export const initView = () => {
-  API.modal.registerModalViewAll([
-    {
-      id: "pallete",
-      type: "full",
-      component: CommandPalette,
-    },
-  ]);
   API.view.registerViewList([
     {
       type: "leftSidebar",
@@ -50,6 +43,13 @@ export const initView = () => {
       name: "layout visible state",
       component: LayoutVisibleState,
       icon: icons.View,
+    },
+  ]);
+  API.modal.registerModalViewAll([
+    {
+      id: "pallete",
+      type: "full",
+      component: CommandPalette,
     },
   ]);
 };

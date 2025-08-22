@@ -4,8 +4,55 @@
 
   const { state: modalState, closeModal } = API.modal;
 
-  // 모달이 열리면 포커스를 잡고, 닫히면 포커스를 복구하는 로직
-  // ... (이전 코드에서 설명한 포커스 트랩 로직을 여기에 구현)
+  let modalContainer: HTMLDivElement | null = $state(null);
+  let modalContent: HTMLDivElement | null = $state(null);
+  let previouslyFocusedElement: HTMLElement | null = null;
+
+  // Focus trapping logic
+  $effect(() => {
+    if (modalState.isOpen) {
+      previouslyFocusedElement = document.activeElement as HTMLElement;
+      if (modalContent) {
+        const focusableElements = modalContent.querySelectorAll(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        );
+        if (focusableElements.length > 0) {
+          (focusableElements[0] as HTMLElement).focus();
+        }
+      }
+    } else {
+      if (previouslyFocusedElement) {
+        previouslyFocusedElement.focus();
+        previouslyFocusedElement = null;
+      }
+    }
+  });
+
+  const handleTabKey = (e: KeyboardEvent) => {
+    if (e.key === "Tab" && modalContent) {
+      const focusableElements = modalContent.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      const firstFocusable = focusableElements[0] as HTMLElement;
+      const lastFocusable = focusableElements[
+        focusableElements.length - 1
+      ] as HTMLElement;
+
+      if (e.shiftKey) {
+        // Shift + Tab
+        if (document.activeElement === firstFocusable) {
+          lastFocusable.focus();
+          e.preventDefault();
+        }
+      } else {
+        // Tab
+        if (document.activeElement === lastFocusable) {
+          firstFocusable.focus();
+          e.preventDefault();
+        }
+      }
+    }
+  };
 
   let currentModalView = $derived.by(() => {
     if (!modalState.currentModalId) return null;
@@ -31,36 +78,25 @@
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
+    bind:this={modalContainer}
+    onkeydown={handleTabKey}
     class={[
       "absolut top-0 left-0 w-full h-full z-50 bg-black/30 rounded-lg overflow-hidden relative",
-      "text-white",
+      "text-black",
     ]}
     transition:fade={{ duration: 100 }}
     onclick={closeModal}
   >
-    {API.modal.state.currentModalId}
-    {Modal === undefined}
     {#if Modal}
       <!-- svelte-ignore a11y_click_events_have_key_events -->
       <!-- svelte-ignore a11y_no_static_element_interactions -->
       <div
+        bind:this={modalContent}
         onclick={(e) => e.stopPropagation()}
-        class={[
-          "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white w-52",
-        ]}
+        class={["absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"]}
       >
-        hello modal
         <Modal />
       </div>
-      <!-- <div -->
-      <!--   class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center" -->
-      <!-- > -->
-      <!--   <div -->
-      <!--     role="dialog" -->
-      <!--     aria-modal="true" -->
-      <!--     class="bg-white p-6 rounded-lg" -->
-      <!--   ></div> -->
-      <!-- </div> -->
     {/if}
   </div>
 {/if}

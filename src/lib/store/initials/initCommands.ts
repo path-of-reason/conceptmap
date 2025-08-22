@@ -1,5 +1,7 @@
 import { CMDKEYS } from "$lib/constant/commandKey";
 import { API } from "$lib/store/api";
+import { TauriApi } from "$lib/tauri/api";
+import { Effect } from "effect";
 
 export const initCommand = () => {
   API.command.addCommandList([
@@ -148,6 +150,26 @@ export const initCommand = () => {
       key: CMDKEYS.WORKSPACE.TAB.PREV,
       description: "WORKSPACE: prev tab",
       action: API.workspace.prevTab,
+    },
+  ]);
+
+  // Kuzu test command
+  const kuzuTestAction = () => {
+    const effect = TauriApi.kuzu.kuzuTest();
+    Effect.runPromise(effect)
+      .then((result: string[]) => {
+        console.log("Kuzu Test Success:", result);
+      })
+      .catch((error) => {
+        console.error("Kuzu Test Failed:", error);
+      });
+  };
+
+  API.command.addCommandList([
+    {
+      key: CMDKEYS.KUZU.TEST,
+      description: "KUZU: run kuzu test command",
+      action: kuzuTestAction,
     },
   ]);
 };

@@ -6,6 +6,7 @@ import { CommandApi } from "./command";
 import { LayoutApi } from "./layout.svelte";
 import { ModalApi } from "./modal.svelte";
 import { ContextApi } from "./context.svelte";
+import { CommandHistoryApi } from "./commandHistoryStore.svelte"; // Added import
 
 export const API = {
   // window
@@ -19,4 +20,6 @@ export const API = {
   command: CommandApi,
   hotkey: HotkeyApi,
   context: ContextApi,
+  commandHistory: CommandHistoryApi, // Added to API
 };
+
