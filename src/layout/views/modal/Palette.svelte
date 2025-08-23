@@ -87,7 +87,7 @@
   const executeAndClose = (commandKey: string) => {
     API.command.executeCommand(commandKey);
     API.commandHistory.addCommand(commandKey);
-    API.modal.closeModal();
+    // API.modal.closeModal();
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {

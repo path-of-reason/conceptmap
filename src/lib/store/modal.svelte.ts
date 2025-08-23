@@ -19,7 +19,9 @@ const modalState = $state<ModalState>({
   modalViews: [],
 });
 
-const openModal = () => {
+const openModal = (modalId?: string) => {
+  if (modalId) modalState.currentModalId = modalId;
+  if (!modalState.currentModalId || modalState.isOpen) return;
   modalState.isOpen = true;
   ContextApi.enter("modal");
 };
@@ -28,6 +30,7 @@ const closeModal = () => {
   ContextApi.leave("modal");
 };
 const toggleModal = () => {
+  if (!modalState.currentModalId) return;
   modalState.isOpen = !modalState.isOpen;
   console.log("toggle modal", modalState.isOpen);
 };

@@ -60,17 +60,6 @@
       (v) => v.id === modalState.currentModalId,
     );
   });
-  API.hotkey.registerAll([
-    {
-      hotkeySequence: ["meta", "p"],
-      description: "open command palette",
-      callback: () => {
-        API.modal.state.currentModalId = API.modal.state.modalViews[0].id;
-        API.modal.state.isOpen = true;
-      },
-      options: { mode: "normal" },
-    },
-  ]);
 </script>
 
 {#if modalState.isOpen}

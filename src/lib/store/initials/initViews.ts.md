@@ -7,5 +7,6 @@
 `document/svelte-view-guide.md` 를 참고
 
 ## 변경 이력 (Change History)
+- **2025-08-23**: `VaultSetupModal.svelte`를 `ModalApi`에 등록. (의도: 볼트 설정 UI를 모달 시스템에 통합하여 앱 시작 시 볼트 경로 설정 여부에 따라 모달을 표시하기 위함.)
 - **2025.08.20**: `LeftTabView.svelte` 컴포넌트를 `leftSidebar` 뷰로 등록. (요청: "LeftTabView 생성 및 등록")
 - **2025-08-20**: AI 코드 온톨로지 시스템 도입에 따라 초기 문서 생성. (요청: "온톨로지 시스템 시범 적용")

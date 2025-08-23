@@ -7,6 +7,8 @@ import { LayoutApi } from "./layout.svelte";
 import { ModalApi } from "./modal.svelte";
 import { ContextApi } from "./context.svelte";
 import { CommandHistoryApi } from "./commandHistoryStore.svelte"; // Added import
+import { VaultApi } from "./vault.svelte";
+import { LogApi } from "./log.svelte";
 
 export const API = {
   // window
@@ -15,6 +17,8 @@ export const API = {
   workspace: WorkspaceApi,
   layout: LayoutApi,
   modal: ModalApi,
+  vault: VaultApi,
+  log: LogApi,
 
   // command
   command: CommandApi,
@@ -22,4 +26,3 @@ export const API = {
   context: ContextApi,
   commandHistory: CommandHistoryApi, // Added to API
 };
-

@@ -20,6 +20,11 @@ export const CMDKEYS = {
       STATUS: "layout_toggle_status",
       MODAL: "layout_toggle_modal",
     },
+    MODAL: {
+      OPEN_PALETTE: "modal_open_palette",
+      OPEN_VAULT_SETUP: "modal_open_vault_setup",
+      CLOSE: "modal_close",
+    },
     ZOOM: {
       IN: "layout_zoom_in",
       OUT: "layout_zoom_out",

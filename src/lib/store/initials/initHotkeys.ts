@@ -58,6 +58,20 @@ const initGlobalHotkeys = () => {
       commandKey: CMDKEYS.WORKSPACE.CELL.REMOVE.HORIZONTAL,
       options: { mode: "leader", context: "global" },
     },
+    {
+      hotkeySequence: ["meta", "p"],
+      commandKey: CMDKEYS.LAYOUT.MODAL.OPEN_PALETTE,
+      options: { mode: "normal", context: "global" },
+    },
+  ]);
+};
+const initModalHotkeys = () => {
+  API.hotkey.registerAll([
+    {
+      hotkeySequence: ["esc"],
+      commandKey: CMDKEYS.LAYOUT.MODAL.CLOSE,
+      options: { mode: "normal", context: "modal" },
+    },
   ]);
 };
 
@@ -131,6 +145,7 @@ export const initHotkey = () => {
   initLeftSidebarHotkeys();
   initRightSidebarHotkeys();
   initWorkspaceHotkeys();
+  initModalHotkeys();
 
   // for test
   API.hotkey.register(

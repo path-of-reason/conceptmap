@@ -68,6 +68,21 @@ export const initCommand = () => {
       description: "LAYOUT: toggle modal",
       action: API.modal.toggleModal,
     },
+    {
+      key: CMDKEYS.LAYOUT.MODAL.OPEN_PALETTE,
+      description: "MODAL: open command palette",
+      action: () => API.modal.openModal("pallete"),
+    },
+    {
+      key: CMDKEYS.LAYOUT.MODAL.OPEN_VAULT_SETUP,
+      description: "MODAL: open vault setup modal",
+      action: () => API.modal.openModal("vaultSetup"),
+    },
+    {
+      key: CMDKEYS.LAYOUT.MODAL.CLOSE,
+      description: "MODAL: close modal",
+      action: API.modal.closeModal,
+    },
   ]);
   // workspace command
   API.command.addCommandList([

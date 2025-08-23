@@ -1,4 +1,4 @@
-type LogMessage = {
+export type LogMessage = {
   timestamp: string;
   level: "log" | "warn" | "error" | "info";
   message: string;
@@ -55,13 +55,11 @@ const setSearchText = (text: string) => {
   logState.searchText = text;
 };
 
-const filteredLogs = $derived.by(() => {
+const filteredLogs = () => {
   let logs = logState.logs;
-
   if (logState.filterLevel !== "all") {
     logs = logs.filter((log) => log.level === logState.filterLevel);
   }
-
   if (logState.searchText) {
     const searchLower = logState.searchText.toLowerCase();
     logs = logs.filter((log) =>
@@ -69,7 +67,7 @@ const filteredLogs = $derived.by(() => {
     );
   }
   return logs;
-});
+};
 
 export const LogApi = {
   state: logState,
@@ -77,7 +75,7 @@ export const LogApi = {
   clearLogs, // clearLogs 함수 export
   setFilterLevel, // setFilterLevel 함수 export
   setSearchText, // setSearchText 함수 export
-  filteredLogs, // filteredLogs derived 상태 export
+  filteredLogs,
   // 편의를 위해 console 메서드와 유사한 함수들을 export
   log: (...args: any[]) => addLog("log", ...args),
   info: (...args: any[]) => addLog("info", ...args),

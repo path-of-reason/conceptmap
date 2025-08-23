@@ -1,11 +1,22 @@
-## 핵심 개념 (Core Concept)
-이 파일은 Tauri 앱의 볼트(Vault) 경로를 `tauri-plugin-store`를 사용하여 관리하는 Rust 백엔드 커맨드를 제공합니다. 사용자가 선택한 마크다운 폴더 경로를 영구적으로 저장하고, 앱 시작 시 이를 불러오는 기능을 담당합니다.
+# 온톨로지: `src-tauri/src/vault_manager.rs`
 
-## 설계 원칙 (Design Principle)
-- **영속성**: `tauri-plugin-store`를 활용하여 앱 재시작 후에도 볼트 경로가 유지되도록 합니다.
-- **양방향 접근**: 프런트엔드와 백엔드 모두에서 볼트 경로에 접근하고 수정할 수 있는 API를 제공합니다.
-- **단순성**: 볼트 경로 저장/로드라는 단일 책임에 집중하여 모듈의 복잡성을 낮춥니다.
+## 핵심 개념
 
-## 변경 이력 (Change History)
-- **25.08.23**: `tauri-plugin-store` API 사용법 오류 수정 (await 제거, `app.store()` 사용, `VaultPathPayload` 도입 등). (요청: "오류 수정")
-- **25.08.23**: 볼트 설정 - 핵심 데이터 계층 구현 계획에 따라 `save_vault_path` 및 `load_vault_path` 커맨드를 포함하여 파일 신규 생성. (요청: "볼트 설정 - 핵심 데이터 계층 구현")
+Tauri의 `tauri-plugin-store`를 사용하여 사용자의 볼트(Vault) 경로 정보를 관리하는 백엔드 모듈입니다. 다중 볼트 경로 목록(`vaults`)과 현재 활성화된 볼트 경로(`current_vault`)를 JSON 파일(`store.json`)에 저장하고 관리합니다.
+
+## 주요 기능 (Tauri Commands)
+
+-   `add_vault(path: String)`: 새 볼트 경로를 목록에 추가합니다.
+-   `remove_vault(path: String)`: 기존 볼트 경로를 목록에서 제거합니다.
+-   `load_vaults()`: 저장된 모든 볼트 경로 목록을 불러옵니다.
+-   `load_vaults_and_current()`: 모든 볼트 경로와 현재 활성화된 볼트 경로를 함께 불러옵니다.
+-   `set_current_vault(path: String)`: 지정된 경로를 현재 활성화된 볼트로 설정합니다.
+-   `get_current_vault()`: 현재 활성화된 볼트 경로를 불러옵니다.
+
+## 활용처
+
+-   프런트엔드의 `src/lib/tauri/vault.ts`에서 Tauri `invoke`를 통해 호출되어 볼트 데이터를 관리합니다.
+
+## 변경 이력
+
+-   **2025-08-23**: 다중 볼트 지원을 위해 기존 단일 경로 저장 방식에서 여러 볼트 경로(`Vec<String>`)와 현재 볼트 경로(`Option<String>`)를 함께 관리하는 구조로 리팩토링했습니다. 관련 커맨드(`add_vault`, `remove_vault`, `load_vaults_and_current`, `set_current_vault`)를 추가하고 수정했습니다.
