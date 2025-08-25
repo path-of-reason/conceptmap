@@ -1,7 +1,7 @@
 ### [프로젝트 컨텍스트 및 제약사항]
 
 - **핵심 기술 스택**: 이 프로젝트는 **Svelte 5**를 사용합니다.
-- **핵심 참조 자료**: 모든 대화, 계획 수립, 코드 실행은 **Svelte 5 공식 문서 (`@document/svelte5/**`)**를 최우선으로 참고해야 합니다. 제공된 공식 문서는 가장 정확하고 최신 정보를 담고 있는 기준 자료입니다.
+- **핵심 참조 자료**: Svelte 5 관련 작업 시, **`mcp-svelte-docs`** 도구 모음을 최우선으로 사용해야 합니다. 이 도구들은 Svelte 5 공식 문서에 대한 가장 정확하고 빠른 정보를 제공합니다.
 - **의존성**: 새로운 라이브러리나 프레임워크를 제안하거나 사용하기 전에, 반드시 프로젝트 내의 기존 사용 여부를 확인해야 합니다.
 - 코드온톨로지: 실제코드와 1:1로 관리되는 온톨로지문서에 대한 주요내용은(@code_ontology.md)를 확인합니다.
 
@@ -94,7 +94,73 @@
 
 ---
 
-### [[순번].plan.workname.md] 파일 하단에 포함될 "개발 지시사항"]
+# Operational Guidelines
+
+## System Prompts
+
+- **"Please continue."**: This is a system prompt indicating that the user is ready for you to resume a previously paused operation or continue with the current task flow. It is NOT a command to execute a plan (`--execute` mode) or to initiate a new task. When you receive this prompt, you should continue from where you left off, or if a task is complete, you should explicitly state that and await further instructions.
+
+## Tone and Style (CLI Interaction)
+- **Concise & Direct**: Adopt a professional, direct, and concise tone suitable for a CLI environment.
+- **Minimal Output**: Aim for fewer than 3 lines of text output (excluding tool use/code generation) per response whenever practical. Focus strictly on the user's query.
+- **Clarity over Brevity (When Needed)**: While conciseness is key, prioritize clarity for essential explanations or when seeking necessary clarification if a request is ambiguous.
+- **No Chitchat**: Avoid conversational filler, preambles ("Okay, I will now..."), or postambles ("I have finished the changes..."). Get straight to the action or answer.
+- **Formatting**: Use GitHub-flavored Markdown. Responses will be rendered in monospace.
+- **Tools vs. Text**: Use tools for actions, text output *only* for communication. Do not add explanatory comments within tool calls or code blocks unless specifically part of the required code/command itself.
+- **Handling Inability**: If unable/unwilling to fulfill a request, state so briefly (1-2 sentences) without excessive justification. Offer alternatives if appropriate.
+
+## Security and Safety Rules
+- **Explain Critical Commands**: Before executing commands with 'run_shell_command' that modify the file system, codebase, or system state, you *must* provide a brief explanation of the command's purpose and potential impact. Prioritize user understanding and safety. You should not ask permission to use the tool; the user will be presented with a confirmation dialogue upon use (you do not need to tell them this).
+- **Security First**: Always apply security best practices. Never introduce code that exposes, logs, or commits secrets, API keys, or other sensitive information.
+
+## Tool Usage
+- **File Paths**: Always use absolute paths when referring to files with tools like 'read_file' or 'write_file'. Relative paths are not supported. You must provide an absolute path.
+- **Parallelism**: Execute multiple independent tool calls in parallel when feasible (i.e. searching the codebase).
+- **Command Execution**: Use the 'run_shell_command' tool for running shell commands, remembering the safety rule to explain modifying commands first.
+- **Background Processes**: Use background processes (via `&`) for commands that are unlikely to stop on their own, e.g. `node server.js &`. If unsure, ask the user.
+- **Interactive Commands**: Try to avoid shell commands that are likely to require user interaction (e.g. `git rebase -i`). Use non-interactive versions of commands (e.g. `npm init -y` instead of `npm init`) when available, and otherwise remind the user that interactive shell commands are not supported and may cause hangs until canceled by the user.
+- **Remembering Facts**: Use the 'save_memory' tool to remember specific, *user-related* facts or preferences when the user explicitly asks, or when they state a clear, concise piece of information that would help personalize or streamline *your future interactions with them* (e.g., preferred coding style, common project paths they use, personal tool aliases). This tool is for user-specific information that should persist across sessions. Do *not* use it for general project context or information. If unsure whether to save something, you can ask the user, "Should I remember that for you?"
+- **Respect User Confirmations**: Most tool calls (also denoted as 'function calls') will first require confirmation from the user, where they will either approve or cancel the function call. If a user cancels a function call, respect their choice and do _not_ try to make the function call again. It is okay to request the tool call again _only_ if the user requests that same tool call on a subsequent prompt. When a user cancels a function call, assume best intentions from the user and consider inquiring if they prefer any alternative paths forward.
+- **Replace Fallback**: If a `replace` operation fails more than once consecutively for the same target, automatically switch to using `write_file` for the intended modification.
+
+---
+
+### [사용자 요청 형식]
+
+#### 요청 형식
+
+`--[모드] --[옵션1] --[옵션2] ...`
+이후 요청 내용을 상세하게 설명할 거야. 나의 지시에 따라 각 모드의 원칙을 엄격히 준수해줘.
+
+#### `--plan` 모드 옵션
+
+- **계획 범위 (필수)**:
+  - `--local`: 특정 작업의 단일 핵심 포인트에 대한 상세 계획.
+  - `--global`: 전체 작업 범위에 대한 고수준의 로드맵.
+- **계획 유형 (필수)**:
+  - `--feature`: 새로운 기능 개발.
+  - `--refactoring`: 기존 코드 구조 개선.
+  - `--bug`: 버그 수정.
+  - `--architecture`: 시스템 아키텍처 설계.
+  - `--problem`: 특정 기술 문제 해결.
+- **세부 수준 (선택, 기본값 medium)**:
+  - `--detail:high`, `--detail:medium`, `--detail:low`
+- **결과물 형식 (선택, 기본값 hybrid)**:
+  - `--output:hybrid`: 체크리스트와 상세 보고서 혼합.
+  - `--output:tasks`: 체크리스트 형식.
+  - `--output:report`: 보고서 형식.
+
+---
+
+### [요청 형식 미준수 시 대응 원칙]
+
+- **명령어 누락 시**: "요청 형식이 올바르지 않습니다." 와 같은 단순 거절 대신, 어떤 정보가 누락되었는지 명확히 알려주고 질문을 통해 필요한 정보를 얻어줘.
+  - 예시: `--plan --feature` 요청 시 -> "`--local` 또는 `--global` 계획 범위가 필요합니다. 어떤 범위로 계획을 수립할까요?"
+- 이를 통해 내가 올바른 요청 형식을 자연스럽게 학습하고 따르도록 유도해줘.
+
+---
+
+### [[순번].plan.workname.md] 파일 하단에 포함될 "개발 지시사항"
 
 (이 내용은 plan.md 파일 최하단에 그대로 포함되어야 합니다.)
 

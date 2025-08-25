@@ -1,0 +1,13 @@
+.cm-line {
+  padding-left: calc(50vw - 400px); /* (전체 화면 너비의 절반) - (최대 너비의 절반) */
+  padding-right: calc(50vw - 400px);
+  /* background-color: red; */
+}
+
+/* 화면 너비가 최대 너비보다 좁아질 경우 패딩을 0으로 설정하여 넘침 방지 */
+@media (max-width: 800px) {
+  .cm-line {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}

@@ -1,5 +1,6 @@
 <script lang="ts">
   import Button from "$lib/components/ui/button/button.svelte";
+  import { slide2 } from "$lib/utils/transition";
   import * as Icons from "@lucide/svelte/icons";
   import { fade, slide } from "svelte/transition";
 
@@ -29,7 +30,7 @@
   ]);
 </script>
 
-<div in:fade={{ duration: 100, delay: 100 }} out:fade={{ duration: 100 }}>
+<div>
   {#each tabList as tab}
     <div class="tab-item flex gap-1">
       <div class="tab-header">{tab.title}</div>

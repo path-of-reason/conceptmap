@@ -2,8 +2,8 @@ import { Effect, Exit, Cause } from "effect";
 import { TauriApi } from "$lib/tauri/api";
 
 const vaultState = $state<{
-  vaults: string[];
-  path: string | null;
+  vaults: string[]; // saved other vault path
+  path: string | null; // current vault path
   isSet: boolean;
   loading: boolean;
   error: string | null;

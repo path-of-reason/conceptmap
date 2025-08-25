@@ -13,8 +13,11 @@
 
   let { id, prev = false, class: className }: ResizerProps = $props();
 
-  const { sectionState, onResize, direction, toggleCollapsed } =
-    API.section.useSectionStore({ id, prevResizer: prev });
+  const { sectionState, onResize, direction } = API.section.useSectionStore({
+    id,
+    prevResizer: prev,
+  });
+  const toggle = () => API.section.toggleLayout(id);
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -32,5 +35,5 @@
     className,
   ]}
   onmousedown={onResize}
-  ondblclick={toggleCollapsed}
+  ondblclick={toggle}
 ></div>

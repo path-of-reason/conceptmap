@@ -2,6 +2,7 @@
   import { slide } from "svelte/transition";
   import { API } from "$lib/store/api";
   import { onMount } from "svelte";
+  import { LAYOUT } from "$lib/constant/layout";
   const {
     viewState,
     hasView,
@@ -11,11 +12,11 @@
   } = API.view;
 
   const { sectionState } = API.section.useSectionStore<"vertical">({
-    id: "rightSidebar",
+    id: LAYOUT.RIGHT_SIDEBAR,
   });
 
   const registeredViews = getRegisteredViews().filter(
-    (v) => v.type === "rightSidebar",
+    (v) => v.type === LAYOUT.RIGHT_SIDEBAR,
   );
 
   // viewId변경되면 자동으로 view를 업데이트한다.

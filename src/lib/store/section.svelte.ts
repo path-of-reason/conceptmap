@@ -7,8 +7,9 @@ import {
   type SectionType,
 } from "@/lib/types/layout";
 import { LayoutApi } from "@/lib/store/layout.svelte";
-import { SectionConfig } from "./sectionConfig";
+import { SectionConfig } from "./sectionConfig.svelte";
 import { ContextApi } from "./context.svelte";
+import { LAYOUT } from "$lib/constant/layout";
 
 /** for mouse resizing */
 const mouseState = {
@@ -31,7 +32,7 @@ const setSectionState = (id: SectionType, state: SectionState) =>
 const initSectionState = <D extends Direction>(
   id: SectionType,
 ): D extends "vertical" ? VerticalSectionState : HorizontalSectionState => {
-  const config = SectionConfig.map.get(id)!;
+  const config = SectionConfig.get(id);
   const baseState: BaseSectionState = {
     collapsed: config.collapsed || false,
     direction: config.direction,
@@ -60,11 +61,10 @@ const initSectionState = <D extends Direction>(
 };
 
 const zenSnapshot: Record<SectionType, boolean> = {
-  rightSidebar: false,
-  leftSidebar: false,
-  headerBar: false,
-  statusBar: false,
-  searchBar: false,
+  [LAYOUT.RIGHT_SIDEBAR]: false,
+  [LAYOUT.LEFT_SIDEBAR]: false,
+  [LAYOUT.HEADER_BAR]: false,
+  [LAYOUT.STATUS_BAR]: false,
 };
 
 // # util functions ---------------------------------
@@ -142,23 +142,23 @@ function toggleLayout(layoutType: SectionType) {
     ss.collapsed = !ss.collapsed;
     // 사이즈 변경
     collapseSection(layoutType, ss.collapsed);
-    if (layoutType === "headerBar") return;
-    if (layoutType === "statusBar") return;
+    if (layoutType === LAYOUT.HEADER_BAR) return;
+    if (layoutType === LAYOUT.STATUS_BAR) return;
     if (ss.collapsed) ContextApi.leave(layoutType);
     else ContextApi.enter(layoutType);
   }
 }
 function toggleHeader() {
-  toggleLayout("headerBar");
+  toggleLayout(LAYOUT.HEADER_BAR);
 }
 function toggleLeftSidebar() {
-  toggleLayout("leftSidebar");
+  toggleLayout(LAYOUT.LEFT_SIDEBAR);
 }
 function toggleRightSidebar() {
-  toggleLayout("rightSidebar");
+  toggleLayout(LAYOUT.RIGHT_SIDEBAR);
 }
 function toggleStatusbar() {
-  toggleLayout("statusBar");
+  toggleLayout(LAYOUT.STATUS_BAR);
 }
 
 function useSectionStore<D extends Direction>({
@@ -227,6 +227,12 @@ function useSectionStore<D extends Direction>({
   };
 }
 
+function saveCurrentSizeAsDefault(id: SectionType) {
+  const sectionState = getSectionState(id);
+  const newSize = isVertical(sectionState) ? sectionState.w : sectionState.h;
+  SectionConfig.updateDefaultSize(id, newSize);
+}
+
 export const SectionApi = {
   useSectionStore,
   sectionVisible,
@@ -240,4 +246,5 @@ export const SectionApi = {
   toggleRightSidebar,
   toggleStatusbar,
   toggleLayout,
+  saveCurrentSizeAsDefault,
 };

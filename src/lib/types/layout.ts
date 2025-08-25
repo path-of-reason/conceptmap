@@ -1,11 +1,7 @@
 import type { Component } from "svelte";
+import { LAYOUT } from "$lib/constant/layout";
 
-export type SectionType =
-  | "leftSidebar"
-  | "rightSidebar"
-  | "headerBar"
-  | "searchBar"
-  | "statusBar";
+export type SectionType = (typeof LAYOUT)[keyof typeof LAYOUT];
 
 export type ModalType =
   | "leftModal"
@@ -54,6 +50,7 @@ export type LayoutView = {
   id: string; // 뷰의 고유 식별자 (예: 'my-plugin/todo-list')
   name: string; // 사용자에게 표시될 이름 (예: '할 일 목록')
   type: SectionType;
-  component: Component<any, {}, "">;
-  icon?: Component<any, {}, "">;
+  component: Component<any, {}, string>;
+  icon?: Component<any, {}, string>;
 };
+

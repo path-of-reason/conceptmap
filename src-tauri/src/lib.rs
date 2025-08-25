@@ -3,16 +3,20 @@
 // mod terminal;
 mod app_state;
 mod file_system;
-mod kuzu_query;
-mod vault_manager; // Add this line
+mod kuzudb;
+mod vault_manager;
+use crate::kuzudb::db::KuzuDB;
 use std::sync::{Arc, Mutex};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let app_state = Arc::new(Mutex::new(app_state::AppState::new()));
+    let db = KuzuDB::new("").unwrap();
+    let _ = kuzudb::schema::initialize_schema(&db);
     tauri::Builder::default()
         .plugin(tauri_plugin_store::Builder::new().build())
         .manage(app_state.clone())
+        .manage(db)
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
@@ -22,14 +26,14 @@ pub fn run() {
             file_system::write_file,
             file_system::read_directory,
             file_system::read_dir_recursive,
-            kuzu_query::kuzu_test,
             app_state::get_load_time,
             vault_manager::add_vault,
             vault_manager::remove_vault,
             vault_manager::set_current_vault,
             vault_manager::get_current_vault,
             vault_manager::load_vaults,
-            vault_manager::load_vaults_and_current
+            vault_manager::load_vaults_and_current,
+            kuzudb::commands::create_note
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -44,3 +44,76 @@ export function customSlide(
     },
   };
 }
+
+type SlideAxis = "x" | "-x" | "y" | "-y";
+
+interface SlideParams {
+  delay?: number;
+  duration?: number;
+  easing?: (t: number) => number;
+  axis?: SlideAxis;
+}
+
+export function slide2(
+  node: Element,
+  {
+    delay = 0,
+    duration = 400,
+    easing = cubicOut,
+    axis = "y",
+  }: SlideParams = {},
+): TransitionConfig {
+  const style = getComputedStyle(node);
+
+  const positive = !axis.startsWith("-");
+  const realAxis = axis.replace("-", "") as "x" | "y";
+  const isY = realAxis === "y";
+  const primary_property = isY ? "height" : "width";
+  const secondary_properties = isY
+    ? positive
+      ? ["top", "bottom"]
+      : ["bottom", "top"]
+    : positive
+      ? ["left", "right"]
+      : ["right", "left"];
+
+  const cap = (s: string) =>
+    (s[0].toUpperCase() + s.slice(1)) as "Left" | "Right" | "Top" | "Bottom";
+  const capSec = secondary_properties.map(cap);
+
+  const opacity = +style.opacity;
+  const primary_property_value = parseFloat(style[primary_property]);
+  const padding_start_value = parseFloat(style[`padding${capSec[0]}`]);
+  const padding_end_value = parseFloat(style[`padding${capSec[1]}`]);
+  const margin_start_value = parseFloat(style[`margin${capSec[0]}`]);
+  const margin_end_value = parseFloat(style[`margin${capSec[1]}`]);
+  const border_start_value = parseFloat(style[`border${capSec[0]}Width`]);
+  const border_end_value = parseFloat(style[`border${capSec[1]}Width`]);
+  return {
+    delay,
+    duration,
+    easing,
+    css: (t: number) =>
+      "overflow: hidden;" +
+      `opacity: ${Math.min(t * 20, 1) * opacity};` +
+      `${primary_property}: ${t * primary_property_value}px;` +
+      `min-${primary_property}: 0`,
+  };
+
+  // return {
+  //   delay,
+  //   duration,
+  //   easing,
+  //   css: (t: number) =>
+  //     "overflow: hidden;" +
+  //     `opacity: ${Math.min(t * 20, 1) * opacity};` +
+  //     `${primary_property}: ${t * primary_property_value}px;` +
+  //     `padding-${secondary_properties[0]}: ${t * padding_start_value}px;` +
+  //     `padding-${secondary_properties[1]}: ${t * padding_end_value}px;` +
+  //     `margin-${secondary_properties[0]}: ${t * margin_start_value}px;` +
+  //     `margin-${secondary_properties[1]}: ${t * margin_end_value}px;` +
+  //     `border-${secondary_properties[0]}-width: ${t * border_start_value}px;` +
+  //     `border-${secondary_properties[1]}-width: ${t * border_end_value}px;` +
+  //     `min-${primary_property}: 0`,
+  // };
+}

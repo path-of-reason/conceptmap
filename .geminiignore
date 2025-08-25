@@ -1,0 +1,28 @@
+# IDE & Editor specific
+.vscode/
+.zed/
+.ropeproject/
+
+# SvelteKit build output and cache
+.svelte-kit/
+
+# Node dependencies
+node_modules/
+
+# General build output
+build/
+
+# Python build output and virtual environment
+src-py/build/
+src-py/.venv/
+
+# Tauri build output
+src-tauri/gen/
+src-tauri/target/
+src-tauri/src copy/
+
+# Task management tool folder
+.taskmaster/
+
+# Version Control
+.git/

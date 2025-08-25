@@ -1,4 +1,5 @@
 import type { LayoutView, ViewState } from "@/lib/types/layout";
+import { LAYOUT } from "$lib/constant/layout";
 
 // 등록된 모든 뷰를 관리하는 Map
 const viewMap = new Map<string, LayoutView>();
@@ -68,14 +69,14 @@ function hasView(viewId: string): boolean {
 }
 
 function nextLeftView() {
-  const views = getRegisteredViews().filter((v) => v.type === "leftSidebar");
+  const views = getRegisteredViews().filter((v) => v.type === LAYOUT.LEFT_SIDEBAR);
   const currentIndex =
     views.findIndex((view) => view.id === viewState.leftSidebarViewId) ?? 0;
   const nextIndex = (currentIndex + 1) % views.length;
   setActiveLeftSidebarView(views[nextIndex].id);
 }
 function prevLeftView() {
-  const views = getRegisteredViews().filter((v) => v.type === "leftSidebar");
+  const views = getRegisteredViews().filter((v) => v.type === LAYOUT.LEFT_SIDEBAR);
   const currentIndex =
     views.findIndex((view) => view.id === viewState.leftSidebarViewId) ?? 0;
   const prevIndex = (currentIndex - 1 + views.length) % views.length;
@@ -84,7 +85,7 @@ function prevLeftView() {
 
 function nextRightView() {
   console.log("next right");
-  const views = getRegisteredViews().filter((v) => v.type === "rightSidebar");
+  const views = getRegisteredViews().filter((v) => v.type === LAYOUT.RIGHT_SIDEBAR);
   const currentIndex =
     views.findIndex((view) => view.id === viewState.rightSidebarViewId) ?? 0;
   const nextIndex = (currentIndex + 1) % views.length;
@@ -92,7 +93,7 @@ function nextRightView() {
 }
 function prevRightView() {
   console.log("prev right");
-  const views = getRegisteredViews().filter((v) => v.type === "rightSidebar");
+  const views = getRegisteredViews().filter((v) => v.type === LAYOUT.RIGHT_SIDEBAR);
   const currentIndex =
     views.findIndex((view) => view.id === viewState.rightSidebarViewId) ?? 0;
   const prevIndex = (currentIndex - 1 + views.length) % views.length;

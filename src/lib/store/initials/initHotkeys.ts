@@ -1,5 +1,6 @@
 import { CMDKEYS } from "$lib/constant/commandKey";
 import { API } from "$lib/store/api";
+import { LAYOUT } from "$lib/constant/layout";
 
 const initGlobalHotkeys = () => {
   API.hotkey.registerAll([
@@ -80,12 +81,12 @@ const initLeftSidebarHotkeys = () => {
     {
       hotkeySequence: ["meta", "shift", "["],
       commandKey: CMDKEYS.LEFTSIDEBAR.PREV,
-      options: { mode: "normal", context: "leftSidebar" },
+      options: { mode: "normal", context: LAYOUT.LEFT_SIDEBAR },
     },
     {
       hotkeySequence: ["meta", "shift", "]"],
       commandKey: CMDKEYS.LEFTSIDEBAR.NEXT,
-      options: { mode: "normal", context: "leftSidebar" },
+      options: { mode: "normal", context: LAYOUT.LEFT_SIDEBAR },
     },
   ]);
 };
@@ -95,12 +96,12 @@ const initRightSidebarHotkeys = () => {
     {
       hotkeySequence: ["meta", "shift", "["],
       commandKey: CMDKEYS.RIGHTSIDEBAR.PREV,
-      options: { mode: "normal", context: "rightSidebar" },
+      options: { mode: "normal", context: LAYOUT.RIGHT_SIDEBAR },
     },
     {
       hotkeySequence: ["meta", "shift", "]"],
       commandKey: CMDKEYS.RIGHTSIDEBAR.NEXT,
-      options: { mode: "normal", context: "rightSidebar" },
+      options: { mode: "normal", context: LAYOUT.RIGHT_SIDEBAR },
     },
   ]);
 };
@@ -152,13 +153,13 @@ export const initHotkey = () => {
     ["enter"],
     () => console.log("Hello from right sidebar context!"),
     "test: right sidebar context",
-    { mode: "normal", context: "rightSidebar" },
+    { mode: "normal", context: LAYOUT.RIGHT_SIDEBAR },
   );
 
   API.hotkey.register(
     ["enter"],
     () => console.log("Hello from left sidebar context!"),
     "test: left sidebar context",
-    { mode: "normal", context: "leftSidebar" },
+    { mode: "normal", context: LAYOUT.LEFT_SIDEBAR },
   );
 };

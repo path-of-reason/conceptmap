@@ -1,6 +1,7 @@
 <script lang="ts">
   import XIcon from "@lucide/svelte/icons/x";
   import { API } from "$lib/store/api";
+  import { slide2 } from "$lib/utils/transition";
 
   const { store, removeTab, handleTabClick } = API.workspace;
 </script>

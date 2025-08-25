@@ -2,6 +2,7 @@
   import { slide } from "svelte/transition";
   import { API } from "$lib/store/api";
   import { onMount } from "svelte";
+  import { LAYOUT } from "$lib/constant/layout";
   const {
     viewState,
     hasView,
@@ -10,11 +11,11 @@
     setActiveLeftSidebarView,
   } = API.view;
   const { sectionState } = API.section.useSectionStore<"vertical">({
-    id: "leftSidebar",
+    id: LAYOUT.LEFT_SIDEBAR,
   });
 
   const registeredViews = getRegisteredViews().filter(
-    (v) => v.type === "leftSidebar",
+    (v) => v.type === LAYOUT.LEFT_SIDEBAR,
   );
 
   // viewId변경되면 자동으로 view를 업데이트한다.
@@ -47,6 +48,7 @@
   {#if !sectionState.collapsed}
     <div transition:slide class={["text-center bg-black/30 text-nowrap"]}>
       space
+      <button onclick={() => API.section.saveCurrentSizeAsDefault(LAYOUT.LEFT_SIDEBAR)}>Save Size</button>
     </div>
   {/if}
   <div class="grow w-full h-full flex flex-col">
