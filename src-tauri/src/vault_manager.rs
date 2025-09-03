@@ -3,9 +3,17 @@ use serde_json::{json, Value};
 use tauri::AppHandle;
 use tauri_plugin_store::StoreExt;
 
-const STORE_FILE: &str = "store.json";
-const VAULTS_KEY: &str = "vaults";
-const CURRENT_VAULT_KEY: &str = "current_vault";
+pub const STORE_FILE: &str = "store.json";
+pub const CURRENT_VAULT_KEY: &str = "current_vault";
+pub const VAULTS_KEY: &str = "vaults";
+
+pub fn get_current_vault_path(app: &AppHandle) -> Result<String, String> {
+    let store = app.store(STORE_FILE).map_err(|e| e.to_string())?;
+    store
+        .get(CURRENT_VAULT_KEY)
+        .and_then(|v| v.as_str().map(|s| s.to_string()))
+        .ok_or_else(|| "현재 선택된 Vault가 없습니다.".to_string())
+}
 
 #[derive(Serialize)]
 pub struct VaultsAndCurrent {
@@ -15,11 +23,14 @@ pub struct VaultsAndCurrent {
 
 #[tauri::command]
 pub fn add_vault(app: AppHandle, path: String) -> Result<(), String> {
-    let store = app.store(STORE_FILE).map_err(|e| format!("store open: {e}"))?;
+    let store = app
+        .store(STORE_FILE)
+        .map_err(|e| format!("store open: {e}"))?;
 
     // 기존 vaults 배열 가져오기
     let mut arr: Vec<String> = match store.get(VAULTS_KEY) {
-        Some(Value::Array(vals)) => vals.into_iter()
+        Some(Value::Array(vals)) => vals
+            .into_iter()
             .filter_map(|v| v.as_str().map(|s| s.to_string()))
             .collect(),
         _ => vec![],
@@ -131,11 +142,5 @@ pub fn set_current_vault(app: AppHandle, path: String) -> Result<(), String> {
 
 #[tauri::command]
 pub fn get_current_vault(app: AppHandle) -> Result<Option<String>, String> {
-    let store = app
-        .store(STORE_FILE)
-        .map_err(|e| format!("store open: {e}"))?;
-    let cur = store
-        .get(CURRENT_VAULT_KEY)
-        .and_then(|v| v.as_str().map(|s| s.to_string()));
-    Ok(cur)
+    Ok(get_current_vault_path(&app).ok())
 }

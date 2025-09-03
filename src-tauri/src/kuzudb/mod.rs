@@ -1,4 +1,5 @@
 pub mod commands;
-pub mod db;
-pub mod models;
-pub mod schema;
+pub mod domain;
+pub mod error;
+pub mod repository;
+pub mod service;

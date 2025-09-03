@@ -31,6 +31,7 @@
     "store:allow-length",
     "store:allow-reload",
     "store:allow-save",
-    "dialog:allow-open"
+    "dialog:allow-open",
+    "core:webview:allow-set-webview-zoom"
   ]
 }
