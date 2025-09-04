@@ -47,7 +47,10 @@ fn create_schema(conn: &Connection) -> Result<()> {
 
         CREATE REL TABLE IF NOT EXISTS HasTag(FROM Note TO Tag);
         CREATE REL TABLE IF NOT EXISTS AliasOf(FROM TagAlias TO Tag);
-        CREATE REL TABLE IF NOT EXISTS Authored(FROM Person TO Note);
+        CREATE REL TABLE IF NOT EXISTS Authored(
+            FROM Person TO Note,
+            role STRING
+        );
 
         CREATE REL TABLE IF NOT EXISTS References(
             FROM Note TO Note,
@@ -67,7 +70,7 @@ fn create_default_box_notes(kuzudb: &KuzuDB, conn: &Connection) -> Result<()> {
 
     for (id_key, name, desc) in default_boxes {
         let id = id_key.to_string();
-        if !kuzudb.nodes().is_exist(&conn, &id)? {
+        if !kuzudb.nodes().is_exist(conn, &id)? {
             let now = Utc::now();
             let note = Note {
                 id: id.clone(),
@@ -81,7 +84,7 @@ fn create_default_box_notes(kuzudb: &KuzuDB, conn: &Connection) -> Result<()> {
                 created_at: now,
                 updated_at: now,
             };
-            kuzudb.nodes().create_note(&conn, &note)?;
+            kuzudb.nodes().create_note(conn, &note)?;
         }
     }
     Ok(())

@@ -1,4 +1,4 @@
-// use std::collections::HashMap;
+use super::payloads;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
@@ -26,6 +26,11 @@ pub struct SequencedReference {
     pub note_id: String,
     pub sequence: i64,
 }
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct Author {
+    pub name: String,
+    pub role: Option<String>,
+}
 
 // 읽기 전용 집계 구조체
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -33,7 +38,7 @@ pub struct NoteAggregate {
     pub note: Note,
     pub tags: Vec<String>,                   // HasTag 관계로부터 가져옴
     pub references: Vec<SequencedReference>, // References 관계와 sequence 속성으로부터 가져옴
-    pub authors: Vec<String>,                // Authored 관계로부터 가져옴
+    pub authors: Vec<Author>,                // Authored 관계로부터 가져옴
     pub parent: Option<String>,
     pub first_child: Option<String>,
     pub next: Option<String>,
@@ -70,95 +75,6 @@ pub struct TagAlias {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Person {
     pub name: String,
-}
-
-pub mod payloads {
-    pub mod create {
-        use serde::Deserialize;
-
-        #[derive(Deserialize, Debug, Default)]
-        pub struct IndexCard {
-            pub parent: String,
-            pub prev: Option<String>,
-            pub title: String,
-            pub content: String,
-            pub reference: Vec<String>,
-        }
-
-        #[derive(Deserialize, Debug, Default)]
-        pub struct MainCard {
-            pub parent: String,
-            pub prev: Option<String>,
-            pub title: String,
-            pub content: String,
-            pub reference: Vec<String>,
-            pub tags: Vec<String>,
-        }
-
-        #[derive(Deserialize, Debug, Default)]
-        pub struct BiblioCard {
-            pub parent: String,
-            pub prev: Option<String>,
-            pub title: String,
-            pub authors: Vec<String>,
-            pub published_at: String,
-            pub sub_type: String,
-            pub cover_url: Option<String>,
-        }
-
-        #[derive(Deserialize, Debug, Default)]
-        pub struct QuoteCard {
-            pub parent: String,
-            pub prev: Option<String>,
-            pub title: String,
-            pub content: String,
-            pub authors: Vec<String>,
-            pub tags: Vec<String>,
-        }
-
-        #[derive(Deserialize, Debug, Default)]
-        pub struct HrCard {
-            pub parent: String,
-            pub prev: Option<String>,
-            pub title: String,
-            pub sub_type: String,
-        }
-    }
-    pub mod update {
-        use serde::Deserialize;
-
-        #[derive(Deserialize, Debug, Default)]
-        pub struct MainCard {
-            pub title: Option<String>,
-            pub content: Option<String>,
-            pub reference: Option<Vec<String>>,
-            pub tags: Option<Vec<String>>,
-        }
-
-        #[derive(Deserialize, Debug, Default)]
-        pub struct BiblioCard {
-            pub title: Option<String>,
-            pub authors: Option<Vec<String>>,
-            pub published_at: Option<String>,
-            pub sub_type: Option<String>,
-            pub cover_url: Option<Option<String>>,
-        }
-
-        #[derive(Deserialize, Debug, Default)]
-        pub struct QuoteCard {
-            pub title: Option<String>,
-            pub content: Option<String>,
-            pub authors: Option<Vec<String>>,
-            pub tags: Option<Vec<String>>,
-        }
-
-        #[derive(Deserialize, Debug, Default)]
-        pub struct IndexCard {
-            pub title: Option<String>,
-            pub content: Option<String>,
-            pub reference: Option<Vec<String>>,
-        }
-    }
 }
 
 // ------------------------------------------------------

@@ -16,6 +16,7 @@ pub fn run() {
         .manage(app_state.clone())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
+        .setup(app_state::AppState::setup)
         .invoke_handler(tauri::generate_handler![
             file_system::greet,
             file_system::read_file,
@@ -35,6 +36,7 @@ pub fn run() {
             kuzudb::commands::get_note_aggregate_by_id,
             kuzudb::commands::update_note,
             kuzudb::commands::remove_note,
+            kuzudb::commands::run_integrity_checks,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

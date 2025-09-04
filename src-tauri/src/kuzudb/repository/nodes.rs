@@ -6,6 +6,17 @@ use crate::kuzudb::{
 };
 use kuzu::{Connection, QueryResult, Value};
 
+pub struct AllNotesAndRelations {
+    pub notes: Vec<Note>,
+    pub child_of: Vec<(String, String)>,
+    pub first_child: Vec<(String, String)>,
+    pub next: Vec<(String, String)>,
+    pub prev: Vec<(String, String)>,
+    pub has_tag: Vec<(String, String)>,
+    pub references: Vec<(String, String, i64)>,
+    pub authored: Vec<(String, Option<String>, String)>,
+}
+
 impl Node {
     pub fn create_note(&self, conn: &Connection, note: &Note) -> Result<()> {
         let mut prepared = conn.prepare(
@@ -129,19 +140,7 @@ impl Node {
         Ok(result.next().is_some())
     }
 
-    pub fn get_all_notes_and_relations(
-        &self,
-        conn: &Connection,
-    ) -> Result<(
-        Vec<Note>,
-        Vec<(String, String)>,      // ChildOf
-        Vec<(String, String)>,      // FirstChild
-        Vec<(String, String)>,      // Next
-        Vec<(String, String)>,      // Prev
-        Vec<(String, String)>,      // HasTag
-        Vec<(String, String, i64)>, // References
-        Vec<(String, String)>,      // Authored (Person.name, Note.id)
-    )> {
+    pub fn get_all_notes_and_relations(&self, conn: &Connection) -> Result<AllNotesAndRelations> {
         // 1. 모든 노트 가져오기
         let mut notes = vec![];
         let result: QueryResult = conn.query("MATCH (n:Note) RETURN n.id, n.title, n.content, n.created_at, n.updated_at, n.note_type, n.sub_type, n.published_at, n.cover_url, n.file_path")?;
@@ -160,7 +159,6 @@ impl Node {
                 published_at: extract_string(&row[7]),
                 cover_url: extract_string(&row[8]),
                 file_path: extract_string(&row[9]),
-                ..Default::default()
             });
         }
 
@@ -184,7 +182,19 @@ impl Node {
         let next = get_pair_rel("MATCH (a:Note)-[:Next]->(b:Note) RETURN a.id, b.id")?;
         let prev = get_pair_rel("MATCH (a:Note)-[:Prev]->(b:Note) RETURN a.id, b.id")?;
         let has_tag = get_pair_rel("MATCH (n:Note)-[:HasTag]->(t:Tag) RETURN n.id, t.name")?;
-        let authored = get_pair_rel("MATCH (p:Person)-[:Authored]->(n:Note) RETURN p.name, n.id")?;
+        let mut authored = vec![];
+        // ✨ 수정: coalesce 함수를 사용하여 role이 없는 경우에도 항상 NULL 값을 반환하도록 보장합니다.
+        let result_authored = conn.query(
+            "MATCH (p:Person)-[r:Authored]->(n:Note) RETURN p.name, coalesce(r.role, NULL), n.id",
+        )?;
+        for row in result_authored.into_iter() {
+            let person_name =
+                extract_string(&row[0]).ok_or(Error::Integrity("person name missing".into()))?;
+            let role = extract_string(&row[1]); // 이제 row[1]은 항상 안전합니다.
+            let note_id = extract_string(&row[2])
+                .ok_or(Error::Integrity("authored note id missing".into()))?;
+            authored.push((person_name, role, note_id));
+        }
 
         // 3. 순서가 있는 참조 관계 가져오기
         let mut references = vec![];
@@ -201,7 +211,7 @@ impl Node {
             references.push((from, to, sequence));
         }
 
-        Ok((
+        Ok(AllNotesAndRelations {
             notes,
             child_of,
             first_child,
@@ -210,7 +220,7 @@ impl Node {
             has_tag,
             references,
             authored,
-        ))
+        })
     }
 
     pub fn get_note_by_id(&self, conn: &Connection, id: &str) -> Result<Option<Note>> {
@@ -239,7 +249,6 @@ impl Node {
                 published_at: extract_string(&row[7]),
                 cover_url: extract_string(&row[8]),
                 file_path: extract_string(&row[9]),
-                ..Default::default()
             };
             return Ok(Some(note));
         }

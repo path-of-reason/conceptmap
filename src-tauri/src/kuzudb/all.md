@@ -1,4 +1,1215 @@
-use super::{IntegrityReport, NoteService};
+```md summary.md
+
+# 프로젝트 아키텍처 및 코드 구조 요약 문서
+## 1. 프로젝트 개요
+이 프로젝트는 Rust와 Tauri를 사용하여 데스크톱 환경에서 동작하는 개인용 제텔카스텐(Zettelkasten) 노트 앱의 백엔드입니다. 데이터베이스로는 KuzuDB(임베디드 그래프 데이터베이스)를 사용하여 노트 간의 복잡하고 유기적인 관계를 효율적으로 관리하는 것을 목표로 합니다.
+
+## 2. 핵심 아키텍처: 계층형 구조 (Layered Architecture)
+이 프로젝트는 유지보수성, 확장성, 그리고 각 부분의 명확한 책임 분리를 위해 계층형 아키텍처를 채택하고 있습니다. 데이터의 흐름은 외부(UI)에서 내부(DB)로 단방향으로 흐르며, 각 계층은 자신의 역할에만 집중합니다.
+
+**Commands (Presentation) -> Service -> Repository -> Domain (Database)**
+
+## 3. 파일 구조 및 레이어별 책임
+프로젝트의 전체 구조는 다음과 같이 명확한 디렉토리로 분리되어 있습니다.
+
+src-tauri/
+ ├─ kuzudb/
+ │   ├─ domain/
+ │   │   ├─ mod.rs
+ │   │   ├─ models.rs       # Domain Layer (Core Models)
+ │   │   ├─ payloads.rs     # Domain Layer (DTOs)
+ │   │   └─ schema.rs       # Domain Layer (DB Schema)
+ │   ├─ repository/
+ │   │   ├─ mod.rs
+ │   │   ├─ nodes.rs        # Repository Layer
+ │   │   ├─ relations.rs    # Repository Layer
+ │   │   └─ utils.rs        # Repository Layer
+ │   ├─ service/
+ │   │   ├─ mod.rs
+ │   │   └─ note.rs         # Service Layer
+ │   ├─ commands.rs         # Presentation Layer
+ │   └─ mod.rs
+ └─ main.rs
+
+### 3.1. Domain Layer (kuzudb/domain/)
+책임: 애플리케이션의 핵심 데이터 구조와 비즈니스 규칙을 정의합니다.
+
+*   **models.rs**: `Note`, `Author`, `Tag` 등 데이터베이스 스키마와 직접적으로 대응되는 **핵심 도메인 모델**을 정의합니다. 또한, 여러 DTO를 하나로 묶어주는 `NoteCreateType`, `NoteUpdateType` Enum이 위치합니다.
+*   **payloads.rs**: `BiblioCard`, `AuthorPayload` 등 프론트엔드와 직접 통신하기 위한 **데이터 전송 객체(DTO)**를 정의합니다. 외부로부터의 데이터 수신 및 전송 형식을 담당합니다.
+*   **schema.rs**: KuzuDB에 생성될 테이블(Node)과 관계(Rel)의 스키마를 정의합니다. `Authored` 관계에 `role` 속성을 추가하는 등 DB 구조를 명시하고, 앱 시작 시 기본 '박스 노트'들을 생성하는 초기화 로직을 담당합니다.
+
+### 3.2. Repository Layer (kuzudb/repository/)
+책임: 데이터베이스와의 모든 직접적인 상호작용(CRUD)을 담당합니다. Cypher 쿼리를 실행하고, DB 결과를 Rust 객체로 변환하는 '저수준(low-level)' 작업을 전담합니다.
+
+*   **relations.rs**: `ChildOf`, `Next` 등 관계의 연결/해제/조회와 관련된 메서드를 구현합니다. 이제 `link_person_to_note`는 저자의 `role` 정보까지 함께 저장합니다.
+
+(mod.rs, nodes.rs, utils.rs의 책임은 이전과 동일)
+
+### 3.3. Service Layer (kuzudb/service/)
+책임: 애플리케이션의 핵심 비즈니스 로직을 처리합니다. 여러 Repository 함수를 조합하여 하나의 완전한 기능을 수행하고, 트랜잭션 관리를 통해 데이터의 정합성을 보장합니다.
+
+*   **note.rs**: `NoteService`의 메서드를 구현합니다. 예를 들어 `create_new_note` 메서드는 이제 단순히 노드를 생성하는 것을 넘어, **노트 타입에 따른 부모-자식 관계 규칙을 검증**하는 책임까지 가집니다. (예: `MAIN_BOX` 아래에는 `BiblioCard`를 생성할 수 없음)
+
+### 3.4. Presentation Layer (kuzudb/commands.rs)
+(책임 이전과 동일)
+
+## 4. Domain Model 설계 철학
+도메인 계층의 모델 설계는 이 프로젝트의 안정성과 확장성을 책임지는 핵심 사상을 담고 있습니다.
+
+### 4.1. 책임의 분리: 도메인 모델 vs DTO (Data Transfer Objects)
+모델은 두 가지 주요 목적으로 명확히 분리됩니다.
+
+*   **도메인 모델 (in `models.rs`)**: `Note`, `Author` 등 애플리케이션 내부의 비즈니스 로직을 표현하는 핵심 데이터 모델입니다. 데이터베이스 스키마와 대응되며, 시스템의 '공식적인 시민'과 같습니다.
+*   **DTO (in `payloads.rs`)**: `BiblioCard`, `AuthorPayload` 등 외부와의 통신을 위한 '입국 심사 서류'와 같습니다. 이 모델들은 API의 명세를 정의하며, 외부의 변화가 내부 로직에 직접적인 영향을 주지 않도록 방화벽 역할을 합니다.
+
+예를 들어, `AuthorPayload`는 외부에서 저자 이름과 역할을 받아오는 역할을 하고, `Author`는 시스템 내부에서 저자 정보를 공식적으로 표현하는 모델입니다. 지금은 두 구조체가 비슷해 보이지만, 이러한 분리는 향후 API 스펙 변경이나 내부 모델 확장에 유연하게 대처할 수 있게 해주는 현명한 투자입니다.
+
+### 4.2. 타입 안전성(Type Safety)을 통한 버그 예방
+`NoteCreateType` Enum을 사용하는 가장 큰 이유는 컴파일 타임에 데이터의 유효성을 검증하기 위함입니다.
+
+*   **필수 필드 강제**: `payloads::create::BiblioCard`의 `authors` 필드는 `Vec<AuthorPayload>` 타입입니다. 프론트엔드에서 `note_type`이 "BIBLIO"인 요청을 보낼 때, `authors` 필드가 올바른 형식으로 포함되어야 함을 Rust 컴파일러가 보장합니다. 잘못된 데이터는 Service 로직에 도달하기 전에 차단됩니다.
+
+### 4.3. 핵심 필드 설계 원칙
+*   **역할을 가진 저자 (Authors with Roles)**: `Note`에 `author` 필드를 두는 대신, `(Person)-[:Authored {role}]->(Note)`라는 관계 모델을 사용합니다. 이를 통해 노트 하나에 여러 저자를 연결할 수 있을 뿐만 아니라, '주 저자', '공동 저자', '옮긴이' 등 풍부한 문맥 정보를 `role` 속성에 담을 수 있어 모델의 표현력이 크게 향상됩니다.
+
+(prev/next, 순서 있는 references에 대한 설명은 이전과 동일)
+
+### 4.4. 명확한 API 계약
+`payloads.rs` 파일과 `NoteCreateType`/`NoteUpdateType` Enum의 정의 자체가 프론트엔드와 백엔드 간의 명확한 API 계약서 역할을 합니다. 코드만으로 각 노트 타입을 생성/수정하기 위해 어떤 필드가 필요하고 선택적인지 명확하게 알 수 있습니다.
+
+## 5. 핵심 동작 원칙
+*   **Type-Safe 데이터 입력**: `NoteCreateType` Enum과 `payloads` DTO를 사용하여, 프론트엔드로부터 들어오는 데이터의 유효성을 컴파일 시점에 보장합니다.
+*   **도메인 규칙의 중앙 관리**: "MainCard는 MainCard 아래에만 생성될 수 있다"와 같은 핵심 비즈니스 규칙은 **Service 계층에서 중앙 관리**됩니다. Service는 데이터가 DB에 도달하기 전의 '게이트키퍼' 역할을 수행하여, 애플리케이션 전체의 데이터 무결성을 보장합니다.
+*   **트랜잭션의 중앙 관리**: 모든 데이터 변경 작업(CUD)은 Service 계층에서 트랜잭션을 시작하고 종료하여 원자성(Atomicity)을 보장합니다.
+*   **API 네임스페이스 분리**: `db.nodes().create_note(...)`와 같이 API를 책임에 따라 분리하여, 코드의 가독성과 API의 발견 가능성(discoverability)을 높였습니다.
+
+이 구조를 통해 각 부분은 자신의 역할에만 집중할 수 있어, 향후 새로운 기능을 추가하거나 기존 로직을 수정하는 작업이 매우 용이합니다.
+
+```
+
+```rs commands.rs
+
+use crate::kuzudb::domain::schema;
+use crate::kuzudb::{
+    domain::models::{NoteAggregate, NoteCreateType, NoteUpdateType},
+    repository::KuzuDB,
+    service::NoteService,
+};
+use crate::vault_manager;
+use std::{fs, path::Path};
+use tauri::AppHandle;
+
+fn initialize_vault_db(app: &AppHandle) -> Result<KuzuDB, String> {
+    let vault_path = vault_manager::get_current_vault_path(app)?;
+    let db_path = Path::new(&vault_path).join(".config").join("kuzu.db");
+    if let Some(parent) = db_path.parent() {
+        if !parent.exists() {
+            fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+        }
+    }
+    let kuzudb = KuzuDB::new(db_path.to_str().unwrap()).map_err(|e| e.to_string())?;
+    schema::initialize(&kuzudb).map_err(|e| e.to_string())?;
+    Ok(kuzudb)
+}
+
+#[tauri::command]
+pub fn create_note(app: AppHandle, note: NoteCreateType) -> Result<String, String> {
+    let kuzudb = initialize_vault_db(&app)?;
+    let note_service = NoteService::new(&kuzudb);
+    note_service
+        .create_new_note(note)
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn get_all_notes(app: AppHandle) -> Result<Vec<NoteAggregate>, String> {
+    let kuzudb = initialize_vault_db(&app)?;
+    let note_service = NoteService::new(&kuzudb);
+    note_service.get_all_notes().map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn get_note_aggregate_by_id(app: AppHandle, id: String) -> Result<NoteAggregate, String> {
+    let kuzudb = initialize_vault_db(&app)?;
+    let note_service = NoteService::new(&kuzudb);
+    note_service
+        .get_note_aggregate_by_id(&id)
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn update_note(app: AppHandle, id: String, payload: NoteUpdateType) -> Result<(), String> {
+    let kuzudb = initialize_vault_db(&app)?;
+    let note_service = NoteService::new(&kuzudb);
+    note_service
+        .update_note(&id, payload)
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn remove_note(app: AppHandle, id: String) -> Result<(), String> {
+    let kuzudb = initialize_vault_db(&app)?;
+    let note_service = NoteService::new(&kuzudb);
+    note_service.remove_note(&id).map_err(|e| e.to_string())
+}
+
+```
+
+```rs domain/mod.rs
+
+pub mod models;
+pub mod payloads;
+pub mod schema;
+
+```
+
+```rs domain/models.rs
+
+use super::payloads;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct Note {
+    pub id: String,
+    pub title: String,
+    // 배열이 필요한 content, tags, references 등은 JSON 문자열로 저장
+    pub content: String,   // e.g., "[\"Page 1\", \"Page 2\"]" or "Some text"
+    pub note_type: String, // "BOX", "BIBCARD", "HR", "QUOTE", "MAINCARD", "INDEXCARD"
+    pub sub_type: Option<String>, // 책, 논문, 블로그 (BIBCARD) / part, chapter (HR)
+
+    // BIBCARD용 필드
+    // pub author: Option<String>,
+    pub published_at: Option<String>,
+    pub cover_url: Option<String>,
+
+    pub file_path: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SequencedReference {
+    pub note_id: String,
+    pub sequence: i64,
+}
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct Author {
+    pub name: String,
+    pub role: Option<String>,
+}
+
+// 읽기 전용 집계 구조체
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NoteAggregate {
+    pub note: Note,
+    pub tags: Vec<String>,                   // HasTag 관계로부터 가져옴
+    pub references: Vec<SequencedReference>, // References 관계와 sequence 속성으로부터 가져옴
+    pub authors: Vec<Author>,                // Authored 관계로부터 가져옴
+    pub parent: Option<String>,
+    pub first_child: Option<String>,
+    pub next: Option<String>,
+    pub prev: Option<String>,
+}
+
+impl From<Note> for NoteAggregate {
+    fn from(note: Note) -> Self {
+        Self {
+            note,
+            tags: Vec::new(),
+            references: Vec::new(),
+            authors: Vec::new(),
+            parent: None,
+            first_child: None,
+            next: None,
+            prev: None,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Tag {
+    pub name: String,
+} // 태그로 사용하다가, 같은 의미의 태그가 많아지면, TagAlias
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TagAlias {
+    pub name: String,
+} // Tag: 유용함, TagAlias: 쓸모, 유용성, 유용
+  // MATCH (ta:TagAlias {name: "쓸모"})-[:ALIAS_OF]->(t:Tag) RETURN t
+  // MATCH (n:Note {id: ...}), (t:Tag {name: "유용성"}) MERGE (n)-[:HAS_TAG]->(t)
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Person {
+    pub name: String,
+}
+
+// ------------------------------------------------------
+// 2. 외부에서 사용할 깔끔한 Enum API 정의
+// ------------------------------------------------------
+#[derive(Deserialize, Debug)]
+#[serde(tag = "note_type", rename_all = "UPPERCASE")]
+pub enum NoteCreateType {
+    Index(payloads::create::IndexCard),
+    Main(payloads::create::MainCard),
+    Biblio(payloads::create::BiblioCard),
+    Quote(payloads::create::QuoteCard),
+    Hr(payloads::create::HrCard),
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(tag = "note_type", content = "data", rename_all = "UPPERCASE")]
+pub enum NoteUpdateType {
+    Main(payloads::update::MainCard),
+    Biblio(payloads::update::BiblioCard),
+    Quote(payloads::update::QuoteCard),
+    Index(payloads::update::IndexCard),
+}
+
+```
+
+```rs domain/payloads.rs
+
+use serde::{Deserialize, Serialize};
+
+// ✨ 추가: 저자 정보와 역할을 함께 받기 위한 입력용 구조체
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
+pub struct AuthorPayload {
+    pub name: String,
+    pub role: Option<String>,
+}
+
+pub mod create {
+    use super::AuthorPayload; // ✨ `super`를 통해 같은 파일 내의 AuthorPayload를 가져옴
+    use serde::Deserialize;
+
+    #[derive(Deserialize, Debug, Default)]
+    pub struct IndexCard {
+        pub parent: String,
+        pub prev: Option<String>,
+        pub title: String,
+        pub content: String,
+        pub reference: Vec<String>,
+    }
+
+    #[derive(Deserialize, Debug, Default)]
+    pub struct MainCard {
+        pub parent: String,
+        pub prev: Option<String>,
+        pub title: String,
+        pub content: String,
+        pub reference: Vec<String>,
+        pub tags: Vec<String>,
+    }
+
+    #[derive(Deserialize, Debug, Default)]
+    pub struct BiblioCard {
+        pub parent: String,
+        pub prev: Option<String>,
+        pub title: String,
+        pub authors: Vec<AuthorPayload>,
+        pub published_at: String,
+        pub sub_type: String,
+        pub cover_url: Option<String>,
+    }
+
+    #[derive(Deserialize, Debug, Default)]
+    pub struct QuoteCard {
+        pub parent: String,
+        pub prev: Option<String>,
+        pub title: String,
+        pub content: String,
+        pub authors: Vec<AuthorPayload>,
+        pub tags: Vec<String>,
+    }
+
+    #[derive(Deserialize, Debug, Default)]
+    pub struct HrCard {
+        pub parent: String,
+        pub prev: Option<String>,
+        pub title: String,
+        pub sub_type: String,
+    }
+}
+pub mod update {
+    use super::AuthorPayload; // ✨ `super`를 통해 같은 파일 내의 AuthorPayload를 가져옴
+    use serde::Deserialize;
+
+    #[derive(Deserialize, Debug, Default)]
+    pub struct MainCard {
+        pub title: Option<String>,
+        pub content: Option<String>,
+        pub reference: Option<Vec<String>>,
+        pub tags: Option<Vec<String>>,
+    }
+
+    #[derive(Deserialize, Debug, Default)]
+    pub struct BiblioCard {
+        pub title: Option<String>,
+        pub authors: Option<Vec<AuthorPayload>>,
+        pub published_at: Option<String>,
+        pub sub_type: Option<String>,
+        pub cover_url: Option<Option<String>>,
+    }
+
+    #[derive(Deserialize, Debug, Default)]
+    pub struct QuoteCard {
+        pub title: Option<String>,
+        pub content: Option<String>,
+        pub authors: Option<Vec<AuthorPayload>>,
+        pub tags: Option<Vec<String>>,
+    }
+
+    #[derive(Deserialize, Debug, Default)]
+    pub struct IndexCard {
+        pub title: Option<String>,
+        pub content: Option<String>,
+        pub reference: Option<Vec<String>>,
+    }
+}
+
+```
+
+```rs domain/schema.rs
+
+use super::models::Note;
+use crate::kuzudb::error::Result;
+use crate::kuzudb::repository::KuzuDB;
+use chrono::Utc;
+use kuzu::Connection;
+
+pub fn initialize(kuzudb: &KuzuDB) -> Result<()> {
+    let conn = Connection::new(&kuzudb.instance)?;
+    create_schema(&conn)?;
+    create_default_box_notes(kuzudb, &conn)?;
+    Ok(())
+}
+
+fn create_schema(conn: &Connection) -> Result<()> {
+    let schema_query = r#"
+        // 1. Node Tables
+        CREATE NODE TABLE IF NOT EXISTS Note(
+            id STRING PRIMARY KEY,
+            title STRING,
+            content STRING,
+            note_type STRING,
+            sub_type STRING,
+            published_at STRING,
+            cover_url STRING,
+            file_path STRING,
+            created_at TIMESTAMP,
+            updated_at TIMESTAMP
+        );
+
+        CREATE NODE TABLE IF NOT EXISTS Tag(
+            name STRING PRIMARY KEY
+        );
+
+        CREATE NODE TABLE IF NOT EXISTS TagAlias(
+            name STRING PRIMARY KEY
+        );
+
+        CREATE NODE TABLE IF NOT EXISTS Person(
+            name STRING PRIMARY KEY
+        );
+
+        // 2. Rel(ationship) Tables
+        CREATE REL TABLE IF NOT EXISTS ChildOf(FROM Note TO Note);
+        CREATE REL TABLE IF NOT EXISTS FirstChild(FROM Note TO Note);
+        CREATE REL TABLE IF NOT EXISTS Next(FROM Note TO Note);
+        CREATE REL TABLE IF NOT EXISTS Prev(FROM Note TO Note);
+
+        CREATE REL TABLE IF NOT EXISTS HasTag(FROM Note TO Tag);
+        CREATE REL TABLE IF NOT EXISTS AliasOf(FROM TagAlias TO Tag);
+        CREATE REL TABLE IF NOT EXISTS Authored(
+            FROM Person TO Note,
+            role STRING
+        );
+
+        CREATE REL TABLE IF NOT EXISTS References(
+            FROM Note TO Note,
+            sequence INT64
+        );
+    "#;
+    conn.query(schema_query)?;
+    Ok(())
+}
+
+fn create_default_box_notes(kuzudb: &KuzuDB, conn: &Connection) -> Result<()> {
+    let default_boxes = vec![
+        ("INDEX_BOX", "INDEX", "인덱스 메모"),
+        ("MAIN_BOX", "MAIN", "자기 생각"),
+        ("REFERENCE_BOX", "REFERENCE", "각종 서지/인용"),
+    ];
+
+    for (id_key, name, desc) in default_boxes {
+        let id = id_key.to_string();
+        if !kuzudb.nodes().is_exist(&conn, &id)? {
+            let now = Utc::now();
+            let note = Note {
+                id: id.clone(),
+                title: name.to_string(),
+                content: desc.to_string(),
+                note_type: "BOX".to_string(), // 박스들의 타입은 'BOX'로 통일
+                sub_type: None,
+                published_at: None,
+                cover_url: None,
+                file_path: None, // 박스노트는 별도의 파일Path가 없음
+                created_at: now,
+                updated_at: now,
+            };
+            kuzudb.nodes().create_note(&conn, &note)?;
+        }
+    }
+    Ok(())
+}
+
+```
+
+```rs error.rs
+
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+pub enum Error {
+    #[error("KuzuDB operation failed: {0}")]
+    Kuzu(#[from] kuzu::Error),
+
+    #[error("Note with ID '{0}' not found")] // update or remove  for service layer
+    NoteNotFound(String),
+
+    #[error("Transaction failed: {0}")]
+    Transaction(String),
+
+    #[error("Data integrity error: {0}")]
+    Integrity(String),
+}
+
+// Result 타입을 우리 커스텀 에러로 미리 정의해두면 편리합니다.
+pub type Result<T> = std::result::Result<T, Error>;
+
+```
+
+```rs mod.rs
+
+pub mod commands;
+pub mod domain;
+pub mod error;
+pub mod repository;
+pub mod service;
+
+```
+
+```rs repository/mod.rs
+
+use kuzu::{Database, SystemConfig};
+
+mod nodes;
+mod relations;
+mod utils;
+
+pub struct Node;
+pub struct Relation;
+
+pub struct KuzuDB {
+    pub instance: Database,
+}
+
+impl KuzuDB {
+    pub fn new(db_path: &str) -> Result<Self, String> {
+        let db_instance =
+            Database::new(db_path, SystemConfig::default()).map_err(|e| e.to_string())?;
+        Ok(Self {
+            instance: db_instance,
+        })
+    }
+
+    pub fn nodes(&self) -> Node {
+        Node
+    }
+
+    pub fn relations(&self) -> Relation {
+        Relation
+    }
+}
+
+```
+
+```rs repository/nodes.rs
+
+use super::utils::{chrono_to_odt, extract_string, extract_timestamp, option_string_to_value};
+use super::Node;
+use crate::kuzudb::{
+    domain::models::{Note, Person, Tag, TagAlias},
+    error::{Error, Result},
+};
+use kuzu::{Connection, QueryResult, Value};
+
+impl Node {
+    pub fn create_note(&self, conn: &Connection, note: &Note) -> Result<()> {
+        let mut prepared = conn.prepare(
+            "CREATE (n:Note {
+                        id: $id, title: $title, content: $content,
+                        created_at: $created_at, updated_at: $updated_at,
+                        note_type: $note_type, sub_type: $sub_type,
+                        published_at: $published_at,
+                        cover_url: $cover_url, file_path: $file_path
+                    })",
+        )?;
+
+        let created_at_odt = chrono_to_odt(&note.created_at);
+        let updated_at_odt = chrono_to_odt(&note.updated_at);
+
+        conn.execute(
+            &mut prepared,
+            vec![
+                ("id", Value::String(note.id.clone())),
+                ("title", Value::String(note.title.clone())),
+                ("content", Value::String(note.content.clone())),
+                ("created_at", Value::Timestamp(created_at_odt)),
+                ("updated_at", Value::Timestamp(updated_at_odt)),
+                ("note_type", Value::String(note.note_type.clone())),
+                ("sub_type", option_string_to_value(&note.sub_type)),
+                ("published_at", option_string_to_value(&note.published_at)),
+                ("cover_url", option_string_to_value(&note.cover_url)),
+                ("file_path", option_string_to_value(&note.file_path)),
+            ],
+        )?;
+        Ok(())
+    }
+    pub fn create_tag(&self, conn: &Connection, tag: &Tag) -> Result<()> {
+        let mut prepared = conn.prepare("MERGE (t:Tag {name: $name})")?;
+        conn.execute(
+            &mut prepared,
+            vec![("name", Value::String(tag.name.clone()))],
+        )?;
+        Ok(())
+    }
+    pub fn create_tag_alias(&self, conn: &Connection, alias: &TagAlias) -> Result<()> {
+        let mut prepared = conn.prepare("MERGE (ta:TagAlias {name: $name})")?;
+        conn.execute(
+            &mut prepared,
+            vec![("name", Value::String(alias.name.clone()))],
+        )?;
+        Ok(())
+    }
+    pub fn create_person(&self, conn: &Connection, person: &Person) -> Result<()> {
+        let mut prepared = conn.prepare("MERGE (p:Person {name: $name})")?;
+        conn.execute(
+            &mut prepared,
+            vec![("name", Value::String(person.name.clone()))],
+        )?;
+        Ok(())
+    }
+
+    pub fn update_note(&self, conn: &Connection, note: &Note) -> Result<()> {
+        let mut prepared = conn.prepare(
+            "MATCH (n:Note {id: $id})
+             SET n.title = $title,
+                 n.content = $content,
+                 n.note_type = $note_type,
+                 n.sub_type = $sub_type,
+                 n.published_at = $published_at,
+                 n.cover_url = $cover_url,
+                 n.file_path = $file_path,
+                 n.updated_at = $updated_at",
+        )?;
+
+        let updated_at_odt = chrono_to_odt(&note.updated_at);
+
+        conn.execute(
+            &mut prepared,
+            vec![
+                ("id", Value::String(note.id.clone())),
+                ("title", Value::String(note.title.clone())),
+                ("content", Value::String(note.content.clone())),
+                ("note_type", Value::String(note.note_type.clone())),
+                ("sub_type", option_string_to_value(&note.sub_type)),
+                ("published_at", option_string_to_value(&note.published_at)),
+                ("cover_url", option_string_to_value(&note.cover_url)),
+                ("file_path", option_string_to_value(&note.file_path)),
+                ("updated_at", Value::Timestamp(updated_at_odt)),
+            ],
+        )?;
+        Ok(())
+    }
+
+    pub fn remove_note(&self, conn: &Connection, id: &str) -> Result<()> {
+        let mut prepared = conn.prepare("MATCH (n:Note {id: $id}) DETACH DELETE n")?;
+        conn.execute(&mut prepared, vec![("id", Value::String(id.to_string()))])?;
+        Ok(())
+    }
+    pub fn remove_tag(&self, conn: &Connection, tag: &str) -> Result<()> {
+        let mut prepared = conn.prepare("MATCH (t:Tag {name: $tag}) DETACH DELETE t")?;
+        conn.execute(&mut prepared, vec![("tag", Value::String(tag.to_string()))])?;
+        Ok(())
+    }
+    pub fn remove_tag_alias(&self, conn: &Connection, tag_alias: &str) -> Result<()> {
+        let mut prepared = conn.prepare("MATCH (t:TagAlias {name: $tag_alias}) DETACH DELETE t")?;
+        conn.execute(
+            &mut prepared,
+            vec![("tag_alias", Value::String(tag_alias.to_string()))],
+        )?;
+        Ok(())
+    }
+    pub fn remove_person(&self, conn: &Connection, person: &str) -> Result<()> {
+        let mut prepared = conn.prepare("MATCH (p:Person {name: $person}) DETACH DELETE p")?;
+        conn.execute(
+            &mut prepared,
+            vec![("person", Value::String(person.to_string()))],
+        )?;
+        Ok(())
+    }
+
+    pub fn is_exist(&self, conn: &Connection, id: &str) -> Result<bool> {
+        let mut prepared = conn.prepare("MATCH (n:Note {id: $id}) RETURN n.id")?;
+        let mut result =
+            conn.execute(&mut prepared, vec![("id", Value::String(id.to_string()))])?;
+        Ok(result.next().is_some())
+    }
+
+    pub fn get_all_notes_and_relations(
+        &self,
+        conn: &Connection,
+    ) -> Result<(
+        Vec<Note>,
+        Vec<(String, String)>,                 // ChildOf
+        Vec<(String, String)>,                 // FirstChild
+        Vec<(String, String)>,                 // Next
+        Vec<(String, String)>,                 // Prev
+        Vec<(String, String)>,                 // HasTag
+        Vec<(String, String, i64)>,            // References
+        Vec<(String, Option<String>, String)>, // Authored (Person.name, Note.id)
+    )> {
+        // 1. 모든 노트 가져오기
+        let mut notes = vec![];
+        let result: QueryResult = conn.query("MATCH (n:Note) RETURN n.id, n.title, n.content, n.created_at, n.updated_at, n.note_type, n.sub_type, n.published_at, n.cover_url, n.file_path")?;
+        for row in result.into_iter() {
+            notes.push(Note {
+                id: extract_string(&row[0]).ok_or(Error::Integrity("id missing".into()))?,
+                title: extract_string(&row[1]).ok_or(Error::Integrity("title missing".into()))?,
+                content: extract_string(&row[2]).unwrap_or_default(),
+                created_at: extract_timestamp(&row[3])
+                    .ok_or(Error::Integrity("created_at missing".into()))?,
+                updated_at: extract_timestamp(&row[4])
+                    .ok_or(Error::Integrity("updated_at missing".into()))?,
+                note_type: extract_string(&row[5])
+                    .ok_or(Error::Integrity("type missing".into()))?,
+                sub_type: extract_string(&row[6]),
+                published_at: extract_string(&row[7]),
+                cover_url: extract_string(&row[8]),
+                file_path: extract_string(&row[9]),
+                ..Default::default()
+            });
+        }
+
+        // 헬퍼 함수: 두 ID를 가진 관계를 가져옵니다.
+        let get_pair_rel = |query: &str| -> Result<Vec<(String, String)>> {
+            let mut rels = vec![];
+            let result = conn.query(query)?;
+            for row in result.into_iter() {
+                let from = extract_string(&row[0])
+                    .ok_or(Error::Integrity("relation 'from' missing".into()))?;
+                let to = extract_string(&row[1])
+                    .ok_or(Error::Integrity("relation 'to' missing".into()))?;
+                rels.push((from, to));
+            }
+            Ok(rels)
+        };
+
+        // 2. 모든 관계들 가져오기
+        let child_of = get_pair_rel("MATCH (c:Note)-[:ChildOf]->(p:Note) RETURN c.id, p.id")?;
+        let first_child = get_pair_rel("MATCH (p:Note)-[:FirstChild]->(c:Note) RETURN p.id, c.id")?;
+        let next = get_pair_rel("MATCH (a:Note)-[:Next]->(b:Note) RETURN a.id, b.id")?;
+        let prev = get_pair_rel("MATCH (a:Note)-[:Prev]->(b:Note) RETURN a.id, b.id")?;
+        let has_tag = get_pair_rel("MATCH (n:Note)-[:HasTag]->(t:Tag) RETURN n.id, t.name")?;
+        let mut authored = vec![];
+        // ✨ 수정: coalesce 함수를 사용하여 role이 없는 경우에도 항상 NULL 값을 반환하도록 보장합니다.
+        let result_authored = conn.query(
+            "MATCH (p:Person)-[r:Authored]->(n:Note) RETURN p.name, coalesce(r.role, NULL), n.id",
+        )?;
+        for row in result_authored.into_iter() {
+            let person_name =
+                extract_string(&row[0]).ok_or(Error::Integrity("person name missing".into()))?;
+            let role = extract_string(&row[1]); // 이제 row[1]은 항상 안전합니다.
+            let note_id = extract_string(&row[2])
+                .ok_or(Error::Integrity("authored note id missing".into()))?;
+            authored.push((person_name, role, note_id));
+        }
+
+        // 3. 순서가 있는 참조 관계 가져오기
+        let mut references = vec![];
+        let result_refs =
+            conn.query("MATCH (a:Note)-[r:References]->(b:Note) RETURN a.id, b.id, r.sequence")?;
+        for row in result_refs.into_iter() {
+            let from =
+                extract_string(&row[0]).ok_or(Error::Integrity("ref 'from' missing".into()))?;
+            let to = extract_string(&row[1]).ok_or(Error::Integrity("ref 'to' missing".into()))?;
+            let sequence = match &row[2] {
+                Value::Int64(val) => *val,
+                _ => return Err(Error::Integrity("ref 'sequence' is not i64".to_string())),
+            };
+            references.push((from, to, sequence));
+        }
+
+        Ok((
+            notes,
+            child_of,
+            first_child,
+            next,
+            prev,
+            has_tag,
+            references,
+            authored,
+        ))
+    }
+
+    pub fn get_note_by_id(&self, conn: &Connection, id: &str) -> Result<Option<Note>> {
+        let mut prepared = conn.prepare(
+            "MATCH (n:Note {id: $id}) RETURN
+                     n.id, n.title, n.content, n.created_at, n.updated_at,
+                     n.note_type, n.sub_type, n.published_at,
+                     n.cover_url, n.file_path",
+        )?;
+
+        let mut result =
+            conn.execute(&mut prepared, vec![("id", Value::String(id.to_string()))])?;
+
+        if let Some(row) = result.next() {
+            let note = Note {
+                id: extract_string(&row[0]).ok_or(Error::Integrity("id missing".into()))?,
+                title: extract_string(&row[1]).ok_or(Error::Integrity("title missing".into()))?,
+                content: extract_string(&row[2]).unwrap_or_default(),
+                created_at: extract_timestamp(&row[3])
+                    .ok_or(Error::Integrity("created_at missing".into()))?,
+                updated_at: extract_timestamp(&row[4])
+                    .ok_or(Error::Integrity("updated_at missing".into()))?,
+                note_type: extract_string(&row[5])
+                    .ok_or(Error::Integrity("note_type missing".into()))?,
+                sub_type: extract_string(&row[6]),
+                published_at: extract_string(&row[7]),
+                cover_url: extract_string(&row[8]),
+                file_path: extract_string(&row[9]),
+                ..Default::default()
+            };
+            return Ok(Some(note));
+        }
+
+        Ok(None)
+    }
+}
+
+```
+
+```rs repository/relations.rs
+
+use super::Relation;
+use crate::kuzudb::{
+    domain::models::Author,
+    error::{Error, Result},
+};
+use kuzu::{Connection, Value};
+
+impl Relation {
+    fn execute_single(&self, conn: &Connection, query: &str, id: &str) -> Result<()> {
+        let mut prepared = conn.prepare(query)?;
+        conn.execute(&mut prepared, vec![("id", Value::String(id.to_string()))])?;
+        Ok(())
+    }
+    fn execute_pair(&self, conn: &Connection, query: &str, from: &str, to: &str) -> Result<()> {
+        let mut prepared = conn.prepare(query)?;
+        conn.execute(
+            &mut prepared,
+            vec![
+                ("from", Value::String(from.to_string())),
+                ("to", Value::String(to.to_string())),
+            ],
+        )?;
+        Ok(())
+    }
+    pub fn link_parent(&self, conn: &Connection, child_id: &str, parent_id: &str) -> Result<()> {
+        self.execute_pair(
+            &conn,
+            "MATCH (c:Note {id: $from}), (p:Note {id: $to}) MERGE (c)-[:ChildOf]->(p)",
+            child_id,
+            parent_id,
+        )
+    }
+    pub fn link_first_child(
+        &self,
+        conn: &Connection,
+        parent_id: &str,
+        child_id: &str,
+    ) -> Result<()> {
+        self.execute_pair(
+            conn,
+            "MATCH (p:Note {id: $from}), (c:Note {id: $to}) MERGE (p)-[:FirstChild]->(c)",
+            parent_id,
+            child_id,
+        )
+    }
+    pub fn link_next(&self, conn: &Connection, from_id: &str, to_id: &str) -> Result<()> {
+        self.execute_pair(
+            &conn,
+            "MATCH (a:Note {id: $from}), (b:Note {id: $to}) MERGE (a)-[:Next]->(b)",
+            from_id,
+            to_id,
+        )
+    }
+    pub fn link_prev(&self, conn: &Connection, from_id: &str, to_id: &str) -> Result<()> {
+        self.execute_pair(
+            &conn,
+            "MATCH (a:Note {id: $from}), (b:Note {id: $to}) MERGE (a)-[:Prev]->(b)",
+            from_id,
+            to_id,
+        )
+    }
+    pub fn link_note_to_tag(&self, conn: &Connection, note_id: &str, tag: &str) -> Result<()> {
+        self.execute_pair(
+            &conn,
+            "MATCH (n:Note {id: $from}), (t:Tag {name: $to}) MERGE (n)-[:HasTag]->(t)",
+            note_id,
+            tag,
+        )
+    }
+    pub fn link_alias_to_tag(&self, conn: &Connection, alias_name: &str, tag: &str) -> Result<()> {
+        self.execute_pair(
+            &conn,
+            "MATCH (a:TagAlias {name: $from}), (t:Tag {name: $to}) MERGE (a)-[:AliasOf]->(t)",
+            alias_name,
+            tag,
+        )
+    }
+    pub fn link_person_to_note(
+        &self,
+        conn: &Connection,
+        person: &str,
+        note_id: &str,
+        role: Option<&str>,
+    ) -> Result<()> {
+        let mut prepared = conn.prepare(
+            "MATCH (p:Person {name: $from}), (n:Note {id: $to})
+               MERGE (p)-[r:Authored]->(n)
+               SET r.role = $role",
+        )?;
+        conn.execute(
+            &mut prepared,
+            vec![
+                ("from", Value::String(person.to_string())),
+                ("to", Value::String(note_id.to_string())),
+                (
+                    "role",
+                    role.map_or(Value::Null(kuzu::LogicalType::String), |s| {
+                        Value::String(s.to_string())
+                    }),
+                ),
+            ],
+        )?;
+        Ok(())
+    }
+    pub fn link_reference(
+        &self,
+        conn: &Connection,
+        from_id: &str,
+        to_id: &str,
+        sequence: i64,
+    ) -> Result<()> {
+        let mut prepared = conn.prepare(
+            "MATCH (a:Note {id: $from}), (b:Note {id: $to})
+               MERGE (a)-[r:References]->(b)
+               SET r.sequence = $sequence",
+        )?;
+        conn.execute(
+            &mut prepared,
+            vec![
+                ("from", Value::String(from_id.to_string())),
+                ("to", Value::String(to_id.to_string())),
+                ("sequence", Value::Int64(sequence)),
+            ],
+        )?;
+        Ok(())
+    }
+    pub fn unlink_parent(&self, conn: &Connection, child_id: &str) -> Result<()> {
+        self.execute_single(
+            conn,
+            "MATCH (:Note {id: $id})-[r:ChildOf]->() DELETE r",
+            child_id,
+        )
+    }
+    pub fn unlink_first_child(&self, conn: &Connection, parent_id: &str) -> Result<()> {
+        self.execute_single(
+            conn,
+            "MATCH (:Note {id: $id})-[r:FirstChild]->() DELETE r",
+            parent_id,
+        )
+    }
+    pub fn unlink_next(&self, conn: &Connection, node_id: &str) -> Result<()> {
+        self.execute_single(
+            conn,
+            "MATCH (:Note {id: $id})-[r:Next]->() DELETE r",
+            node_id,
+        )
+    }
+    pub fn unlink_prev(&self, conn: &Connection, node_id: &str) -> Result<()> {
+        self.execute_single(
+            conn,
+            "MATCH (:Note {id: $id})-[r:Prev]->() DELETE r",
+            node_id,
+        )
+    }
+    pub fn unlink_note_to_tag(&self, conn: &Connection, note_id: &str, tag: &str) -> Result<()> {
+        self.execute_pair(
+            conn,
+            "MATCH (:Note {id: $from})-[r:HasTag]->(:Tag {name: $to}) DELETE r",
+            note_id,
+            tag,
+        )
+    }
+    pub fn unlink_alias_to_tag(&self, conn: &Connection, alias: &str, tag: &str) -> Result<()> {
+        self.execute_pair(
+            conn,
+            "MATCH (:TagAlias {name: $from})-[r:AliasOf]->(:Tag {name: $to}) DELETE r",
+            alias,
+            tag,
+        )
+    }
+    pub fn unlink_person_to_note(
+        &self,
+        conn: &Connection,
+        person: &str,
+        note_id: &str,
+    ) -> Result<()> {
+        self.execute_pair(
+            conn,
+            "MATCH (:Person {name: $from})-[r:Authored]->(:Note {id: $to}) DELETE r",
+            person,
+            note_id,
+        )
+    }
+    pub fn unlink_reference(&self, conn: &Connection, from_id: &str, to_id: &str) -> Result<()> {
+        self.execute_pair(
+            conn,
+            "MATCH (:Note {id: $from})-[r:References]->(:Note {id: $to}) DELETE r",
+            from_id,
+            to_id,
+        )
+    }
+    pub fn get_first_child_id(&self, conn: &Connection, parent_id: &str) -> Result<Option<String>> {
+        let mut prepared =
+            conn.prepare("MATCH (p:Note {id: $id})-[:FirstChild]->(c:Note) RETURN c.id")?;
+        let mut result = conn.execute(
+            &mut prepared,
+            vec![("id", Value::String(parent_id.to_string()))],
+        )?;
+        if let Some(row) = result.next() {
+            if let Value::String(s) = &row[0] {
+                return Ok(Some(s.clone()));
+            }
+        }
+        Ok(None)
+    }
+    pub fn get_parent_id(&self, conn: &Connection, child_id: &str) -> Result<Option<String>> {
+        let mut prepared =
+            conn.prepare("MATCH (c:Note {id: $id})-[:ChildOf]->(p:Note) RETURN p.id")?;
+        let mut result = conn.execute(
+            &mut prepared,
+            vec![("id", Value::String(child_id.to_string()))],
+        )?;
+        if let Some(row) = result.next() {
+            if let Value::String(s) = &row[0] {
+                return Ok(Some(s.clone()));
+            }
+        }
+        Ok(None)
+    }
+    pub fn get_next_id(&self, conn: &Connection, node_id: &str) -> Result<Option<String>> {
+        let mut prepared =
+            conn.prepare("MATCH (a:Note {id: $id})-[:Next]->(b:Note) RETURN b.id")?;
+        let mut result = conn.execute(
+            &mut prepared,
+            vec![("id", Value::String(node_id.to_string()))],
+        )?;
+        if let Some(row) = result.next() {
+            if let Value::String(s) = &row[0] {
+                return Ok(Some(s.clone()));
+            }
+        }
+        Ok(None)
+    }
+    pub fn get_prev_id(&self, conn: &Connection, node_id: &str) -> Result<Option<String>> {
+        let mut prepared =
+            conn.prepare("MATCH (a:Note {id: $id})-[:Prev]->(b:Note) RETURN b.id")?;
+        let mut result = conn.execute(
+            &mut prepared,
+            vec![("id", Value::String(node_id.to_string()))],
+        )?;
+        if let Some(row) = result.next() {
+            if let Value::String(s) = &row[0] {
+                return Ok(Some(s.clone()));
+            }
+        }
+        Ok(None)
+    }
+    pub fn get_tags_for_note(&self, conn: &Connection, note_id: &str) -> Result<Vec<String>> {
+        let mut prepared =
+            conn.prepare("MATCH (:Note {id: $id})-[:HasTag]->(t:Tag) RETURN t.name")?;
+        let result = conn.execute(
+            &mut prepared,
+            vec![("id", Value::String(note_id.to_string()))],
+        )?;
+
+        let mut tags = Vec::new();
+        for row in result.into_iter() {
+            if let Some(tag_name) = super::utils::extract_string(&row[0]) {
+                tags.push(tag_name);
+            }
+        }
+        Ok(tags)
+    }
+    pub fn get_authors_for_note(&self, conn: &Connection, note_id: &str) -> Result<Vec<Author>> {
+        // ✨ 수정: coalesce 함수를 사용하여 role이 없는 경우에도 항상 NULL 값을 반환하도록 보장합니다.
+        let mut prepared = conn.prepare("MATCH (p:Person)-[r:Authored]->(:Note {id: $id}) RETURN p.name, coalesce(r.role, NULL)")?;
+        let result = conn.execute(
+            &mut prepared,
+            vec![("id", Value::String(note_id.to_string()))],
+        )?;
+        let mut authors = Vec::new();
+        for row in result.into_iter() {
+            let name = super::utils::extract_string(&row[0])
+                .ok_or(Error::Integrity("author name missing".into()))?;
+            let role = super::utils::extract_string(&row[1]); // 이제 row[1]은 항상 안전합니다.
+            authors.push(Author { name, role });
+        }
+        Ok(authors)
+    }
+
+    pub fn get_references_for_note(&self, conn: &Connection, note_id: &str) -> Result<Vec<String>> {
+        let mut prepared = conn.prepare(
+            "MATCH (:Note {id: $id})-[r:References]->(b:Note) RETURN b.id ORDER BY r.sequence",
+        )?;
+        let result = conn.execute(
+            &mut prepared,
+            vec![("id", Value::String(note_id.to_string()))],
+        )?;
+
+        let mut refs = Vec::new();
+        for row in result.into_iter() {
+            if let Some(ref_id) = super::utils::extract_string(&row[0]) {
+                refs.push(ref_id);
+            }
+        }
+        Ok(refs)
+    }
+
+    pub fn get_sequenced_references_for_note(
+        &self,
+        conn: &Connection,
+        note_id: &str,
+    ) -> Result<Vec<crate::kuzudb::domain::models::SequencedReference>> {
+        let mut prepared = conn.prepare(
+            "MATCH (:Note {id: $id})-[r:References]->(b:Note) RETURN b.id, r.sequence ORDER BY r.sequence",
+        )?;
+        let result = conn.execute(
+            &mut prepared,
+            vec![("id", Value::String(note_id.to_string()))],
+        )?;
+
+        let mut refs = Vec::new();
+        for row in result.into_iter() {
+            let ref_id = super::utils::extract_string(&row[0])
+                .ok_or(Error::Integrity("ref id missing".into()))?;
+            let sequence = match &row[1] {
+                Value::Int64(val) => *val,
+                _ => return Err(Error::Integrity("ref sequence is not i64".into())),
+            };
+            refs.push(crate::kuzudb::domain::models::SequencedReference {
+                note_id: ref_id,
+                sequence,
+            });
+        }
+        Ok(refs)
+    }
+}
+
+```
+
+```rs repository/utils.rs
+
+use chrono::{DateTime, Utc};
+use kuzu::{LogicalType, Value};
+use time::OffsetDateTime;
+
+pub fn option_string_to_value(opt_str: &Option<String>) -> Value {
+    match opt_str {
+        Some(s) => Value::String(s.clone()),
+        None => Value::Null(LogicalType::String),
+    }
+}
+
+pub fn chrono_to_odt(dt: &DateTime<Utc>) -> OffsetDateTime {
+    OffsetDateTime::from_unix_timestamp_nanos(dt.timestamp_nanos_opt().unwrap().into()).unwrap()
+}
+
+pub fn extract_string(v: &kuzu::Value) -> Option<String> {
+    match v {
+        kuzu::Value::String(s) => Some(s.clone()),
+        kuzu::Value::Null(_) => None,
+        _ => None,
+    }
+}
+pub fn extract_timestamp(v: &kuzu::Value) -> Option<chrono::DateTime<chrono::Utc>> {
+    match v {
+        kuzu::Value::Timestamp(dt) => {
+            let s = dt.to_string();
+            // "+00:00:00"을 "+00:00"으로 잘라서 정상 파싱
+            let s_fixed = if s.ends_with(":00") {
+                let len = s.len();
+                s[..len - 3].to_string()
+            } else {
+                s.clone()
+            };
+            let fmt = "%Y-%m-%d %H:%M:%S%.f %z";
+            match chrono::DateTime::parse_from_str(&s_fixed, fmt) {
+                Ok(dt) => Some(dt.with_timezone(&chrono::Utc)),
+                Err(e) => {
+                    eprintln!("PARSE FAIL : {}", e);
+                    None
+                }
+            }
+        }
+        kuzu::Value::String(s) => chrono::DateTime::parse_from_rfc3339(s)
+            .ok()
+            .map(|dt| dt.with_timezone(&chrono::Utc)),
+        v => {
+            eprintln!("WARN: 예기치 않은 timestamp 타입: {:?}", v);
+            None
+        }
+    }
+}
+
+```
+
+```rs service/mod.rs
+
+pub mod note;
+
+use crate::kuzudb::repository::KuzuDB;
+
+pub struct NoteService<'a> {
+    kuzudb: &'a KuzuDB,
+}
+
+impl<'a> NoteService<'a> {
+    pub fn new(kuzudb: &'a KuzuDB) -> Self {
+        Self { kuzudb }
+    }
+}
+
+```
+
+```rs service/note.rs
+
+use super::NoteService;
 use crate::kuzudb::{
     domain::models::{
         Author, Note, NoteAggregate, NoteCreateType, NoteUpdateType, Person, SequencedReference,
@@ -11,44 +1222,44 @@ use kuzu::Connection;
 use std::collections::HashMap;
 use uuid::Uuid;
 
-impl NoteService<'_> {
+impl<'a> NoteService<'a> {
     pub fn get_all_notes(&self) -> Result<Vec<NoteAggregate>> {
         let conn = Connection::new(&self.kuzudb.instance)?;
 
-        let all_data = self.kuzudb.nodes().get_all_notes_and_relations(&conn)?;
-        let notes = all_data.notes;
+        let (notes, child_of, first_child, next, prev, has_tag, references, authored) =
+            self.kuzudb.nodes().get_all_notes_and_relations(&conn)?;
 
         let mut aggregates: HashMap<String, NoteAggregate> = notes
             .into_iter()
             .map(|note| (note.id.clone(), note.into()))
             .collect();
 
-        for (child_id, parent_id) in all_data.child_of {
+        for (child_id, parent_id) in child_of {
             if let Some(agg) = aggregates.get_mut(&child_id) {
                 agg.parent = Some(parent_id);
             }
         }
-        for (parent_id, child_id) in all_data.first_child {
+        for (parent_id, child_id) in first_child {
             if let Some(agg) = aggregates.get_mut(&parent_id) {
                 agg.first_child = Some(child_id);
             }
         }
-        for (from_id, to_id) in all_data.next {
+        for (from_id, to_id) in next {
             if let Some(agg) = aggregates.get_mut(&from_id) {
                 agg.next = Some(to_id);
             }
         }
-        for (from_id, to_id) in all_data.prev {
+        for (from_id, to_id) in prev {
             if let Some(agg) = aggregates.get_mut(&from_id) {
                 agg.prev = Some(to_id);
             }
         }
-        for (note_id, tag_name) in all_data.has_tag {
+        for (note_id, tag_name) in has_tag {
             if let Some(agg) = aggregates.get_mut(&note_id) {
                 agg.tags.push(tag_name);
             }
         }
-        for (from_id, to_id, sequence) in all_data.references {
+        for (from_id, to_id, sequence) in references {
             if let Some(agg) = aggregates.get_mut(&from_id) {
                 agg.references.push(SequencedReference {
                     note_id: to_id,
@@ -56,7 +1267,7 @@ impl NoteService<'_> {
                 });
             }
         }
-        for (person_name, role, note_id) in all_data.authored {
+        for (person_name, role, note_id) in authored {
             if let Some(agg) = aggregates.get_mut(&note_id) {
                 agg.authors.push(Author {
                     name: person_name,
@@ -198,6 +1409,9 @@ impl NoteService<'_> {
             new_note.created_at = now;
             new_note.updated_at = now;
 
+            let nodes_api = self.kuzudb.nodes();
+            let relations_api = self.kuzudb.relations();
+
             if !nodes_api.is_exist(&conn, &parent_id)? {
                 return Err(Error::NoteNotFound(parent_id));
             }
@@ -217,16 +1431,16 @@ impl NoteService<'_> {
                     relations_api.link_next(&conn, &prev_id, &new_note_id)?;
                     relations_api.link_prev(&conn, &new_note_id, &prev_id)?;
                 }
-            } else if let Some(old_first_id) =
-                relations_api.get_first_child_id(&conn, &parent_id)?
-            {
-                relations_api.unlink_first_child(&conn, &parent_id)?;
-                relations_api.unlink_prev(&conn, &old_first_id)?;
-                relations_api.link_first_child(&conn, &parent_id, &new_note_id)?;
-                relations_api.link_next(&conn, &new_note_id, &old_first_id)?;
-                relations_api.link_prev(&conn, &old_first_id, &new_note_id)?;
             } else {
-                relations_api.link_first_child(&conn, &parent_id, &new_note_id)?;
+                if let Some(old_first_id) = relations_api.get_first_child_id(&conn, &parent_id)? {
+                    relations_api.unlink_first_child(&conn, &parent_id)?;
+                    relations_api.unlink_prev(&conn, &old_first_id)?;
+                    relations_api.link_first_child(&conn, &parent_id, &new_note_id)?;
+                    relations_api.link_next(&conn, &new_note_id, &old_first_id)?;
+                    relations_api.link_prev(&conn, &old_first_id, &new_note_id)?;
+                } else {
+                    relations_api.link_first_child(&conn, &parent_id, &new_note_id)?;
+                }
             }
 
             if !references.is_empty() {
@@ -539,22 +1753,6 @@ impl NoteService<'_> {
             }
         }
     }
-    pub fn run_integrity_checks(&self) -> Result<IntegrityReport> {
-        let conn = Connection::new(&self.kuzudb.instance)?;
-        let relations_api = self.kuzudb.relations();
-
-        let duplicate_next = relations_api.find_duplicate_next_relations(&conn)?;
-        let duplicate_prev = relations_api.find_duplicate_prev_relations(&conn)?;
-        let duplicate_first_child = relations_api.find_duplicate_first_child_relations(&conn)?;
-
-        let report = IntegrityReport {
-            duplicate_next_relations: duplicate_next,
-            duplicate_prev_relations: duplicate_prev,
-            duplicate_first_child_relations: duplicate_first_child,
-        };
-
-        Ok(report)
-    }
 }
 
 #[cfg(test)]
@@ -562,7 +1760,6 @@ mod tests {
     use super::*;
     use crate::kuzudb::domain::payloads::{create, update, AuthorPayload};
     use crate::kuzudb::{domain::schema, repository::KuzuDB};
-    use kuzu::Connection;
 
     fn setup_db() -> KuzuDB {
         let db = KuzuDB::new("").expect("In-memory DB creation failed");
@@ -1706,75 +2903,6 @@ mod tests {
             "BiblioCard 아래 HrCard 생성은 성공해야 합니다."
         );
     }
-
-    #[test]
-    fn test_integrity_check_detects_duplicate_relations() {
-        // 1. 준비 (Arrange): 테스트에 필요한 노드들을 생성합니다.
-        let db = setup_db();
-        let note_service = NoteService::new(&db);
-
-        let note_a_id = note_service
-            .create_new_note(NoteCreateType::Main(create::MainCard {
-                parent: "MAIN_BOX".to_string(),
-                title: "Node A".to_string(),
-                ..Default::default()
-            }))
-            .unwrap();
-
-        let note_b_id = note_service
-            .create_new_note(NoteCreateType::Main(create::MainCard {
-                parent: "MAIN_BOX".to_string(),
-                title: "Node B".to_string(),
-                ..Default::default()
-            }))
-            .unwrap();
-
-        let note_c_id = note_service
-            .create_new_note(NoteCreateType::Main(create::MainCard {
-                parent: "MAIN_BOX".to_string(),
-                title: "Node C".to_string(),
-                ..Default::default()
-            }))
-            .unwrap();
-
-        // 2. 실행 전 데이터 손상 (Act Part 1):
-        // 서비스 계층을 우회하여, 저수준 Repository API를 직접 호출함으로써
-        // 의도적으로 잘못된 데이터(A -> B 와 A -> C 라는 중복 Next 관계)를 만듭니다.
-        let conn = Connection::new(&db.instance).unwrap();
-        let relations_api = db.relations();
-        relations_api
-            .link_next(&conn, &note_a_id, &note_b_id)
-            .unwrap();
-        relations_api
-            .link_next(&conn, &note_a_id, &note_c_id)
-            .unwrap();
-
-        // 3. 실행 (Act Part 2): 데이터 정합성 검사를 실행합니다.
-        let report = note_service.run_integrity_checks().unwrap();
-
-        // 4. 검증 (Assert): 보고서에 손상된 데이터 정보가 정확히 포함되었는지 확인합니다.
-        assert!(
-            report.duplicate_prev_relations.is_empty(),
-            "Prev 관계는 중복이 없어야 합니다."
-        );
-        assert!(
-            report.duplicate_first_child_relations.is_empty(),
-            "FirstChild 관계는 중복이 없어야 합니다."
-        );
-
-        // 핵심 검증: `duplicate_next_relations`에 문제가 된 `note_a_id`가 포함되어야 합니다.
-        assert_eq!(
-            report.duplicate_next_relations.len(),
-            1,
-            "Next 관계 중복이 1건 발견되어야 합니다."
-        );
-        assert_eq!(
-            report.duplicate_next_relations[0].0, note_a_id,
-            "중복이 발견된 노트의 ID가 일치해야 합니다."
-        );
-        assert_eq!(
-            report.duplicate_next_relations[0].1, 2,
-            "중복된 Next 관계의 수가 2개여야 합니다."
-        );
-    }
 }
+```
+

@@ -1,57 +1,59 @@
-### **이전 계획 복기: 2단계 - '역할' 기능 추가**
+### **토의: GPT 피드백 검토 및 개선 계획**
 
-우리의 원래 계획은 다음과 같았습니다.
+GPT의 지적 사항들을 우선순위와 중요도에 따라 그룹화하여 실행 계획을 제안합니다.
 
-> 1단계('간단한 다중 저자')가 완료된 후, `Authored` 관계(Relationship)에 `role: STRING` 속성을 추가한다. 그리고 프론트엔드에서 노트를 생성/수정할 때 이 '역할'을 선택적으로 지정할 수 있도록 API(`payload`)를 확장한다.
->
-> 이때, 사용자가 역할을 지정하지 않으면 `role` 속성은 `NULL`(빈 값)로 저장되거나 'author' 같은 기본값으로 저장되도록 처리한다. 이렇게 하면 **기본 사용자는 역할을 신경 쓸 필요가 없고, 고급 사용자만 필요할 때 역할을 지정**할 수 있게 된다.
+#### **그룹 1: 즉시 수정해야 할 치명적인 설계 문제**
 
-이 계획의 핵심은 **하위 호환성을 유지하면서 점진적으로 기능을 확장**하는 것입니다.
+이 그룹은 현재 코드의 성능과 안정성에 직접적인 영향을 미치는 가장 시급한 문제입니다.
+
+*   **항목: DB 인스턴스 생명주기: Vault당 싱글턴 (GPT 지적 #7, #3-초기화 비용 제거)**
+    *   **문제점**: `initialize_vault_db` 함수가 모든 Tauri 커맨드(`create_note`, `get_all_notes` 등)에서 매번 호출됩니다. 이는 불필요한 I/O를 유발하여 성능을 저하시키고, GPT가 지적한 대로 향후 동시성 문제를 일으킬 수 있는 매우 위험한 구조입니다.
+    *   **해결 계획**:
+        1.  Tauri의 **상태 관리(State Management)** 기능을 도입합니다.
+        2.  `Vault`가 열릴 때(앱 시작 또는 Vault 변경 시), `KuzuDB` 인스턴스를 **단 한 번만 생성**합니다.
+        3.  생성된 `KuzuDB` 인스턴스를 `Arc<Mutex<KuzuDB>>` 또는 `Arc<KuzuDB>` 형태로 감싸 Tauri의 `AppHandle::manage`를 통해 전역 상태로 등록합니다. (`Mutex`는 향후 동시 쓰기를 대비한 것입니다.)
+        4.  모든 Tauri 커맨드 함수는 `initialize_vault_db`를 직접 호출하는 대신, `tauri::State<ManagedKuzuDB>`를 파라미터로 받아 이미 생성된 DB 인스턴스에 안전하게 접근하도록 시그니처를 변경합니다.
+    *   **기대 효과**: 성능이 크게 향상되고, DB 연결이 중앙에서 관리되어 안정성이 높아집니다.
+
+#### **그룹 2: 데이터 무결성 보장을 위한 검증 강화**
+
+이 그룹은 GPT가 지적한 '진짜 위험'들, 즉 데이터가 깨질 수 있는 가능성을 차단하는 작업입니다.
+
+*   **항목: 관계 단일성(Next/Prev/FirstChild) 자동 검사 (GPT 지적 #3)**
+    *   **문제점**: 현재 서비스 로직은 관계를 생성할 때 기존 관계를 삭제하는 방식으로 단일성을 보장하려 하지만, 버그가 있을 경우 중복 관계(예: 하나의 노트가 두 개의 `Next` 노드를 가짐)가 생성될 수 있습니다. DB 레벨에서는 이를 막아주지 않습니다.
+    *   **해결 계획**:
+        1.  GPT가 제안한 Cypher 쿼리들을 수행하는 **진단(diagnostics) 함수**를 `NoteService` 내에 새로 만듭니다. (예: `validate_relation_integrity()`)
+        2.  이 함수는 `Next`, `Prev`, `FirstChild` 관계가 중복으로 생성된 노트가 있는지 검사하여 결과를 반환합니다.
+        3.  이 함수를 검증하는 새로운 테스트 케이스를 추가합니다. (의도적으로 중복 관계를 만든 후, 진단 함수가 이를 잡아내는지 확인)
+
+*   **항목: References 시퀀스 중복/누락 점검 (GPT 지적 #4)**
+    *   **문제점**: `references` 배열을 업데이트하는 로직에 버그가 있다면, 동일한 노트에 대해 시퀀스 번호가 중복되거나(예: sequence 0이 두 개) 누락될 수 있습니다.
+    *   **해결 계획**: 위와 마찬가지로, 시퀀스의 중복 및 누락을 검사하는 Cypher 쿼리를 실행하는 진단 함수(`validate_reference_sequences()`)와 관련 테스트를 추가합니다.
+
+*   **항목: 테스트 보강 - 실패 케이스 (GPT 지적 #8)**
+    *   **문제점**: 현재는 규칙을 위반했을 때 `Err(Error::Integrity(_))`가 발생하는지만 확인합니다.
+    *   **해결 계획**: `assert_matches!` 매크로를 사용하여 반환된 에러의 내용까지 검증하도록 기존 테스트를 강화할 수 있습니다. (현재 테스트 수준도 충분히 좋으므로, 우선순위는 낮습니다.)
+
+#### **그룹 3: 장기적인 개선을 위한 리팩토링 및 마이그레이션**
+
+이 그룹은 당장 문제가 되지는 않지만, 향후 프로젝트의 유지보수성과 확장성을 위해 고려해야 할 사항들입니다.
+
+*   **항목: 스키마/타입 정리: `published_at` -> `TIMESTAMP` 사용 (GPT 지적 #6)**
+    *   **문제점**: `published_at`이 `STRING` 타입이라 날짜 기반의 정렬, 검색, 범위 조회가 비효율적이거나 불가능합니다.
+    *   **해결 계획**: 이는 **데이터베이스 마이그레이션**이 필요한 큰 작업입니다. 지금 당장 진행하기보다는, 별도의 작업 항목으로 등록하고 계획을 수립하는 것이 좋습니다.
+        1.  스키마를 `TIMESTAMP`로 변경합니다.
+        2.  기존 `STRING` 데이터를 `TIMESTAMP`로 변환하는 마이그레이션 로직을 작성합니다.
+        3.  `Note` 모델과 `Repository` 코드를 `chrono::DateTime`을 사용하도록 수정합니다.
+
+*   **항목: 동시성 스트레스 테스트 (GPT 지적 #5)**
+    *   **문제점**: 현재 앱은 단일 사용자 데스크톱 앱이므로 동시성 문제가 발생할 확률은 낮지만, 백그라운드 작업 등을 추가하면 문제가 될 수 있습니다.
+    *   **해결 계획**: **그룹 1의 싱글턴 DB 인스턴스 리팩토링이 완료된 후**에 진행할 수 있는 작업입니다. 멀티스레드 테스트를 작성하여 데이터 무결성이 깨지는지 확인하고, 필요하다면 `Mutex`를 사용하여 락(lock) 범위를 조절해야 합니다.
 
 ---
 
-### **토의: '역할' 기능 추가를 위한 구체적인 실행 계획**
+### **결론 및 다음 단계 제안**
 
-위 계획을 실제로 코드에 반영하기 위해, 다음과 같이 각 계층별 수정안을 제안합니다.
+GPT의 피드백은 매우 유용했으며, 우리 코드의 잠재적인 위험들을 명확히 보여주었습니다.
 
-#### **1단계: Domain 모델 수정 (`domain/models.rs`)**
-
-*   **`payloads` 수정 (입력 모델 변경):**
-    *   단순히 `Vec<String>`으로 저자 이름을 받던 것을, 이름과 역할을 함께 받을 수 있는 새로운 구조체로 변경합니다.
-    *   `payloads` 모듈 안에 `AuthorPayload { name: String, role: Option<String> }`와 같은 구조체를 정의합니다.
-    *   `payloads::create::BiblioCard`, `payloads::create::QuoteCard` 등의 `authors` 필드 타입을 `Vec<String>`에서 `Vec<AuthorPayload>`로 변경합니다. `update` 페이로드도 동일하게 변경합니다.
-*   **`NoteAggregate` 수정 (출력 모델 변경):**
-    *   UI에 저자 이름과 역할을 함께 전달하기 위해 `NoteAggregate`의 `authors` 필드도 변경합니다.
-    *   최상단에 `Author { name: String, role: Option<String> }` 구조체를 정의합니다.
-    *   `NoteAggregate`의 `authors` 필드 타입을 `Vec<String>`에서 `Vec<Author>`로 변경합니다.
-
-#### **2단계: 데이터베이스 스키마 및 Repository 수정**
-
-*   **`domain/schema.rs`:**
-    *   `create_schema` 함수에서 `Authored` 관계 테이블을 정의하는 쿼리를 수정하여 `role` 속성을 추가합니다.
-      ```cypher
-      // 기존
-      CREATE REL TABLE IF NOT EXISTS Authored(FROM Person TO Note);
-      // 변경
-      CREATE REL TABLE IF NOT EXISTS Authored(FROM Person TO Note, role STRING);
-      ```
-*   **`repository/relations.rs`:**
-    *   `link_person_to_note`: `role: Option<&str>` 파라미터를 추가로 받도록 시그니처를 변경합니다. Cypher 쿼리도 `SET r.role = $role` 구문을 추가하여 역할을 저장하도록 수정합니다.
-    *   `get_authors_for_note`: 반환 타입을 `Result<Vec<String>>`에서 `Result<Vec<Author>>` (또는 `Result<Vec<(String, Option<String>)>>`)로 변경하고, 쿼리에서 `p.name`과 함께 `r.role`도 가져오도록 수정합니다.
-*   **`repository/nodes.rs`:**
-    *   `get_all_notes_and_relations`: `Authored` 관계를 가져오는 쿼리를 수정하여 `role` 속성까지 함께 가져옵니다. 반환 튜플의 타입도 `Vec<(String, String)>`에서 `Vec<(String, Option<String>, String)>` (person_name, role, note_id)으로 변경합니다.
-
-#### **3단계: Service 비즈니스 로직 수정 (`service/note.rs`)**
-
-*   **`create_new_note` / `update_note`:**
-    *   변경된 `AuthorPayload` 벡터를 순회하면서, `link_person_to_note`를 호출할 때 `role` 정보를 함께 넘겨주도록 로직을 수정합니다.
-*   **`get_all_notes` / `get_note_aggregate_by_id`:**
-    *   `role` 정보까지 반환하는 새로운 리포지토리 함수를 호출하고, 그 결과를 `NoteAggregate`의 `authors: Vec<Author>` 필드에 맞게 채워 넣도록 로직을 수정합니다.
-
-#### **4. 테스트 코드 수정 (`service/note.rs`의 `#[cfg(test)]`)**
-
-*   `BiblioCard`와 `QuoteCard`를 생성하는 모든 테스트에서, `authors` 필드에 `AuthorPayload` 구조체를 사용하도록 수정합니다.
-*   일부 테스트에서는 `role`을 `Some("주 저자".to_string())`로 지정하고, 다른 테스트에서는 `None`으로 두어 두 가지 경우를 모두 검증합니다.
-*   결과를 검증하는 `assert_eq!` 구문에서, `NoteAggregate`의 `authors` 필드가 `Author` 구조체의 벡터와 일치하는지 확인하도록 수정합니다.
-
+저는 **그룹 1의 "DB 인스턴스 싱글턴으로 만들기"**를 최우선 과제로 진행하는 것을 강력히 제안합니다. 이것은 다른 모든 개선(특히 동시성)의 기반이 되는 가장 중요한 아키텍처 리팩토링입니다.
 

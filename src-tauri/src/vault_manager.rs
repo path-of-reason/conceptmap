@@ -1,19 +1,19 @@
+use crate::app_state::AppState;
+use crate::kuzudb::{domain::schema, repository::KuzuDB};
 use serde::Serialize;
 use serde_json::{json, Value};
+use std::{
+    fs,
+    path::Path,
+    sync::{Arc, Mutex},
+};
 use tauri::AppHandle;
+use tauri::State;
 use tauri_plugin_store::StoreExt;
 
 pub const STORE_FILE: &str = "store.json";
 pub const CURRENT_VAULT_KEY: &str = "current_vault";
 pub const VAULTS_KEY: &str = "vaults";
-
-pub fn get_current_vault_path(app: &AppHandle) -> Result<String, String> {
-    let store = app.store(STORE_FILE).map_err(|e| e.to_string())?;
-    store
-        .get(CURRENT_VAULT_KEY)
-        .and_then(|v| v.as_str().map(|s| s.to_string()))
-        .ok_or_else(|| "현재 선택된 Vault가 없습니다.".to_string())
-}
 
 #[derive(Serialize)]
 pub struct VaultsAndCurrent {
@@ -98,6 +98,7 @@ pub fn load_vaults(app: AppHandle) -> Result<Vec<String>, String> {
 }
 
 #[tauri::command]
+// 앱 초기화시 실행됨
 pub fn load_vaults_and_current(app: AppHandle) -> Result<VaultsAndCurrent, String> {
     let store = app
         .store(STORE_FILE)
@@ -118,11 +119,13 @@ pub fn load_vaults_and_current(app: AppHandle) -> Result<VaultsAndCurrent, Strin
 }
 
 #[tauri::command]
-pub fn set_current_vault(app: AppHandle, path: String) -> Result<(), String> {
-    let store = app
-        .store(STORE_FILE)
-        .map_err(|e| format!("store open: {e}"))?;
-    let arr: Vec<String> = match store.get(VAULTS_KEY) {
+pub fn set_current_vault(
+    app: AppHandle,
+    app_state: State<Arc<Mutex<AppState>>>,
+    path: String,
+) -> Result<(), String> {
+    let store = app.store(STORE_FILE).map_err(|e| e.to_string())?;
+    let arr: Vec<String> = match store.get("vaults") {
         Some(Value::Array(vals)) => vals
             .into_iter()
             .filter_map(|v| v.as_str().map(|s| s.to_string()))
@@ -130,17 +133,35 @@ pub fn set_current_vault(app: AppHandle, path: String) -> Result<(), String> {
         _ => vec![],
     };
     let trimmed = path.trim();
-    // 등록된 vault 목록 내에 있을 때만 current_vault 지정
+
     if arr.contains(&trimmed.to_string()) {
-        store.set(CURRENT_VAULT_KEY, json!(trimmed));
-        store.save().map_err(|e| format!("save error: {e}"))?;
+        println!(
+            "Switching active vault and re-initializing DB for path: {}",
+            trimmed
+        );
+
+        let db_path = Path::new(trimmed).join(".config").join("kuzu.db");
+        if let Some(parent) = db_path.parent() {
+            fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+        }
+        let kuzudb_instance = KuzuDB::new(db_path.to_str().unwrap()).map_err(|e| e.to_string())?;
+        schema::initialize(&kuzudb_instance).map_err(|e| e.to_string())?;
+
+        let mut state = app_state.lock().unwrap();
+        state.kuzudb = Some(kuzudb_instance);
+        println!("DB instance successfully switched and set in AppState.");
+        store.set("current_vault", json!(trimmed));
+        store.save().map_err(|e| e.to_string())?;
         Ok(())
     } else {
         Err("해당 vault가 목록에 없습니다.".into())
     }
 }
-
 #[tauri::command]
 pub fn get_current_vault(app: AppHandle) -> Result<Option<String>, String> {
-    Ok(get_current_vault_path(&app).ok())
+    let store = app.store(STORE_FILE).map_err(|e| e.to_string())?;
+    let path = store
+        .get(CURRENT_VAULT_KEY)
+        .and_then(|v| v.as_str().map(|s| s.to_string()));
+    Ok(path)
 }
